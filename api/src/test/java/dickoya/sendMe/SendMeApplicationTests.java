@@ -1,13 +1,11 @@
-package dickoya.sendMe.sendMe;
+﻿package dickoya.sendMe;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class SendMeApplicationTests {
-
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }
