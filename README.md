@@ -1,5 +1,5 @@
 # sendMe
-s
+
 # SendMe — Backend API
 
 > Passerelle de transfert d'argent direct multi-canaux  
