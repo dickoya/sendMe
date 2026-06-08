@@ -1,4 +1,4 @@
-package Ibra.dickoya.sendMe;
+package ibrahima.dickoya.sendme;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
