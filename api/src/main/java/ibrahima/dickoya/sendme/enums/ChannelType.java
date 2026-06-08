@@ -1,4 +1,4 @@
-package ibrahima.dickoya.sendme.Enum;
+package ibrahima.dickoya.sendme.enums;
 
 public enum ChannelType {
     BANK_TRANSFER,

@@ -1,4 +1,4 @@
-package ibrahima.dickoya.sendme.Exception;
+package ibrahima.dickoya.sendme.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

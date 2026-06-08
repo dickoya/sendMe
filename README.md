@@ -1,5 +1,5 @@
 # sendMe
-
+s
 # SendMe — Backend API
 
 > Passerelle de transfert d'argent direct multi-canaux  
@@ -71,7 +71,7 @@ sendme-backend/
 
 Avant de lancer le projet, assure-toi d'avoir installé :
 
-- [Java 17+](https://adoptium.net/)
+- [Java 21+](https://adoptium.net/)
 - [Maven 3.8+](https://maven.apache.org/)
 - [MySQL 8+](https://dev.mysql.com/downloads/)
 - [Git](https://git-scm.com/)
@@ -83,8 +83,8 @@ Avant de lancer le projet, assure-toi d'avoir installé :
 ### 1. Cloner le dépôt
 
 ```bash
-git clone https://github.com/ton-username/sendme-backend.git
-cd sendme-backend
+git clone https://github.com/dickoya/sendMe.git
+cd sendme\api
 ```
 
 ### 2. Créer la base de données MySQL
