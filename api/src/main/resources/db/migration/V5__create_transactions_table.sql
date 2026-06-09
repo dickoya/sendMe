@@ -8,7 +8,7 @@ CREATE TABLE transactions (
                               exchange_rate DECIMAL(10,6),
                               fees DECIMAL(10,2),
                               status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
-                              channel VARCHAR(30) NOT NULL,
+                              channel ENUM('BANK_TRANSFER', 'ORANGE_MONEY', 'MTN_MOBILE_MONEY', 'WAVE', 'MOOV_MONEY', 'AIRTEL_MONEY') NOT NULL,
                               idempotency_key VARCHAR(100) UNIQUE,
                               sender_id BIGINT NOT NULL,
                               beneficiary_id BIGINT NOT NULL,
