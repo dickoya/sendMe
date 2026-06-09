@@ -1,0 +1,33 @@
+### 2. Teste dans Postman — Créer un bénéficiaire Mobile Money :
+POST http://localhost:8080/api/beneficiaries
+Authorization: Bearer <eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpYnJhaGltYUBzZW5kbWUuY29tIiwiaWF0IjoxNzgxMDE5MDA2LCJleHAiOjE3ODExMDU0MDZ9.8EpzYtv0GU-yqO-sdN9PZ_LX3i_GMKbAGuFrUNcZnU8>
+Content-Type: application/json
+
+{
+  "firstName": "Mamadou",
+  "lastName": "Diallo",
+  "channel": "ORANGE_MONEY",
+  "mobileDetails": {
+    "phoneNumber": "+224620000001"
+  }
+}
+
+### 3. Teste — Créer un bénéficiaire bancaire :
+POST http://localhost:8080/api/beneficiaries
+Authorization: Bearer <eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpYnJhaGltYUBzZW5kbWUuY29tIiwiaWF0IjoxNzgxMDE5MDA2LCJleHAiOjE3ODExMDU0MDZ9.8EpzYtv0GU-yqO-sdN9PZ_LX3i_GMKbAGuFrUNcZnU8>
+Content-Type: application/json
+
+{
+  "firstName": "Fatou",
+  "lastName": "Kone",
+  "channel": "BANK_TRANSFER",
+  "bankDetails": {
+    "bankName": "Societe Generale",
+    "iban": "FR7630006000011234567890189",
+    "bic": "BNPAFRPPXXX"
+  }
+}
+
+### 4. Teste — Lister les bénéficiaires :
+GET http://localhost:8080/api/beneficiaries
+Authorization: Bearer <eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpYnJhaGltYUBzZW5kbWUuY29tIiwiaWF0IjoxNzgxMDE5MDA2LCJleHAiOjE3ODExMDU0MDZ9.8EpzYtv0GU-yqO-sdN9PZ_LX3i_GMKbAGuFrUNcZnU8>

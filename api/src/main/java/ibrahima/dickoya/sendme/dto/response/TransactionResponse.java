@@ -7,11 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * DTO de réponse pour une transaction.
- *
- * Retourné après création d'un transfert ou consultation de l'historique.
- * Contient toutes les informations nécessaires pour afficher le détail
- * d'une transaction dans l'interface utilisateur.
+ * DTO de réponse complet pour une transaction avec informations Stripe.
  */
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class TransactionResponse {
@@ -20,19 +16,18 @@ public class TransactionResponse {
     private Long id;
 
     /**
-     * Référence unique et immuable de la transaction.
+     * Référence unique de la transaction.
      * Format : TXN-YYYYMMDD-XXXX
-     * Exemple : TXN-20250601-0042
      */
     private String reference;
 
-    /** Montant envoyé par l'expéditeur. */
+    /** Montant envoyé. */
     private BigDecimal amountSent;
 
     /** Devise d'envoi. */
     private String currencySent;
 
-    /** Montant reçu par le bénéficiaire après conversion. */
+    /** Montant reçu par le bénéficiaire. */
     private BigDecimal amountReceived;
 
     /** Devise de réception. */
@@ -41,24 +36,38 @@ public class TransactionResponse {
     /** Taux de change appliqué. */
     private BigDecimal exchangeRate;
 
-    /** Frais prélevés par la plateforme. */
+    /** Frais prélevés. */
     private BigDecimal fees;
 
     /**
-     * Statut actuel de la transaction.
-     * Valeurs : PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
+     * Statut de la transaction.
+     * PENDING → PROCESSING → COMPLETED / FAILED / REFUNDED
      */
     private TransactionStatus status;
 
-    /** Canal de réception utilisé. */
+    /** Canal de réception. */
     private ChannelType channel;
+
+    /**
+     * Identifiant du PaymentIntent Stripe.
+     * Format : pi_XXXXXXXXXXXXXXXXXXXXXXXX
+     * Permet de retrouver le paiement dans le dashboard Stripe.
+     */
+    private String stripePaymentIntentId;
+
+    /**
+     * Statut du paiement Stripe.
+     * Valeurs : requires_payment_method, requires_confirmation,
+     *           requires_action, processing, succeeded, canceled
+     */
+    private String stripePaymentStatus;
 
     /** Informations sur le bénéficiaire. */
     private BeneficiaryResponse beneficiary;
 
-    /** Date et heure de création de la transaction. */
+    /** Date de création. */
     private LocalDateTime createdAt;
 
-    /** Date et heure de la dernière mise à jour du statut. */
+    /** Date de dernière mise à jour. */
     private LocalDateTime updatedAt;
 }

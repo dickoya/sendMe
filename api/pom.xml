@@ -123,6 +123,13 @@
 			<artifactId>flyway-mysql</artifactId>
 		</dependency>
 
+		<!-- Stripe SDK — intégration paiement par carte bancaire -->
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>25.3.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

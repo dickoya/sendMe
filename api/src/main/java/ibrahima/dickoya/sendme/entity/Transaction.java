@@ -72,4 +72,20 @@ public class Transaction {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * Identifiant du PaymentIntent Stripe.
+     * Généré lors de la création du paiement côté Stripe.
+     * Permet de retrouver et rembourser le paiement si nécessaire.
+     * Format : pi_XXXXXXXXXXXXXXXXXXXXXXXX
+     */
+    @Column(name = "stripe_payment_intent_id")
+    private String stripePaymentIntentId;
+
+    /**
+     * Statut du paiement retourné par Stripe.
+     * Valeurs possibles : requires_confirmation, processing, succeeded, canceled
+     */
+    @Column(name = "stripe_payment_status")
+    private String stripePaymentStatus;
 }
