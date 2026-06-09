@@ -1,4 +1,9 @@
 # sendMe
+L'objectif principal est de concevoir et développer une application web Full-Stack 
+permettant à un utilisateur authentifié d'initier un transfert d'argent par carte bancaire. 
+Le système route instantanément les fonds vers le canal final choisi par 
+l'utilisateur (virement bancaire ou opérateur Mobile Money) sans stocker d'argent sur la 
+plateforme.
 
 # SendMe — Backend API
 
@@ -25,24 +30,26 @@ authentifié d'envoyer de l'argent depuis sa carte bancaire vers :
 
 ---
 
-## 🛠️ Stack technique
+##  Stack technique
 
-| Couche        | Technologie                     |
-|---------------|---------------------------------|
-| Langage       | Java 17                         |
-| Framework     | Spring Boot 3.2.x               |
-| Sécurité      | Spring Security + JWT (jjwt)    |
-| Persistance   | Spring Data JPA + Hibernate     |
-| Base de données | MySQL 8+                      |
-| Migrations    | Flyway                          |
-| Build         | Maven                           |
-| Tests         | JUnit 5 + Mockito               |
-| Documentation | Swagger / OpenAPI 3             |
+| Couche        | Technologie                  |
+|---------------|------------------------------|
+| Langage       | Java 21                      |
+| Framework     | Spring Boot 4.0.6            |
+| Sécurité      | Spring Security + JWT (jjwt) |
+| Persistance   | Spring Data JPA + Hibernate  |
+| Base de données | MySQL 8+                     |
+| Migrations    | Flyway                       |
+| Build         | Maven                        |
+| Tests         | JUnit 5 + Mockito            |
+| Documentation | Swagger / OpenAPI 3          |
 
 ---
 
-## 📁 Structure du projet
-sendme-backend/
+##  Structure du projet
+sendme
+|
+api
 ├── src/
 │   ├── main/
 │   │   ├── java/com/tfe/sendme/
@@ -60,14 +67,17 @@ sendme-backend/
 │   │       ├── db/migration/    # Scripts Flyway (V1__, V2__...)
 │   │       └── application.properties
 │   └── test/
-├── .env.example
-├── .gitignore
-├── pom.xml
-└── README.md
+│   ├── .env.dev
+│   └── pom.xml
+│
+├── README.md   
+├── mobile
+├── web
+└── .gitignore
 
 ---
 
-## ⚙️ Prérequis
+##  Prérequis
 
 Avant de lancer le projet, assure-toi d'avoir installé :
 
@@ -78,7 +88,7 @@ Avant de lancer le projet, assure-toi d'avoir installé :
 
 ---
 
-## 🚀 Installation & Lancement
+##  Installation & Lancement
 
 ### 1. Cloner le dépôt
 
@@ -121,7 +131,7 @@ La documentation Swagger sera sur : `http://localhost:8080/swagger-ui.html`
 
 ---
 
-## 🔐 Variables d'environnement
+##  Variables d'environnement
 
 | Variable       | Description                              | Exemple                        |
 |----------------|------------------------------------------|--------------------------------|
@@ -130,11 +140,11 @@ La documentation Swagger sera sur : `http://localhost:8080/swagger-ui.html`
 | `DB_PASSWORD`  | Mot de passe MySQL                       | `monmotdepasse`                |
 | `JWT_SECRET`   | Clé secrète pour signer les tokens JWT   | `cle_min_32_caracteres`        |
 
-> ⚠️ Ne jamais commiter le fichier `.env` — il est dans le `.gitignore`
+>  Ne jamais commiter le fichier `.env` — il est dans le `.gitignore`
 
 ---
 
-## 📡 Endpoints API (aperçu)
+##  Endpoints API (aperçu)
 
 | Méthode | Endpoint                        | Description                  | Auth       |
 |---------|---------------------------------|------------------------------|------------|
@@ -150,7 +160,7 @@ La documentation Swagger sera sur : `http://localhost:8080/swagger-ui.html`
 
 ---
 
-## 🌿 Branches Git
+##  Branches Git
 
 | Branche                         | Description                        |
 |---------------------------------|------------------------------------|
@@ -168,7 +178,7 @@ La documentation Swagger sera sur : `http://localhost:8080/swagger-ui.html`
 
 ---
 
-## 🧪 Tests
+##  Tests
 
 ```bash
 # Lancer tous les tests
@@ -180,7 +190,7 @@ mvn test -Dtest=AuthServiceTest
 
 ---
 
-## 👤 Auteur
+##  Auteur
 
 **[Ton Nom Complet]**  
 TFE — [Nom de ton école]  
@@ -189,6 +199,6 @@ Promoteur : [Nom du promoteur]
 
 ---
 
-## 📄 Licence
+##  Licence
 
 Projet académique — tous droits réservés.

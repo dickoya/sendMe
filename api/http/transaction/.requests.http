@@ -1,0 +1,28 @@
+
+### 1. Simuler un transfert :
+POST http://localhost:8080/api/transfers/simulate
+Content-Type: application/json
+
+{
+  "amount": 200.00,
+  "currencyFrom": "EUR",
+  "currencyTo": "XOF",
+  "channel": "ORANGE_MONEY"
+}
+
+
+###  2. Initier un transfert :
+POST http://localhost:8080/api/transfers
+Authorization: Bearer <ton_access_token>
+Content-Type: application/json
+
+{
+"amount": 200.00,
+"currency": "EUR",
+"beneficiaryId": 1,
+"idempotencyKey": "550e8400-e29b-41d4-a716-446655440000"
+}
+
+### 3. Voir l'historique :
+GET http://localhost:8080/api/transactions?page=0&size=10
+Authorization: Bearer <ton_access_token>
