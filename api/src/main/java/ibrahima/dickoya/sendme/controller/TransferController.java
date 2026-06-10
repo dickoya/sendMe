@@ -2,6 +2,7 @@ package ibrahima.dickoya.sendme.controller;
 
 import ibrahima.dickoya.sendme.dto.request.*;
 import ibrahima.dickoya.sendme.dto.response.*;
+import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,12 @@ public class TransferController {
 
     /** Service principal des transferts. */
     private final TransferService transferService;
+
+    // Modification A : C'est ici qu'il faut l'ajouter !
+    /** Service de génération des reçus PDF. */
+    private final ReceiptPdfService receiptPdfService;
+
+
 
     /**
      * Simule un transfert et retourne le récapitulatif complet.
@@ -119,5 +126,70 @@ public class TransferController {
 
         return ResponseEntity.ok(
                 ApiResponse.success("Detail de la transaction", response));
+    }
+    /**
+     * Télécharge le reçu PDF d'une transaction par son identifiant.
+     *
+     * Retourne un fichier PDF avec les headers HTTP appropriés
+     * pour déclencher le téléchargement dans le navigateur.
+     *
+     * Headers retournés :
+     * - Content-Type: application/pdf
+     * - Content-Disposition: attachment; filename="recu-TXN-XXX.pdf"
+     *
+     * @param id          identifiant de la transaction
+     * @param userDetails utilisateur connecté
+     * @return ResponseEntity avec le contenu PDF en bytes
+     */
+    @GetMapping("/api/transactions/{id}/receipt")
+    public ResponseEntity<byte[]> downloadReceipt(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // Récupérer la transaction (avec vérification de propriété)
+        Transaction transaction = transferService
+                .getEntityById(id, userDetails.getUsername());
+
+        // Générer le PDF
+        byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
+
+        // Construire le nom de fichier
+        String filename = "recu-" + transaction.getReference() + ".pdf";
+
+        // Retourner le PDF avec les bons headers HTTP
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CONTENT_LENGTH,
+                        String.valueOf(pdfBytes.length))
+                .body(pdfBytes);
+    }
+
+    /**
+     * Prévisualise le reçu PDF dans le navigateur (sans téléchargement).
+     * Utilise Content-Disposition: inline au lieu de attachment.
+     *
+     * @param id          identifiant de la transaction
+     * @param userDetails utilisateur connecté
+     * @return ResponseEntity avec le contenu PDF en bytes
+     */
+    @GetMapping("/api/transactions/{id}/receipt/preview")
+    public ResponseEntity<byte[]> previewReceipt(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        Transaction transaction = transferService
+                .getEntityById(id, userDetails.getUsername());
+
+        byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
+        String filename = "recu-" + transaction.getReference() + ".pdf";
+
+        // inline = s'ouvre dans le navigateur, pas de téléchargement forcé
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + filename + "\"")
+                .body(pdfBytes);
     }
 }

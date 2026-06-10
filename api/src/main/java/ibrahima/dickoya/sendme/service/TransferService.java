@@ -236,7 +236,7 @@ public class TransferService {
 
         } else {
 
-            // ❌ Transfert échoué → Rembourser Stripe + notifier (RG-04)
+            //  Transfert échoué → Rembourser Stripe + notifier (RG-04)
             log.error("Strategie echouee : {}. Remboursement en cours...",
                     result.getMessage());
 
@@ -384,6 +384,59 @@ public class TransferService {
             case "BANK_TRANSFER" -> "EUR";
             default              -> "XOF";
         };
+    }
+
+    /**
+     * Récupère l'entité Transaction brute par son identifiant.
+     * Utilisé par le contrôleur pour générer le PDF
+     * (le service PDF a besoin de l'entité, pas du DTO).
+     *
+     * @param id        identifiant de la transaction
+     * @param userEmail email de l'utilisateur connecté
+     * @return Transaction l'entité complète
+     */
+    public Transaction getEntityById(Long id, String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Utilisateur non trouve : " + userEmail));
+
+        Transaction transaction = transactionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Transaction non trouvee : " + id));
+
+        if (!transaction.getSender().getId().equals(user.getId())) {
+            throw new TransferException("Acces refuse a cette transaction");
+        }
+
+        return transaction;
+    }
+    /**
+     * Récupère une transaction par sa référence unique.
+     * Utilisé pour générer le reçu PDF depuis la référence
+     * affichée dans l'interface utilisateur.
+     *
+     * @param reference référence de la transaction (TXN-YYYYMMDD-XXXX)
+     * @param userEmail email de l'utilisateur connecté
+     * @return TransactionResponse le détail
+     */
+    public Transaction getEntityByReference(String reference, String userEmail) {
+
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Utilisateur non trouve : " + userEmail));
+
+        Transaction transaction = transactionRepository
+                .findByReference(reference)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Transaction non trouvee : " + reference));
+
+        // Sécurité : vérifier que la transaction appartient à l'utilisateur
+        if (!transaction.getSender().getId().equals(user.getId())) {
+            throw new TransferException("Acces refuse a cette transaction");
+        }
+
+        return transaction;
     }
 
     /**
