@@ -5,6 +5,10 @@ import ibrahima.dickoya.sendme.dto.response.NotificationResponse;
 import ibrahima.dickoya.sendme.repository.UserRepository;
 import ibrahima.dickoya.sendme.service.NotificationService;
 import ibrahima.dickoya.sendme.service.SseEmitterService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,119 +21,111 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Contrôleur REST gérant les endpoints des notifications.
- *
- * Routes disponibles :
- * GET  /api/notifications/stream     → flux SSE temps réel
- * GET  /api/notifications            → liste historique
- * GET  /api/notifications/unread-count → badge de notifications
- * PUT  /api/notifications/{id}/read  → marquer une comme lue
- * PUT  /api/notifications/read-all   → tout marquer comme lu
- *
- * Le flux SSE utilise MediaType.TEXT_EVENT_STREAM_VALUE
- * qui est le Content-Type standard pour SSE.
+ * Contrôleur REST pour la gestion des notifications.
  */
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
+@Tag(
+        name = "Notifications",
+        description = """
+        Gestion des notifications en temps réel via SSE (Server-Sent Events).
+        
+        **Connexion SSE :**
+```javascript
+        const eventSource = new EventSource(
+            'http://localhost:8080/api/notifications/stream',
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        eventSource.addEventListener('TRANSFER_COMPLETED', (e) => {
+            const notif = JSON.parse(e.data);
+            showToast(notif.message);
+        });
+```
+        
+        **Événements disponibles :**
+        - `TRANSFER_INITIATED` — transfert créé
+        - `TRANSFER_COMPLETED` — transfert réussi
+        - `TRANSFER_FAILED` — transfert échoué
+        - `TRANSFER_REFUNDED` — remboursement effectué
+        - `PAYMENT_CONFIRMED` — paiement Stripe confirmé
+        """
+)
 public class NotificationController {
 
     private final NotificationService notificationService;
     private final SseEmitterService sseEmitterService;
     private final UserRepository userRepository;
 
-    /**
-     * Ouvre un flux SSE pour recevoir les notifications en temps réel.
-     *
-     * Le frontend appelle cet endpoint une seule fois au démarrage
-     * et reste connecté. Spring envoie les événements au fil de l'eau.
-     *
-     * Côté frontend (React) :
-     * const eventSource = new EventSource('/api/notifications/stream', {
-     *     headers: { Authorization: `Bearer ${token}` }
-     * });
-     * eventSource.addEventListener('TRANSFER_COMPLETED', (e) => {
-     *     const notif = JSON.parse(e.data);
-     *     showToast(notif.message);
-     * });
-     *
-     * @param userDetails utilisateur connecté extrait du JWT
-     * @return SseEmitter la connexion SSE persistante
-     */
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(
+            summary = "Flux SSE temps réel",
+            description = """
+            Ouvre une connexion SSE persistante pour recevoir les notifications
+            en temps réel. La connexion reste ouverte indéfiniment.
+            
+            **À appeler une seule fois** au démarrage du frontend.
+            Les événements arrivent automatiquement sans polling.
+            """
+    )
     public SseEmitter stream(
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        // Récupérer l'ID de l'utilisateur pour indexer son émetteur SSE
         var user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow();
-
         return sseEmitterService.createEmitter(user.getId());
     }
 
-    /**
-     * Retourne la liste complète des notifications de l'utilisateur.
-     * Triées par date décroissante.
-     *
-     * @param userDetails utilisateur connecté
-     * @return 200 OK avec la liste des notifications
-     */
     @GetMapping
+    @Operation(
+            summary = "Historique des notifications",
+            description = "Retourne toutes les notifications de l'utilisateur, " +
+                    "triées par date décroissante."
+    )
     public ResponseEntity<ApiResponse<List<NotificationResponse>>> getAll(
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        List<NotificationResponse> notifications =
-                notificationService.findAllByUser(userDetails.getUsername());
-
+        var notifications = notificationService
+                .findAllByUser(userDetails.getUsername());
         return ResponseEntity.ok(
                 ApiResponse.success("Liste des notifications", notifications));
     }
 
-    /**
-     * Retourne le nombre de notifications non lues.
-     * Utilisé pour afficher le badge rouge dans la navbar.
-     *
-     * @param userDetails utilisateur connecté
-     * @return 200 OK avec le nombre de non lues
-     */
     @GetMapping("/unread-count")
+    @Operation(
+            summary = "Nombre de notifications non lues",
+            description = "Retourne le nombre de notifications non lues. " +
+                    "Utilisé pour afficher le badge rouge dans la navbar."
+    )
     public ResponseEntity<ApiResponse<Map<String, Long>>> countUnread(
             @AuthenticationPrincipal UserDetails userDetails) {
-
         Long count = notificationService.countUnread(userDetails.getUsername());
-
         return ResponseEntity.ok(
-                ApiResponse.success("Nombre de non lues",
+                ApiResponse.success("Notifications non lues",
                         Map.of("unreadCount", count)));
     }
 
-    /**
-     * Marque une notification spécifique comme lue.
-     *
-     * @param id          identifiant de la notification
-     * @param userDetails utilisateur connecté
-     * @return 200 OK
-     */
     @PutMapping("/{id}/read")
+    @Operation(
+            summary = "Marquer une notification comme lue",
+            description = "Marque une notification spécifique comme lue. " +
+                    "Le badge rouge diminue d'une unité."
+    )
     public ResponseEntity<ApiResponse<Void>> markAsRead(
+            @Parameter(description = "Identifiant de la notification", required = true)
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-
         notificationService.markAsRead(id, userDetails.getUsername());
         return ResponseEntity.ok(
-                ApiResponse.success("Notification marquée comme lue", null));
+                ApiResponse.success("Notification marquee comme lue", null));
     }
 
-    /**
-     * Marque toutes les notifications de l'utilisateur comme lues.
-     *
-     * @param userDetails utilisateur connecté
-     * @return 200 OK
-     */
     @PutMapping("/read-all")
+    @Operation(
+            summary = "Tout marquer comme lu",
+            description = "Marque toutes les notifications comme lues. " +
+                    "Le badge rouge disparaît complètement."
+    )
     public ResponseEntity<ApiResponse<Void>> markAllAsRead(
             @AuthenticationPrincipal UserDetails userDetails) {
-
         notificationService.markAllAsRead(userDetails.getUsername());
         return ResponseEntity.ok(
                 ApiResponse.success("Toutes les notifications lues", null));

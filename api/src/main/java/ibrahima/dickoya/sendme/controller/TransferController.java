@@ -4,6 +4,11 @@ import ibrahima.dickoya.sendme.dto.request.*;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.service.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -13,183 +18,183 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Contrôleur REST gérant les endpoints des transferts et transactions.
- *
- * Routes disponibles :
- * POST /api/transfers/simulate → simuler frais + taux de change
- * POST /api/transfers          → initier un transfert
- * GET  /api/transactions       → historique paginé
- * GET  /api/transactions/{id}  → détail d'une transaction
- *
- * Toutes les routes nécessitent un JWT valide.
+ * Contrôleur REST pour les transferts et l'historique des transactions.
  */
 @RestController
 @RequiredArgsConstructor
+@Tag(
+        name = "Transferts & Transactions",
+        description = """
+        Gestion complète des transferts d'argent et de l'historique.
+        
+        **Flux de transfert :**
+        1. Simuler (`POST /api/transfers/simulate`) — voir les frais avant de payer
+        2. Transférer (`POST /api/transfers`) — débiter la carte et envoyer
+        3. Consulter (`GET /api/transactions`) — voir l'historique
+        4. Télécharger le reçu (`GET /api/transactions/{id}/receipt`)
+        
+        JWT requis pour tous les endpoints.
+        """
+)
 public class TransferController {
 
-    /** Service de simulation des frais et taux de change. */
     private final SimulatorService simulatorService;
-
-    /** Service principal des transferts. */
     private final TransferService transferService;
-
-    // Modification A : C'est ici qu'il faut l'ajouter !
-    /** Service de génération des reçus PDF. */
     private final ReceiptPdfService receiptPdfService;
 
-
-
-    /**
-     * Simule un transfert et retourne le récapitulatif complet.
-     * Appelé en temps réel à chaque modification du montant côté frontend.
-     *
-     * @param request   montant, devises et canal
-     * @return 200 OK avec le récapitulatif (frais, taux, montant reçu)
-     */
     @PostMapping("/api/transfers/simulate")
-    public ResponseEntity<ApiResponse<SimulateResponse>> simulate(
-            @Valid @RequestBody SimulateRequest request) {
-
-        SimulateResponse response = simulatorService.simulate(request);
+    @Operation(
+            summary = "Simuler les frais d'un transfert",
+            description = """
+            Calcule et retourne le récapitulatif complet avant confirmation :
+            - Frais de la plateforme (1.5%)
+            - Taux de change appliqué
+            - Montant exact reçu par le bénéficiaire
+            - Total débité sur la carte
+            
+            **Appelé en temps réel** à chaque modification du montant côté frontend.
+            Ne crée aucune transaction, aucun débit.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Simulation calculée avec succès"),
+            @ApiResponse(responseCode = "400", description = "Données invalides")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<SimulateResponse>>
+    simulate(@Valid @RequestBody SimulateRequest request) {
+        var response = simulatorService.simulate(request);
         return ResponseEntity.ok(
-                ApiResponse.success("Simulation effectuee", response));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Simulation effectuee", response));
     }
 
-    /**
-     * Initie un nouveau transfert d'argent.
-     *
-     * Le header Idempotency-Key dans le body protège contre les doublons.
-     * Si le même idempotencyKey est envoyé deux fois, la même transaction
-     * est retournée sans re-débiter (RG-06).
-     *
-     * @param request     données du transfert avec idempotencyKey
-     * @param userDetails utilisateur connecté extrait du JWT
-     * @return 201 CREATED avec le détail de la transaction créée
-     */
     @PostMapping("/api/transfers")
-    public ResponseEntity<ApiResponse<TransactionResponse>> transfer(
+    @Operation(
+            summary = "Initier un transfert d'argent",
+            description = """
+            Orchestre le transfert complet :
+            1. Vérification de l'idempotence (évite les doublons)
+            2. Débit de la carte via Stripe
+            3. Envoi vers l'opérateur cible (Strategy Pattern)
+            4. Notification temps réel via SSE
+            
+            **Header requis :** `Idempotency-Key: <uuid-v4>`
+            
+            **Cartes de test Stripe :**
+            - `pm_card_visa` → succès
+            - `pm_card_visa_chargeDeclined` → refusée
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Transfert initié avec succès"),
+            @ApiResponse(responseCode = "400",
+                    description = "Paiement refusé ou transfert échoué"),
+            @ApiResponse(responseCode = "401", description = "Token JWT invalide"),
+            @ApiResponse(responseCode = "404",
+                    description = "Bénéficiaire non trouvé")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<TransactionResponse>>
+    transfer(
             @Valid @RequestBody TransferRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        TransactionResponse response =
-                transferService.processTransfer(request, userDetails.getUsername());
-
+        var response = transferService.processTransfer(
+                request, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Transfert initie avec succes", response));
+                .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Transfert initie avec succes", response));
     }
 
-    /**
-     * Récupère l'historique paginé des transactions de l'utilisateur connecté.
-     *
-     * Paramètres de pagination (optionnels) :
-     * - page : numéro de page (commence à 0)
-     * - size : nombre d'éléments par page (défaut : 10)
-     *
-     * Exemple : GET /api/transactions?page=0&size=10
-     *
-     * @param page        numéro de page
-     * @param size        taille de la page
-     * @param userDetails utilisateur connecté
-     * @return 200 OK avec la page de transactions
-     */
     @GetMapping("/api/transactions")
-    public ResponseEntity<ApiResponse<Page<TransactionResponse>>> getHistory(
+    @Operation(
+            summary = "Historique des transactions",
+            description = """
+            Retourne l'historique paginé des transactions de l'utilisateur connecté.
+            Triées par date décroissante (plus récentes en premier).
+            
+            **Paramètres de pagination :**
+            - `page` : numéro de page (commence à 0)
+            - `size` : éléments par page (défaut : 10)
+            
+            Exemple : `GET /api/transactions?page=0&size=10`
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Historique retourné"),
+            @ApiResponse(responseCode = "401", description = "Token JWT invalide")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Page<TransactionResponse>>>
+    getHistory(
+            @Parameter(description = "Numéro de page (commence à 0)")
             @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Nombre d'éléments par page")
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        // Créer l'objet Pageable avec tri par date décroissante
         Pageable pageable = PageRequest.of(page, size,
                 Sort.by("createdAt").descending());
-
-        Page<TransactionResponse> transactions =
-                transferService.getHistory(userDetails.getUsername(), pageable);
-
+        var transactions = transferService.getHistory(
+                userDetails.getUsername(), pageable);
         return ResponseEntity.ok(
-                ApiResponse.success("Historique des transactions", transactions));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Historique des transactions", transactions));
     }
 
-    /**
-     * Récupère le détail d'une transaction spécifique par son identifiant.
-     *
-     * @param id          l'identifiant de la transaction
-     * @param userDetails utilisateur connecté
-     * @return 200 OK avec le détail complet de la transaction
-     */
     @GetMapping("/api/transactions/{id}")
-    public ResponseEntity<ApiResponse<TransactionResponse>> getById(
+    @Operation(
+            summary = "Détail d'une transaction",
+            description = "Retourne le détail complet d'une transaction par son identifiant. " +
+                    "Vérifie que la transaction appartient à l'utilisateur connecté."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Détail retourné"),
+            @ApiResponse(responseCode = "403",
+                    description = "Cette transaction ne vous appartient pas"),
+            @ApiResponse(responseCode = "404", description = "Transaction non trouvée")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<TransactionResponse>>
+    getById(
+            @Parameter(description = "Identifiant de la transaction", required = true)
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        TransactionResponse response =
-                transferService.getById(id, userDetails.getUsername());
-
+        var response = transferService.getById(id, userDetails.getUsername());
         return ResponseEntity.ok(
-                ApiResponse.success("Detail de la transaction", response));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Detail de la transaction", response));
     }
-    /**
-     * Télécharge le reçu PDF d'une transaction par son identifiant.
-     *
-     * Retourne un fichier PDF avec les headers HTTP appropriés
-     * pour déclencher le téléchargement dans le navigateur.
-     *
-     * Headers retournés :
-     * - Content-Type: application/pdf
-     * - Content-Disposition: attachment; filename="recu-TXN-XXX.pdf"
-     *
-     * @param id          identifiant de la transaction
-     * @param userDetails utilisateur connecté
-     * @return ResponseEntity avec le contenu PDF en bytes
-     */
+
     @GetMapping("/api/transactions/{id}/receipt")
+    @Operation(
+            summary = "Télécharger le reçu PDF",
+            description = """
+            Génère et télécharge le reçu PDF officiel d'une transaction.
+            
+            Le PDF contient :
+            - Informations de l'expéditeur et du bénéficiaire
+            - Détails financiers (montant, frais, taux de change)
+            - Référence Stripe du paiement
+            - Statut de la transaction
+            
+            **Response Content-Type :** `application/pdf`
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "PDF généré et retourné en téléchargement"),
+            @ApiResponse(responseCode = "403",
+                    description = "Cette transaction ne vous appartient pas"),
+            @ApiResponse(responseCode = "404", description = "Transaction non trouvée")
+    })
     public ResponseEntity<byte[]> downloadReceipt(
+            @Parameter(description = "Identifiant de la transaction", required = true)
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        // Récupérer la transaction (avec vérification de propriété)
         Transaction transaction = transferService
                 .getEntityById(id, userDetails.getUsername());
-
-        // Générer le PDF
         byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
-
-        // Construire le nom de fichier
         String filename = "recu-" + transaction.getReference() + ".pdf";
-
-        // Retourner le PDF avec les bons headers HTTP
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + filename + "\"")
-                .header(HttpHeaders.CONTENT_LENGTH,
-                        String.valueOf(pdfBytes.length))
-                .body(pdfBytes);
-    }
-
-    /**
-     * Prévisualise le reçu PDF dans le navigateur (sans téléchargement).
-     * Utilise Content-Disposition: inline au lieu de attachment.
-     *
-     * @param id          identifiant de la transaction
-     * @param userDetails utilisateur connecté
-     * @return ResponseEntity avec le contenu PDF en bytes
-     */
-    @GetMapping("/api/transactions/{id}/receipt/preview")
-    public ResponseEntity<byte[]> previewReceipt(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Transaction transaction = transferService
-                .getEntityById(id, userDetails.getUsername());
-
-        byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
-        String filename = "recu-" + transaction.getReference() + ".pdf";
-
-        // inline = s'ouvre dans le navigateur, pas de téléchargement forcé
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "inline; filename=\"" + filename + "\"")
                 .body(pdfBytes);
     }
 }

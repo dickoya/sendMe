@@ -3,6 +3,11 @@ package ibrahima.dickoya.sendme.controller;
 import ibrahima.dickoya.sendme.dto.request.BeneficiaryRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.service.BeneficiaryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
@@ -13,97 +18,118 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Contrôleur REST gérant les endpoints des bénéficiaires.
- *
- * Toutes les routes nécessitent un JWT valide (configuré dans SecurityConfig).
- * L'utilisateur connecté est extrait automatiquement du JWT via @AuthenticationPrincipal.
- *
- * Routes disponibles :
- * GET    /api/beneficiaries          → lister ses bénéficiaires
- * POST   /api/beneficiaries          → créer un bénéficiaire
- * PUT    /api/beneficiaries/{id}     → modifier un bénéficiaire
- * DELETE /api/beneficiaries/{id}     → supprimer un bénéficiaire
+ * Contrôleur REST pour la gestion du carnet de bénéficiaires.
  */
 @RestController
 @RequestMapping("/api/beneficiaries")
 @RequiredArgsConstructor
+@Tag(
+        name = "Bénéficiaires",
+        description = """
+        Gestion du carnet d'adresses des bénéficiaires.
+        
+        Un bénéficiaire est une personne enregistrée par l'utilisateur
+        pour recevoir des transferts d'argent. Chaque bénéficiaire
+        est associé à un canal de réception spécifique.
+        
+        **Règle RG-02 :**
+        - Canal BANK_TRANSFER → IBAN et BIC obligatoires
+        - Autres canaux → numéro de téléphone obligatoire
+        
+        JWT requis pour tous les endpoints.
+        """
+)
 public class BeneficiaryController {
 
-    /** Service contenant la logique métier des bénéficiaires. */
     private final BeneficiaryService beneficiaryService;
 
-    /**
-     * Récupère la liste de tous les bénéficiaires de l'utilisateur connecté.
-     *
-     * @param userDetails l'utilisateur connecté (extrait automatiquement du JWT)
-     * @return 200 OK avec la liste des bénéficiaires
-     */
     @GetMapping
-    public ResponseEntity<ApiResponse<List<BeneficiaryResponse>>> getAll(
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        List<BeneficiaryResponse> beneficiaries =
-                beneficiaryService.findAllByUser(userDetails.getUsername());
-
+    @Operation(
+            summary = "Lister mes bénéficiaires",
+            description = "Retourne tous les bénéficiaires de l'utilisateur connecté, " +
+                    "triés par date de création décroissante."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Liste retournée avec succès"),
+            @ApiResponse(responseCode = "401", description = "Token JWT manquant ou invalide")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<List<BeneficiaryResponse>>>
+    getAll(@AuthenticationPrincipal UserDetails userDetails) {
+        var beneficiaries = beneficiaryService.findAllByUser(userDetails.getUsername());
         return ResponseEntity.ok(
-                ApiResponse.success("Liste des beneficiaires", beneficiaries));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Liste des beneficiaires", beneficiaries));
     }
 
-    /**
-     * Crée un nouveau bénéficiaire pour l'utilisateur connecté.
-     *
-     * @param request     les données du nouveau bénéficiaire (validées automatiquement)
-     * @param userDetails l'utilisateur connecté (extrait du JWT)
-     * @return 201 CREATED avec le bénéficiaire créé
-     */
     @PostMapping
-    public ResponseEntity<ApiResponse<BeneficiaryResponse>> create(
+    @Operation(
+            summary = "Créer un bénéficiaire",
+            description = """
+            Ajoute un nouveau bénéficiaire dans le carnet de l'utilisateur.
+            
+            Selon le canal choisi, les champs requis changent :
+            - **BANK_TRANSFER** : bankDetails (bankName, iban, bic) obligatoire
+            - **Autres canaux** : mobileDetails (phoneNumber) obligatoire
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Bénéficiaire créé avec succès"),
+            @ApiResponse(responseCode = "400",
+                    description = "Données invalides ou champs manquants selon le canal"),
+            @ApiResponse(responseCode = "401", description = "Token JWT manquant ou invalide")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<BeneficiaryResponse>>
+    create(
             @Valid @RequestBody BeneficiaryRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        BeneficiaryResponse response =
-                beneficiaryService.create(request, userDetails.getUsername());
-
+        var response = beneficiaryService.create(request, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success("Beneficiaire cree avec succes", response));
+                .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Beneficiaire cree avec succes", response));
     }
 
-    /**
-     * Modifie un bénéficiaire existant appartenant à l'utilisateur connecté.
-     *
-     * @param id          l'identifiant du bénéficiaire à modifier
-     * @param request     les nouvelles données
-     * @param userDetails l'utilisateur connecté (extrait du JWT)
-     * @return 200 OK avec le bénéficiaire mis à jour
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<BeneficiaryResponse>> update(
+    @Operation(
+            summary = "Modifier un bénéficiaire",
+            description = "Met à jour les informations d'un bénéficiaire existant. " +
+                    "Vérifie que le bénéficiaire appartient à l'utilisateur connecté."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Bénéficiaire mis à jour"),
+            @ApiResponse(responseCode = "403", description = "Ce bénéficiaire ne vous appartient pas"),
+            @ApiResponse(responseCode = "404", description = "Bénéficiaire non trouvé")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<BeneficiaryResponse>>
+    update(
+            @Parameter(description = "Identifiant du bénéficiaire", required = true)
             @PathVariable Long id,
             @Valid @RequestBody BeneficiaryRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-
-        BeneficiaryResponse response =
-                beneficiaryService.update(id, request, userDetails.getUsername());
-
+        var response = beneficiaryService.update(id, request, userDetails.getUsername());
         return ResponseEntity.ok(
-                ApiResponse.success("Beneficiaire mis a jour", response));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Beneficiaire mis a jour", response));
     }
 
-    /**
-     * Supprime un bénéficiaire appartenant à l'utilisateur connecté.
-     *
-     * @param id          l'identifiant du bénéficiaire à supprimer
-     * @param userDetails l'utilisateur connecté (extrait du JWT)
-     * @return 200 OK avec message de confirmation
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> delete(
+    @Operation(
+            summary = "Supprimer un bénéficiaire",
+            description = "Supprime définitivement un bénéficiaire du carnet. " +
+                    "Supprime aussi les détails bancaires ou Mobile Money associés."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Bénéficiaire supprimé"),
+            @ApiResponse(responseCode = "403", description = "Ce bénéficiaire ne vous appartient pas"),
+            @ApiResponse(responseCode = "404", description = "Bénéficiaire non trouvé")
+    })
+    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>>
+    delete(
+            @Parameter(description = "Identifiant du bénéficiaire", required = true)
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
-
         beneficiaryService.delete(id, userDetails.getUsername());
-
         return ResponseEntity.ok(
-                ApiResponse.success("Beneficiaire supprime avec succes", null));
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Beneficiaire supprime avec succes", null));
     }
 }
