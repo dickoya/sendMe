@@ -35,6 +35,8 @@ public class SecurityConfig {
                         // Routes publiques
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        // Webhook Stripe — sécurisé par signature, pas par JWT
+                        .requestMatchers("/api/webhooks/stripe").permitAll()
                         // Routes admin
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Tout le reste necessite un JWT

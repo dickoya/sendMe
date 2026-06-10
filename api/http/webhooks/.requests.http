@@ -1,0 +1,28 @@
+### 1. Lance Stripe CLI dans un second terminal :
+###  powershellstripe listen --forward-to localhost:8080/api/webhooks/stripe
+### 2. Lance l'application :
+
+### 3. Dans Postman, ouvre la connexion SSE :
+GET http://localhost:8080/api/notifications/stream
+Authorization: Bearer <ton_access_token>
+### 4. Initie un transfert dans un autre onglet Postman :
+POST http://localhost:8080/api/transfers
+Authorization: Bearer <ton_access_token>
+Content-Type: application/json
+
+{
+  "amount": 200.00,
+  "currency": "EUR",
+  "beneficiaryId": 1,
+  "paymentMethodId": "pm_card_visa",
+  "idempotencyKey": "test-uuid-001"
+}
+### resultat :
+event: TRANSFER_INITIATED
+data: {"id":1,"message":"Transfert TXN-20250609-0001 initié...","type":"TRANSFER_INITIATED",...}
+
+event: PAYMENT_CONFIRMED
+data: {"id":2,"message":"Paiement confirmé...","type":"PAYMENT_CONFIRMED",...}
+
+event: TRANSFER_COMPLETED
+data: {"id":3,"message":"Transfert TXN-20250609-0001 complété !...","type":"TRANSFER_COMPLETED",...}

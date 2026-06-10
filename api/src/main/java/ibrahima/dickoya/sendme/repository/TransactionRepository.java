@@ -8,8 +8,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 @Repository
+
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Page<Transaction> findBySenderIdOrderByCreatedAtDesc(Long senderId, Pageable pageable);
     Optional<Transaction> findByReference(String reference);
     Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
+    Optional<Transaction> findByStripePaymentIntentId(String stripePaymentIntentId);
 }
