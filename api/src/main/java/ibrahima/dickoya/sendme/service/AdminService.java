@@ -1,0 +1,304 @@
+package ibrahima.dickoya.sendme.service;
+
+import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
+import ibrahima.dickoya.sendme.dto.response.DashboardResponse;
+import ibrahima.dickoya.sendme.dto.response.TransactionResponse;
+import ibrahima.dickoya.sendme.dto.response.UserResponse;
+import ibrahima.dickoya.sendme.entity.Transaction;
+import ibrahima.dickoya.sendme.entity.User;
+import ibrahima.dickoya.sendme.enums.TransactionStatus;
+import ibrahima.dickoya.sendme.exception.ResourceNotFoundException;
+import ibrahima.dickoya.sendme.repository.TransactionRepository;
+import ibrahima.dickoya.sendme.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * Service gérant toute la logique métier du module administration.
+ *
+ * Fonctionnalités :
+ * - Tableau de bord avec statistiques globales en temps réel
+ * - Gestion des utilisateurs (liste, activation, désactivation)
+ * - Consultation de toutes les transactions
+ * - Paramétrage des frais de la plateforme
+ *
+ * Toutes les méthodes de ce service sont protégées par le rôle ROLE_ADMIN
+ * configuré dans SecurityConfig via @PreAuthorize.
+ */
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AdminService {
+
+    /** Repository pour accéder aux utilisateurs. */
+    private final UserRepository userRepository;
+
+    /** Repository pour accéder aux transactions. */
+    private final TransactionRepository transactionRepository;
+
+    /**
+     * Service SSE pour connaître le nombre de connexions actives.
+     * Affiché dans le tableau de bord admin pour le monitoring.
+     */
+    private final SseEmitterService sseEmitterService;
+
+    /**
+     * Service simulateur pour mettre à jour le taux de commission.
+     * L'admin peut changer le taux sans redémarrer l'application.
+     */
+    private final SimulatorService simulatorService;
+
+    /**
+     * Génère le tableau de bord complet avec toutes les statistiques.
+     *
+     * Calcule en temps réel :
+     * - Les statistiques des utilisateurs
+     * - Les statistiques des transactions par statut
+     * - Le volume financier total et quotidien
+     * - La répartition par canal
+     * - Le taux de succès global
+     *
+     * @return DashboardResponse toutes les statistiques de la plateforme
+     */
+    public DashboardResponse getDashboard() {
+
+        log.info("[ADMIN] Génération du tableau de bord");
+
+        // ── Statistiques utilisateurs ────────────────────────────────────────
+        long totalUsers = userRepository.count();
+        long activeUsers = userRepository.countByIsActiveTrue();
+        long inactiveUsers = totalUsers - activeUsers;
+
+        // ── Statistiques transactions ────────────────────────────────────────
+        long totalTransactions = transactionRepository.count();
+        long completedTransactions = transactionRepository
+                .countByStatus(TransactionStatus.COMPLETED);
+        long failedTransactions = transactionRepository
+                .countByStatus(TransactionStatus.FAILED);
+        long refundedTransactions = transactionRepository
+                .countByStatus(TransactionStatus.REFUNDED);
+        long pendingTransactions = transactionRepository
+                .countByStatus(TransactionStatus.PENDING) +
+                transactionRepository.countByStatus(TransactionStatus.PROCESSING);
+
+        // Calcul du taux de succès
+        double successRate = totalTransactions > 0
+                ? (double) completedTransactions / totalTransactions * 100
+                : 0.0;
+
+        // ── Statistiques financières ─────────────────────────────────────────
+        // Volume total = somme des montants envoyés des transactions COMPLETED
+        Double totalVolume = transactionRepository
+                .sumAmountSentByStatus(TransactionStatus.COMPLETED);
+        totalVolume = totalVolume != null ? totalVolume : 0.0;
+
+        // Total des frais collectés
+        Double totalFees = transactionRepository
+                .sumFeesByStatus(TransactionStatus.COMPLETED);
+        totalFees = totalFees != null ? totalFees : 0.0;
+
+        // Volume du jour
+        LocalDateTime startOfDay = LocalDateTime.now().withHour(0)
+                .withMinute(0).withSecond(0);
+        Double todayVolume = transactionRepository
+                .sumAmountSentAfterDate(startOfDay, TransactionStatus.COMPLETED);
+        todayVolume = todayVolume != null ? todayVolume : 0.0;
+
+        long todayTransactions = transactionRepository
+                .countByCreatedAtAfter(startOfDay);
+
+        // ── Répartition par canal ────────────────────────────────────────────
+        Map<String, Long> transactionsByChannel = new HashMap<>();
+        transactionRepository.countByChannel().forEach(result -> {
+            transactionsByChannel.put(
+                    result[0].toString(),  // nom du canal
+                    (Long) result[1]       // nombre de transactions
+            );
+        });
+
+        // ── Connexions SSE actives ────────────────────────────────────────────
+        int activeSSEConnections = sseEmitterService.getActiveConnectionsCount();
+
+        // ── Construire et retourner la réponse ───────────────────────────────
+        return DashboardResponse.builder()
+                .totalUsers(totalUsers)
+                .activeUsers(activeUsers)
+                .inactiveUsers(inactiveUsers)
+                .totalTransactions(totalTransactions)
+                .completedTransactions(completedTransactions)
+                .failedTransactions(failedTransactions)
+                .refundedTransactions(refundedTransactions)
+                .pendingTransactions(pendingTransactions)
+                .successRate(Math.round(successRate * 100.0) / 100.0)
+                .totalVolume(totalVolume)
+                .totalFees(totalFees)
+                .todayVolume(todayVolume)
+                .todayTransactions(todayTransactions)
+                .transactionsByChannel(transactionsByChannel)
+                .activeSSEConnections(activeSSEConnections)
+                .build();
+    }
+
+    /**
+     * Récupère la liste paginée de tous les utilisateurs.
+     * Accessible uniquement par l'administrateur.
+     *
+     * @param pageable paramètres de pagination
+     * @return Page de UserResponse
+     */
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(this::toUserResponse);
+    }
+
+    /**
+     * Récupère le détail d'un utilisateur par son identifiant.
+     *
+     * @param userId identifiant de l'utilisateur
+     * @return UserResponse le détail de l'utilisateur
+     */
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Utilisateur non trouvé : " + userId));
+        return toUserResponse(user);
+    }
+
+    /**
+     * Active ou désactive un compte utilisateur.
+     *
+     * Un compte désactivé ne peut plus se connecter.
+     * Spring Security vérifie isActive via UserDetailsService.
+     * L'admin peut réactiver un compte à tout moment.
+     *
+     * @param userId identifiant de l'utilisateur à modifier
+     * @return UserResponse l'utilisateur mis à jour
+     */
+    @Transactional
+    public UserResponse toggleUserStatus(Long userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Utilisateur non trouvé : " + userId));
+
+        // Inverser le statut actuel
+        boolean newStatus = !user.getIsActive();
+        user.setIsActive(newStatus);
+        userRepository.save(user);
+
+        log.info("[ADMIN] Compte {} : statut changé à {}",
+                user.getEmail(), newStatus ? "ACTIF" : "DESACTIVE");
+
+        return toUserResponse(user);
+    }
+
+    /**
+     * Récupère toutes les transactions avec pagination.
+     * L'admin voit toutes les transactions de tous les utilisateurs.
+     *
+     * @param pageable paramètres de pagination
+     * @return Page de TransactionResponse
+     */
+    public Page<TransactionResponse> getAllTransactions(Pageable pageable) {
+        return transactionRepository
+                .findAllByOrderByCreatedAtDesc(pageable)
+                .map(this::toTransactionResponse);
+    }
+
+    /**
+     * Récupère les transactions filtrées par statut.
+     * Permet à l'admin de voir uniquement les transactions en échec,
+     * en cours, ou complétées selon son besoin.
+     *
+     * @param status   statut à filtrer
+     * @param pageable paramètres de pagination
+     * @return Page de TransactionResponse filtrée
+     */
+    public Page<TransactionResponse> getTransactionsByStatus(
+            TransactionStatus status, Pageable pageable) {
+        return transactionRepository
+                .findByStatusOrderByCreatedAtDesc(status, pageable)
+                .map(this::toTransactionResponse);
+    }
+
+    /**
+     * Met à jour le taux de commission de la plateforme.
+     *
+     * Le nouveau taux est appliqué immédiatement à tous
+     * les nouveaux transferts. Les transactions en cours
+     * ne sont pas affectées.
+     *
+     * @param request le nouveau taux et la raison du changement
+     */
+    public void updateFeeRate(FeeConfigRequest request) {
+        simulatorService.updateFeeRate(request.getFeeRate());
+        log.info("[ADMIN] Taux de commission mis a jour : {}% — Raison : {}",
+                request.getFeeRate(), request.getReason());
+    }
+
+    /**
+     * Convertit une entité User en DTO UserResponse.
+     * Calcule aussi les statistiques de l'utilisateur.
+     *
+     * @param user l'entité à convertir
+     * @return UserResponse le DTO formaté
+     */
+    private UserResponse toUserResponse(User user) {
+
+        // Calculer le nombre de transactions de cet utilisateur
+        long totalTransactions = transactionRepository
+                .countBySenderId(user.getId());
+
+        // Calculer le montant total envoyé
+        Double totalAmountSent = transactionRepository
+                .sumAmountSentBySenderIdAndStatus(
+                        user.getId(), TransactionStatus.COMPLETED);
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .phoneNumber(user.getPhoneNumber())
+                .role(user.getRole())
+                .isActive(user.getIsActive())
+                .createdAt(user.getCreatedAt())
+                .totalTransactions(totalTransactions)
+                .totalAmountSent(totalAmountSent != null ? totalAmountSent : 0.0)
+                .build();
+    }
+
+    /**
+     * Convertit une entité Transaction en DTO TransactionResponse.
+     *
+     * @param transaction l'entité à convertir
+     * @return TransactionResponse le DTO formaté
+     */
+    private TransactionResponse toTransactionResponse(Transaction transaction) {
+        return TransactionResponse.builder()
+                .id(transaction.getId())
+                .reference(transaction.getReference())
+                .amountSent(transaction.getAmountSent())
+                .currencySent(transaction.getCurrencySent())
+                .amountReceived(transaction.getAmountReceived())
+                .currencyReceived(transaction.getCurrencyReceived())
+                .exchangeRate(transaction.getExchangeRate())
+                .fees(transaction.getFees())
+                .status(transaction.getStatus())
+                .channel(transaction.getChannel())
+                .stripePaymentIntentId(transaction.getStripePaymentIntentId())
+                .stripePaymentStatus(transaction.getStripePaymentStatus())
+                .createdAt(transaction.getCreatedAt())
+                .updatedAt(transaction.getUpdatedAt())
+                .build();
+    }
+}

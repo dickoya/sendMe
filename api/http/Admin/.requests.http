@@ -1,0 +1,34 @@
+### 1. Connexion avec le compte admin :
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "dickoyaservices@outlook.com",
+  "password": "P@ssword123"
+}
+
+### 2. Tableau de bord :
+GET http://localhost:8080/api/admin/dashboard
+Authorization: Bearer <admin_access_token>
+
+### 3. Liste des utilisateurs :
+GET http://localhost:8080/api/admin/users?page=0&size=10
+Authorization: Bearer <admin_access_token>
+
+### 4. Désactiver un utilisateur :
+PUT http://localhost:8080/api/admin/users/1/toggle
+Authorization: Bearer <admin_access_token>
+
+### 5. Changer le taux de commission :
+PUT http://localhost:8080/api/admin/config/fees
+Authorization: Bearer <admin_access_token>
+Content-Type: application/json
+
+{
+"feeRate": 1.0,
+"reason": "Ajustement tarif juin 2025"
+}
+
+### 6. Toutes les transactions filtrées par statut :
+GET http://localhost:8080/api/admin/transactions?status=FAILED&page=0&size=10
+Authorization: Bearer <admin_access_token>

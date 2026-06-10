@@ -9,4 +9,20 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     Boolean existsByEmail(String email);
+    /**
+     * Compte les utilisateurs dont le compte est actif.
+     * Utilisé pour les statistiques du tableau de bord admin.
+     *
+     * @return nombre d'utilisateurs actifs
+     */
+    Long countByIsActiveTrue();
+
+    /**
+     * Recherche un utilisateur par email avec son rôle.
+     * Utilisé par l'admin pour vérifier les droits.
+     *
+     * @param email email de l'utilisateur
+     * @return Optional<User>
+     */
+    Optional<User> findByEmailAndIsActiveTrue(String email);
 }

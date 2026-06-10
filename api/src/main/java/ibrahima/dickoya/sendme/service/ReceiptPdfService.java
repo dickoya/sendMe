@@ -501,7 +501,7 @@ public class ReceiptPdfService {
                 .setMarginBottom(4));
 
         document.add(new Paragraph(
-                "SendMe — Passerelle de transfert d'argent | " +
+                "SendMe — Solution digitale de transfert sécurisé | " +
                         "support@sendme.com | www.sendme.com")
                 .setFontSize(8)
                 .setFontColor(COLOR_TEXT_SECONDARY)

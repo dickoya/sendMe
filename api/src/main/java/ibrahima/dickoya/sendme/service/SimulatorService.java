@@ -115,4 +115,24 @@ public class SimulatorService {
                 .amountReceived(amountReceived)
                 .build();
     }
+    /**
+     * Taux de commission modifiable par l'administrateur.
+     * volatile garantit la visibilité entre les threads.
+     * Initialisé à 1.5% et modifiable à chaud sans redémarrage.
+     */
+    private volatile BigDecimal feeRate = new BigDecimal("0.015");
+
+    /**
+     * Met à jour le taux de commission de la plateforme.
+     * Appelé par l'AdminService quand l'admin change le tarif.
+     * Le nouveau taux est appliqué immédiatement à tous
+     * les nouveaux transferts.
+     *
+     * @param newRate le nouveau taux en pourcentage (ex: 2.0 pour 2%)
+     */
+    public void updateFeeRate(BigDecimal newRate) {
+        // Convertir le pourcentage en décimal (2.0% → 0.02)
+        this.feeRate = newRate.divide(new BigDecimal("100"));
+        log.info("[SIMULATOR] Taux de commission mis a jour : {}%", newRate);
+    }
 }
