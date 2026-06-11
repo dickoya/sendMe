@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfert échoué — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #FADBD8; padding: 16px 32px; text-align: center; border-bottom: 2px solid #C0392B; }
+        .status-banner p { color: #C0392B; font-size: 15px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .refund-box { background-color: #D6EAF8; border-left: 4px solid #1B4F72; border-radius: 4px; padding: 14px; margin: 20px 0; }
+        .refund-box p { color: #1A5276; font-size: 13px; margin: 4px 0; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+        .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+        .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+        .details-table td:first-child { color: #777777; width: 45%; }
+        .details-table td:last-child { color: #1C2833; font-weight: bold; }
+        .btn { display: block; width: fit-content; margin: 24px auto; padding: 13px 32px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>❌ Transfert échoué — Remboursement initié</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${senderName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Nous sommes désolés. Votre transfert n'a pas pu
+            être effectué en raison d'un problème technique.
+        </p>
+
+        <!-- Information remboursement -->
+        <div class="refund-box">
+            <p>
+                💳 Un remboursement de
+                <strong>
+                    <span th:text="${totalDebited}">203.00</span>
+                    <span th:text="${currencySent}">EUR</span>
+                </strong>
+                a été initié sur votre carte bancaire.
+            </p>
+            <p>
+                ⏱️ Délai estimé : <strong>5 à 10 jours ouvrés</strong>
+                selon votre banque.
+            </p>
+        </div>
+
+        <!-- Détails du transfert échoué -->
+        <table class="details-table">
+            <tr>
+                <td>Référence</td>
+                <td th:text="${reference}">TXN-20250609-0001</td>
+            </tr>
+            <tr>
+                <td>Raison de l'échec</td>
+                <td th:text="${failureReason}">Opérateur indisponible</td>
+            </tr>
+            <tr>
+                <td>Montant remboursé</td>
+                <td>
+                    <span th:text="${totalDebited}">203.00</span>
+                    <span th:text="${currencySent}">EUR</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Bénéficiaire concerné</td>
+                <td th:text="${beneficiaryName}">Mamadou Diallo</td>
+            </tr>
+            <tr>
+                <td>Date de l'échec</td>
+                <td th:text="${failedDate}">09 juin 2025 à 14:35</td>
+            </tr>
+        </table>
+
+        <p>
+            Vous pouvez réessayer votre transfert depuis
+            votre espace SendMe. Si le problème persiste,
+            contactez notre support.
+        </p>
+
+        <a href="mailto:support@sendme.com" class="btn">
+            📧 Contacter le support
+        </a>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

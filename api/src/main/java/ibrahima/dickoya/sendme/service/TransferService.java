@@ -25,6 +25,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static ibrahima.dickoya.sendme.enums.NotificationType.TRANSFER_FAILED;
+
 /**
  * Service principal orchestrant le cycle de vie complet d'un transfert
  * avec intégration Stripe et notifications SSE en temps réel.
@@ -68,6 +70,12 @@ public class TransferService {
     private final AtomicInteger counter = new AtomicInteger(1);
 
     /**
+     * Service email pour notifier l'utilisateur
+     * à chaque étape du cycle de vie du transfert.
+     */
+    private final EmailService emailService;
+
+    /**
      * Orchestre le transfert complet avec paiement Stripe et notifications.
      *
      * @Transactional garantit l'atomicité des opérations en base.
@@ -80,7 +88,10 @@ public class TransferService {
      */
     @Transactional
     public TransactionResponse processTransfer(TransferRequest request, String userEmail) {
-
+        /**
+         * Service email pour notifier l'utilisateur
+         * à chaque étape du cycle de vie du transfert.
+         */
         log.info("=== DEBUT TRANSFERT pour {} ===", userEmail);
 
         // ── ÉTAPE 1 : Vérification idempotence ──────────────────────────────
@@ -187,6 +198,13 @@ public class TransferService {
                 NotificationType.TRANSFER_INITIATED,
                 transaction
         );
+        // Email de confirmation d'initiation en arrière-plan
+        emailService.sendTransferInitiatedEmail(user, transaction);
+
+// ── Après statut COMPLETED ───────────────────────────────────────────
+        transaction.setStatus(TransactionStatus.COMPLETED);
+        transactionRepository.save(transaction);
+
 
         // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
         transaction.setStatus(TransactionStatus.PROCESSING);
@@ -233,6 +251,8 @@ public class TransferService {
                     NotificationType.TRANSFER_COMPLETED,
                     transaction
             );
+            // Email de confirmation de complétion en arrière-plan
+            emailService.sendTransferCompletedEmail(user, transaction);
 
         } else {
 
@@ -274,47 +294,28 @@ public class TransferService {
             String reason) {
 
         try {
-            // Demander le remboursement à Stripe
             stripePaymentService.refundPayment(paymentIntentId);
-            log.info("[STRIPE] Remboursement effectue pour : {}", paymentIntentId);
 
-            // Marquer la transaction comme REFUNDED
             transaction.setStatus(TransactionStatus.REFUNDED);
             transactionRepository.save(transaction);
 
-            // ── NOTIFICATION 3A : Transfert échoué + remboursement confirmé ─
-            // L'utilisateur est informé que sa carte sera remboursée
-            notificationService.createAndSend(
-                    user,
-                    String.format(
-                            "Transfert %s echoue. Votre carte sera remboursee sous 5-10 jours. Raison : %s",
-                            transaction.getReference(),
-                            reason
-                    ),
-                    NotificationType.TRANSFER_FAILED,
-                    transaction
-            );
+            // Notification SSE déjà existante
+            notificationService.createAndSend(user, "...", TRANSFER_FAILED, transaction);
 
-        } catch (StripeException e) {
-            // Le remboursement Stripe a lui-même échoué
-            log.error("[STRIPE] Echec du remboursement : {}", e.getMessage());
+            // Email remboursement confirmé
+            emailService.sendTransferRefundedEmail(user, transaction);
+
+        } catch (com.stripe.exception.StripeException e) {
             transaction.setStatus(TransactionStatus.FAILED);
             transactionRepository.save(transaction);
 
-            // ── NOTIFICATION 3B : Transfert échoué sans remboursement ───────
-            // Cas critique — l'équipe support doit intervenir manuellement
-            notificationService.createAndSend(
-                    user,
-                    String.format(
-                            "Transfert %s echoue. Contactez notre support pour le remboursement.",
-                            transaction.getReference()
-                    ),
-                    NotificationType.TRANSFER_FAILED,
-                    transaction
-            );
+            // Notification SSE déjà existante
+            notificationService.createAndSend(user, "...", TRANSFER_FAILED, transaction);
+
+            // Email transfert échoué sans remboursement
+            emailService.sendTransferFailedEmail(user, transaction, reason);
         }
 
-        // Lancer l'exception pour informer le contrôleur de l'échec
         throw new TransferException(
                 "Transfert echoue et carte remboursee : " + reason);
     }
@@ -438,6 +439,7 @@ public class TransferService {
 
         return transaction;
     }
+
 
     /**
      * Convertit une entité Transaction en DTO TransactionResponse.

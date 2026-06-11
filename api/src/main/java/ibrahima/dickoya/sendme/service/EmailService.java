@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import ibrahima.dickoya.sendme.entity.User;
+import ibrahima.dickoya.sendme.entity.Transaction;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -382,6 +383,280 @@ public class EmailService {
         } catch (Exception e) {
             log.error("[EMAIL] Échec alerte suspecte pour {} : {}",
                     user.getEmail(), e.getMessage());
+        }
+    }
+    /**
+     * Envoie l'email de confirmation d'initiation de transfert.
+     *
+     * Déclenché dans TransferService.processTransfer()
+     * juste après la création de la transaction en base (statut PENDING).
+     * Permet à l'utilisateur de suivre son transfert dès le début.
+     *
+     * Variables du template transfer-initiated.html :
+     * - senderName      : prénom + nom de l'expéditeur
+     * - reference       : référence unique de la transaction
+     * - amountSent      : montant envoyé
+     * - currencySent    : devise d'envoi
+     * - fees            : frais prélevés
+     * - totalDebited    : total débité (montant + frais)
+     * - beneficiaryName : prénom + nom du bénéficiaire
+     * - channel         : canal de réception formaté
+     * - initiatedDate   : date et heure d'initiation
+     *
+     * @param user        l'expéditeur du transfert
+     * @param transaction la transaction créée
+     */
+    @Async
+    public void sendTransferInitiatedEmail(User user, Transaction transaction) {
+        try {
+            log.info("[EMAIL] Envoi email transfert initié pour : {}",
+                    transaction.getReference());
+
+            // Calculer le total débité
+            java.math.BigDecimal totalDebited = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            // Formater le nom du canal
+            String channelDisplay = transaction.getChannel()
+                    .name().replace("_", " ");
+
+            // Nom du bénéficiaire
+            String beneficiaryName = transaction.getBeneficiary().getFirstName()
+                    + " " + transaction.getBeneficiary().getLastName();
+
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference", transaction.getReference());
+            context.setVariable("amountSent", transaction.getAmountSent());
+            context.setVariable("currencySent", transaction.getCurrencySent());
+            context.setVariable("fees", transaction.getFees());
+            context.setVariable("totalDebited", totalDebited);
+            context.setVariable("beneficiaryName", beneficiaryName);
+            context.setVariable("channel", channelDisplay);
+            context.setVariable("initiatedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/transfer-initiated", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "⏳ Transfert " + transaction.getReference() +
+                            " initié — Traitement en cours",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email transfert initié envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email transfert initié {} : {}",
+                    transaction.getReference(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de confirmation de transfert complété.
+     *
+     * Déclenché dans TransferService.processTransfer()
+     * après que la stratégie confirme le succès du transfert
+     * et que le statut passe à COMPLETED.
+     *
+     * Variables du template transfer-completed.html :
+     * - senderName      : prénom + nom de l'expéditeur
+     * - reference       : référence unique
+     * - amountSent      : montant envoyé
+     * - currencySent    : devise d'envoi
+     * - fees            : frais prélevés
+     * - totalDebited    : total débité
+     * - exchangeRate    : taux de change appliqué
+     * - amountReceived  : montant reçu par le bénéficiaire
+     * - currencyReceived: devise de réception
+     * - beneficiaryName : prénom + nom du bénéficiaire
+     * - channel         : canal de réception formaté
+     * - stripeRef       : identifiant PaymentIntent Stripe
+     * - completedDate   : date et heure de complétion
+     * - receiptUrl      : URL pour télécharger le reçu PDF
+     *
+     * @param user        l'expéditeur du transfert
+     * @param transaction la transaction complétée
+     */
+    @Async
+    public void sendTransferCompletedEmail(User user, Transaction transaction) {
+        try {
+            log.info("[EMAIL] Envoi email transfert complété pour : {}",
+                    transaction.getReference());
+
+            java.math.BigDecimal totalDebited = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            String channelDisplay = transaction.getChannel()
+                    .name().replace("_", " ");
+
+            String beneficiaryName = transaction.getBeneficiary().getFirstName()
+                    + " " + transaction.getBeneficiary().getLastName();
+
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference", transaction.getReference());
+            context.setVariable("amountSent", transaction.getAmountSent());
+            context.setVariable("currencySent", transaction.getCurrencySent());
+            context.setVariable("fees", transaction.getFees());
+            context.setVariable("totalDebited", totalDebited);
+            context.setVariable("exchangeRate", transaction.getExchangeRate());
+            context.setVariable("amountReceived", transaction.getAmountReceived());
+            context.setVariable("currencyReceived", transaction.getCurrencyReceived());
+            context.setVariable("beneficiaryName", beneficiaryName);
+            context.setVariable("channel", channelDisplay);
+            context.setVariable("stripeRef", transaction.getStripePaymentIntentId());
+            context.setVariable("completedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+            // URL du reçu PDF — à adapter avec l'URL frontend en production
+            context.setVariable("receiptUrl",
+                    "http://localhost:3000/transactions/" +
+                            transaction.getId() + "/receipt");
+
+            String htmlContent = templateEngine.process(
+                    "emails/transfer-completed", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "✅ Transfert " + transaction.getReference() +
+                            " complété — " + beneficiaryName +
+                            " a reçu " + transaction.getAmountReceived() +
+                            " " + transaction.getCurrencyReceived(),
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email transfert complété envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email transfert complété {} : {}",
+                    transaction.getReference(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de notification d'échec de transfert.
+     *
+     * Déclenché dans TransferService.refundStripeAndFail()
+     * quand la stratégie échoue ET que le remboursement Stripe
+     * lui-même échoue (statut FAILED).
+     *
+     * Variables du template transfer-failed.html :
+     * - senderName     : prénom + nom de l'expéditeur
+     * - reference      : référence unique
+     * - totalDebited   : montant remboursé
+     * - currencySent   : devise
+     * - failureReason  : raison de l'échec
+     * - beneficiaryName: prénom + nom du bénéficiaire
+     * - failedDate     : date et heure de l'échec
+     *
+     * @param user          l'expéditeur du transfert
+     * @param transaction   la transaction échouée
+     * @param failureReason la raison de l'échec
+     */
+    @Async
+    public void sendTransferFailedEmail(
+            User user, Transaction transaction, String failureReason) {
+        try {
+            log.error("[EMAIL] Envoi email transfert échoué pour : {}",
+                    transaction.getReference());
+
+            java.math.BigDecimal totalDebited = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            String beneficiaryName = transaction.getBeneficiary().getFirstName()
+                    + " " + transaction.getBeneficiary().getLastName();
+
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference", transaction.getReference());
+            context.setVariable("totalDebited", totalDebited);
+            context.setVariable("currencySent", transaction.getCurrencySent());
+            context.setVariable("failureReason", failureReason);
+            context.setVariable("beneficiaryName", beneficiaryName);
+            context.setVariable("failedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/transfer-failed", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "❌ Transfert " + transaction.getReference() +
+                            " échoué — Remboursement initié",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email transfert échoué envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email transfert échoué {} : {}",
+                    transaction.getReference(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de confirmation de remboursement.
+     *
+     * Déclenché dans TransferService.refundStripeAndFail()
+     * après que Stripe confirme le remboursement (statut REFUNDED).
+     * Rassure l'utilisateur que son argent lui sera rendu.
+     *
+     * Variables du template transfer-refunded.html :
+     * - senderName  : prénom + nom de l'expéditeur
+     * - reference   : référence unique
+     * - totalDebited: montant remboursé
+     * - currencySent: devise
+     * - stripeRef   : identifiant PaymentIntent Stripe
+     * - refundDate  : date et heure du remboursement
+     *
+     * @param user        l'expéditeur du transfert
+     * @param transaction la transaction remboursée
+     */
+    @Async
+    public void sendTransferRefundedEmail(User user, Transaction transaction) {
+        try {
+            log.info("[EMAIL] Envoi email remboursement pour : {}",
+                    transaction.getReference());
+
+            java.math.BigDecimal totalDebited = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference", transaction.getReference());
+            context.setVariable("totalDebited", totalDebited);
+            context.setVariable("currencySent", transaction.getCurrencySent());
+            context.setVariable("stripeRef",
+                    transaction.getStripePaymentIntentId());
+            context.setVariable("refundDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/transfer-refunded", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "↩️ Remboursement " + transaction.getReference() +
+                            " confirmé — " + totalDebited +
+                            " " + transaction.getCurrencySent() + " en cours",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email remboursement envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email remboursement {} : {}",
+                    transaction.getReference(), e.getMessage());
         }
     }
 }

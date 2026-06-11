@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfert complété — SendMe</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+    .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+    .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+    .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+    .status-banner { background-color: #D5F5E3; padding: 16px 32px; text-align: center; border-bottom: 2px solid #1E8449; }
+    .status-banner p { color: #1E8449; font-size: 15px; font-weight: bold; margin: 0; }
+    .content { padding: 32px; }
+    .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+    .amount-received { background-color: #D5F5E3; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+    .amount-received p { color: #1E8449; font-size: 12px; margin: 0 0 4px; }
+    .amount-received h2 { color: #0F6E56; font-size: 28px; font-weight: bold; margin: 0; }
+    .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+    .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+    .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+    .details-table td:first-child { color: #777777; width: 45%; }
+    .details-table td:last-child { color: #1C2833; font-weight: bold; }
+    .total-row td { background-color: #1B4F72 !important; color: #FFFFFF !important; font-size: 14px !important; }
+    .progress-bar { margin: 20px 0; }
+    .progress-steps { display: flex; justify-content: space-between; align-items: center; }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
+    .step-dot.done { background-color: #1E8449; color: #FFFFFF; }
+    .step-line { flex: 1; height: 2px; background-color: #1E8449; margin: 0 4px; }
+    .step-label { font-size: 10px; text-align: center; color: #1E8449; margin-top: 4px; font-weight: bold; }
+    .btn { display: block; width: fit-content; margin: 24px auto; padding: 13px 32px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+    .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+    .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>SendMe</h1>
+    <p>Passerelle de transfert d'argent</p>
+  </div>
+
+  <div class="status-banner">
+    <p>✅ Transfert complété avec succès !</p>
+  </div>
+
+  <div class="content">
+
+    <p>
+      Bonjour <strong th:text="${senderName}">Jean Dupont</strong>,
+    </p>
+    <p>
+      Excellente nouvelle ! Votre transfert a été effectué
+      avec succès. Voici le récapitulatif complet :
+    </p>
+
+    <!-- Barre de progression complète -->
+    <div class="progress-bar">
+      <div class="progress-steps">
+        <div>
+          <div class="step-dot done">✓</div>
+          <div class="step-label">Initié</div>
+        </div>
+        <div class="step-line"></div>
+        <div>
+          <div class="step-dot done">✓</div>
+          <div class="step-label">Traitement</div>
+        </div>
+        <div class="step-line"></div>
+        <div>
+          <div class="step-dot done">✓</div>
+          <div class="step-label">Complété</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Montant reçu mis en évidence -->
+    <div class="amount-received">
+      <p>
+        <strong th:text="${beneficiaryName}">Mamadou Diallo</strong>
+        a reçu
+      </p>
+      <h2>
+        <span th:text="${amountReceived}">128 745</span>
+        <span th:text="${currencyReceived}">XOF</span>
+      </h2>
+    </div>
+
+    <!-- Tableau récapitulatif complet -->
+    <table class="details-table">
+      <tr>
+        <td>Référence</td>
+        <td th:text="${reference}">TXN-20250609-0001</td>
+      </tr>
+      <tr>
+        <td>Montant envoyé</td>
+        <td>
+          <span th:text="${amountSent}">200.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Frais plateforme (1.5%)</td>
+        <td>
+          - <span th:text="${fees}">3.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Taux de change</td>
+        <td>
+          1 <span th:text="${currencySent}">EUR</span>
+          = <span th:text="${exchangeRate}">655.957</span>
+          <span th:text="${currencyReceived}">XOF</span>
+        </td>
+      </tr>
+      <tr class="total-row">
+        <td>Total débité sur la carte</td>
+        <td>
+          <span th:text="${totalDebited}">203.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Bénéficiaire</td>
+        <td th:text="${beneficiaryName}">Mamadou Diallo</td>
+      </tr>
+      <tr>
+        <td>Canal de réception</td>
+        <td th:text="${channel}">ORANGE MONEY</td>
+      </tr>
+      <tr>
+        <td>Référence Stripe</td>
+        <td th:text="${stripeRef}">pi_XXXXXXXXXX</td>
+      </tr>
+      <tr>
+        <td>Date du transfert</td>
+        <td th:text="${completedDate}">09 juin 2025 à 14:35</td>
+      </tr>
+    </table>
+
+    <!-- Bouton reçu PDF -->
+    <a th:href="${receiptUrl}" class="btn">
+      📄 Télécharger le reçu PDF
+    </a>
+
+    <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+      Conservez ce reçu comme preuve de votre transaction.
+      Référence : <strong th:text="${reference}">TXN-20250609-0001</strong>
+    </p>
+
+  </div>
+
+  <div class="footer">
+    <p><strong>SendMe</strong> — support@sendme.com</p>
+    <p>© 2025 SendMe — Tous droits réservés</p>
+  </div>
+
+</div>
+</body>
+</html>

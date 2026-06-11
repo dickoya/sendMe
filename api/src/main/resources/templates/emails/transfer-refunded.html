@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remboursement confirmé — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #E8DAEF; padding: 16px 32px; text-align: center; border-bottom: 2px solid #8E44AD; }
+        .status-banner p { color: #6C3483; font-size: 15px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .amount-box { background-color: #E8DAEF; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .amount-box p { color: #6C3483; font-size: 12px; margin: 0 0 4px; }
+        .amount-box h2 { color: #4A235A; font-size: 28px; font-weight: bold; margin: 0; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+        .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+        .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+        .details-table td:first-child { color: #777777; width: 45%; }
+        .details-table td:last-child { color: #1C2833; font-weight: bold; }
+        .timeline { margin: 20px 0; }
+        .timeline-item { display: flex; align-items: flex-start; margin-bottom: 12px; }
+        .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background-color: #8E44AD; flex-shrink: 0; margin-top: 3px; margin-right: 12px; }
+        .timeline-text { font-size: 13px; color: #555555; }
+        .timeline-text strong { color: #1C2833; }
+        .btn { display: block; width: fit-content; margin: 24px auto; padding: 13px 32px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>↩️ Remboursement confirmé</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${senderName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Suite à l'échec de votre transfert, nous confirmons
+            que le remboursement a bien été initié sur votre
+            carte bancaire.
+        </p>
+
+        <!-- Montant remboursé -->
+        <div class="amount-box">
+            <p>Montant remboursé sur votre carte</p>
+            <h2>
+                <span th:text="${totalDebited}">203.00</span>
+                <span th:text="${currencySent}">EUR</span>
+            </h2>
+        </div>
+
+        <!-- Timeline du remboursement -->
+        <p><strong>Suivi de votre remboursement :</strong></p>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-text">
+                    <strong>Remboursement initié</strong> le
+                    <span th:text="${refundDate}">09 juin 2025 à 14:35</span>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background-color: #E0E0E0;"></div>
+                <div class="timeline-text" style="color: #AAAAAA;">
+                    <strong>En cours de traitement</strong>
+                    par votre banque (1-3 jours ouvrés)
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot" style="background-color: #E0E0E0;"></div>
+                <div class="timeline-text" style="color: #AAAAAA;">
+                    <strong>Crédit sur votre compte</strong>
+                    sous 5 à 10 jours ouvrés maximum
+                </div>
+            </div>
+        </div>
+
+        <!-- Détails -->
+        <table class="details-table">
+            <tr>
+                <td>Référence transfert</td>
+                <td th:text="${reference}">TXN-20250609-0001</td>
+            </tr>
+            <tr>
+                <td>Montant remboursé</td>
+                <td>
+                    <span th:text="${totalDebited}">203.00</span>
+                    <span th:text="${currencySent}">EUR</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Référence Stripe</td>
+                <td th:text="${stripeRef}">pi_XXXXXXXXXX</td>
+            </tr>
+            <tr>
+                <td>Date du remboursement</td>
+                <td th:text="${refundDate}">09 juin 2025 à 14:35</td>
+            </tr>
+        </table>
+
+        <p>
+            Vous pouvez effectuer un nouveau transfert
+            dès maintenant depuis votre espace SendMe.
+        </p>
+
+        <a href="http://localhost:3000" class="btn">
+            🚀 Effectuer un nouveau transfert
+        </a>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

@@ -14,9 +14,9 @@ Content-Type: application/json
 }
 ### Dans Mailtrap tu dois voir :
 
-Objet : 🔒 Nouvelle connexion détectée sur votre compte SendMe
-IP affichée : 127.0.0.1 (localhost)
-Date et heure correctes
+### Objet :  Nouvelle connexion détectée sur votre compte SendMe
+### IP affichée : 127.0.0.1 (localhost)
+### Date et heure correctes
 
 
 ### 3. Test tentatives suspectes — envoie 5 mauvais mots de passe :
@@ -27,3 +27,32 @@ Content-Type: application/json
     "email": "ibrahima@sendme.com",
     "password": "mauvais_mot_de_passe"
 }
+
+
+### 2. Initie un transfert :
+POST http://localhost:8080/api/transfers
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+"amount": 200.00,
+"currency": "EUR",
+"beneficiaryId": 1,
+"paymentMethodId": "pm_card_visa",
+"idempotencyKey": "test-uuid-d-001"
+}
+### Dans Mailtrap tu dois voir dans l'ordre :
+
+### Email 1 — Objet :  Transfert TXN-XXX initié — Traitement en cours
+### Email 2 — Objet :  Transfert TXN-XXX complété — Mamadou a reçu 128745 XOF
+
+### 3. Simule un échec avec une carte refusée :
+Authorization: Bearer <token>
+Content-Type: application/json
+{
+    "paymentMethodId": "pm_card_visa_chargeDeclined",
+    "idempotencyKey": "test-uuid-d-002"
+}
+###  Dans Mailtrap tu dois voir :
+
+# Email — Objet : ↩️ Remboursement TXN-XXX confirmé ou ❌ Transfert TXN-XXX échoué

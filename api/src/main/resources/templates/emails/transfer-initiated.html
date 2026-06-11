@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transfert initié — SendMe</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+    .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+    .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+    .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+    .status-banner { background-color: #FEF9E7; padding: 16px 32px; text-align: center; border-bottom: 2px solid #F39C12; }
+    .status-banner p { color: #784212; font-size: 15px; font-weight: bold; margin: 0; }
+    .content { padding: 32px; }
+    .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+    .reference-box { background-color: #D6EAF8; border-radius: 8px; padding: 16px; text-align: center; margin: 20px 0; }
+    .reference-box p { color: #1A5276; font-size: 12px; margin: 0 0 4px; }
+    .reference-box h2 { color: #1B4F72; font-size: 22px; font-weight: bold; margin: 0; letter-spacing: 1px; }
+    .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+    .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+    .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+    .details-table td:first-child { color: #777777; width: 45%; }
+    .details-table td:last-child { color: #1C2833; font-weight: bold; }
+    .progress-bar { margin: 20px 0; }
+    .progress-steps { display: flex; justify-content: space-between; align-items: center; }
+    .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; flex-shrink: 0; }
+    .step-dot.active { background-color: #F39C12; color: #FFFFFF; }
+    .step-dot.pending { background-color: #E0E0E0; color: #999999; }
+    .step-line { flex: 1; height: 2px; background-color: #E0E0E0; margin: 0 4px; }
+    .step-label { font-size: 10px; text-align: center; color: #777777; margin-top: 4px; }
+    .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+    .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>SendMe</h1>
+    <p>Passerelle de transfert d'argent</p>
+  </div>
+
+  <div class="status-banner">
+    <p>⏳ Transfert initié — Traitement en cours</p>
+  </div>
+
+  <div class="content">
+
+    <p>
+      Bonjour <strong th:text="${senderName}">Jean Dupont</strong>,
+    </p>
+    <p>
+      Votre transfert a été initié avec succès et est
+      en cours de traitement. Vous recevrez une confirmation
+      dès qu'il sera complété.
+    </p>
+
+    <!-- Référence de la transaction -->
+    <div class="reference-box">
+      <p>Référence de votre transfert</p>
+      <h2 th:text="${reference}">TXN-20250609-0001</h2>
+    </div>
+
+    <!-- Barre de progression -->
+    <div class="progress-bar">
+      <div class="progress-steps">
+        <div>
+          <div class="step-dot active">1</div>
+          <div class="step-label">Initié</div>
+        </div>
+        <div class="step-line"></div>
+        <div>
+          <div class="step-dot pending">2</div>
+          <div class="step-label">Traitement</div>
+        </div>
+        <div class="step-line"></div>
+        <div>
+          <div class="step-dot pending">3</div>
+          <div class="step-label">Complété</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détails du transfert -->
+    <table class="details-table">
+      <tr>
+        <td>Référence</td>
+        <td th:text="${reference}">TXN-20250609-0001</td>
+      </tr>
+      <tr>
+        <td>Montant envoyé</td>
+        <td>
+          <span th:text="${amountSent}">200.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Frais plateforme</td>
+        <td>
+          <span th:text="${fees}">3.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Total débité</td>
+        <td>
+          <span th:text="${totalDebited}">203.00</span>
+          <span th:text="${currencySent}">EUR</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Bénéficiaire</td>
+        <td th:text="${beneficiaryName}">Mamadou Diallo</td>
+      </tr>
+      <tr>
+        <td>Canal de réception</td>
+        <td th:text="${channel}">ORANGE MONEY</td>
+      </tr>
+      <tr>
+        <td>Date d'initiation</td>
+        <td th:text="${initiatedDate}">09 juin 2025 à 14:32</td>
+      </tr>
+    </table>
+
+    <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+      Conservez la référence
+      <strong th:text="${reference}">TXN-20250609-0001</strong>
+      pour tout suivi de votre transfert.
+    </p>
+
+  </div>
+
+  <div class="footer">
+    <p><strong>SendMe</strong> — support@sendme.com</p>
+    <p>© 2025 SendMe — Tous droits réservés</p>
+  </div>
+
+</div>
+</body>
+</html>
