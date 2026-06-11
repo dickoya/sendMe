@@ -150,10 +150,18 @@
 			<version>7.2.5</version>
 		</dependency>
 
-		<!-- dépendance pour les notifications par Mails -->
+		<!-- Spring Mail — envoi d'emails via SMTP -->
+		<!-- Fournit JavaMailSender pour envoyer des emails -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- Thymeleaf — moteur de templates HTML pour les emails -->
+		<!-- Permet de générer des emails HTML dynamiques avec des variables -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
 
 		<!-- SpringDoc OpenAPI — génère automatiquement la documentation Swagger -->
@@ -164,15 +172,24 @@
 			<version>2.5.0</version>
 		</dependency>
 
-	</dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+
+</dependencies>
+
+<build>
+<resources>
+	<resource>
+		<directory>src/main/resources</directory>
+		<filtering>false</filtering>
+	</resource>
+</resources>
+
+<plugins>
+	<plugin>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-maven-plugin</artifactId>
+	</plugin>
+</plugins>
+</build>
 
 </project>

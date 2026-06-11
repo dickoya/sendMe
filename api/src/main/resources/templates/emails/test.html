@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Email — SendMe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F2F3F4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            background-color: #1B4F72;
+            padding: 24px 32px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #FFFFFF;
+            margin: 0;
+            font-size: 24px;
+        }
+        .header p {
+            color: #A8D5F5;
+            margin: 4px 0 0;
+            font-size: 13px;
+        }
+        .status-banner {
+            background-color: #D5F5E3;
+            padding: 16px 32px;
+            text-align: center;
+            border-bottom: 2px solid #1E8449;
+        }
+        .status-banner p {
+            color: #1E8449;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .content {
+            padding: 32px;
+        }
+        .content p {
+            color: #555555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .info-box {
+            background-color: #D6EAF8;
+            border-left: 4px solid #1B4F72;
+            border-radius: 4px;
+            padding: 16px;
+            margin: 20px 0;
+        }
+        .info-box p {
+            color: #1A5276;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .footer {
+            background-color: #F2F3F4;
+            padding: 20px 32px;
+            text-align: center;
+            border-top: 1px solid #E0E0E0;
+        }
+        .footer p {
+            color: #888888;
+            font-size: 12px;
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- En-tête -->
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <!-- Bannière de statut -->
+    <div class="status-banner">
+        <p>✅ Configuration email opérationnelle !</p>
+    </div>
+
+    <!-- Contenu -->
+    <div class="content">
+        <p>Bonjour,</p>
+        <p>
+            Cet email confirme que la configuration SMTP de <strong>SendMe</strong>
+            fonctionne correctement avec <strong>Mailtrap</strong>.
+        </p>
+        <p>
+            Les notifications email seront envoyées automatiquement
+            aux utilisateurs lors des événements suivants :
+        </p>
+        <ul style="color: #555555; font-size: 14px; line-height: 1.8;">
+            <li>Inscription et connexion</li>
+            <li>Transferts (initié, complété, échoué, remboursé)</li>
+            <li>Paiements Stripe (confirmé, refusé)</li>
+            <li>Sécurité (nouvelles connexions, tentatives suspectes)</li>
+            <li>Administration (compte désactivé, changement de tarifs)</li>
+        </ul>
+
+        <!-- Informations de test -->
+        <div class="info-box">
+            <p><strong>Destinataire :</strong>
+                <span th:text="${toEmail}">test@example.com</span>
+            </p>
+            <p><strong>Date d'envoi :</strong>
+                <span th:text="${testDate}">09 juin 2025 à 14:32</span>
+            </p>
+            <p><strong>Environnement :</strong> Sandbox Mailtrap</p>
+            <p><strong>Projet :</strong> SendMe — TFE 2024-2025</p>
+        </div>
+
+        <p style="color: #888888; font-size: 12px;">
+            Cet email est un test automatique généré par SendMe.
+            Il ne nécessite aucune action de votre part.
+        </p>
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+        <p><strong>SendMe</strong> — Passerelle de transfert d'argent</p>
+        <p>support@sendme.com | www.sendme.com</p>
+        <p>© 2025 SendMe — TFE</p>
+    </div>
+
+</div>
+</body>
+</html>
