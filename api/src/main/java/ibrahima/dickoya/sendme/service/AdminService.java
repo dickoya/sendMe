@@ -58,6 +58,12 @@ public class AdminService {
     private final SimulatorService simulatorService;
 
     /**
+     * Service email pour notifier l'utilisateur
+     * quand son compte est activé ou désactivé.
+     */
+    private final EmailService emailService;
+
+    /**
      * Génère le tableau de bord complet avec toutes les statistiques.
      *
      * Calcule en temps réel :
@@ -193,7 +199,19 @@ public class AdminService {
         // Inverser le statut actuel
         boolean newStatus = !user.getIsActive();
         user.setIsActive(newStatus);
+        // Sauvegarder le nouveau statut
         userRepository.save(user);
+
+// Notifier l'utilisateur par email selon le nouveau statut
+        if (newStatus) {
+            // Compte réactivé → email de bonne nouvelle
+            emailService.sendAccountReactivatedEmail(user);
+            log.info("[ADMIN] Email réactivation envoyé à : {}", user.getEmail());
+        } else {
+            // Compte suspendu → email d'avertissement
+            emailService.sendAccountDisabledEmail(user);
+            log.info("[ADMIN] Email suspension envoyé à : {}", user.getEmail());
+        }
 
         log.info("[ADMIN] Compte {} : statut changé à {}",
                 user.getEmail(), newStatus ? "ACTIF" : "DESACTIVE");

@@ -24,6 +24,11 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    /**
+     * Service email injecté pour envoyer l'email de bienvenue
+     * après l'inscription d'un nouvel utilisateur.
+     */
+    private final EmailService emailService;
 
     // Inscription
     public AuthResponse register(RegisterRequest request) {
@@ -46,6 +51,9 @@ public class AuthService {
 
         userRepository.save(user);
         log.info("Nouvel utilisateur enregistre : {}", user.getEmail());
+        // Envoyer l'email de bienvenue en arrière-plan (@Async)
+        // Ne bloque pas la réponse HTTP si l'email échoue
+        emailService.sendWelcomeEmail(user);
 
         // Generer les tokens
         var userDetails = userDetailsService.loadUserByUsername(user.getEmail());

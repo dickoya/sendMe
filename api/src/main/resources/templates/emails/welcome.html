@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur SendMe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F2F3F4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #1B4F72;
+            padding: 32px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #FFFFFF;
+            margin: 0 0 6px;
+            font-size: 28px;
+        }
+        .header p {
+            color: #A8D5F5;
+            margin: 0;
+            font-size: 13px;
+        }
+        .welcome-banner {
+            background-color: #D6EAF8;
+            padding: 20px 32px;
+            text-align: center;
+            border-bottom: 2px solid #2E86C1;
+        }
+        .welcome-banner h2 {
+            color: #1B4F72;
+            margin: 0;
+            font-size: 18px;
+        }
+        .content {
+            padding: 32px;
+        }
+        .content p {
+            color: #555555;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            padding: 12px;
+            background-color: #F8F9FA;
+            border-radius: 6px;
+            border-left: 3px solid #1B4F72;
+        }
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .feature-text h4 {
+            margin: 0 0 3px;
+            color: #1B4F72;
+            font-size: 13px;
+        }
+        .feature-text p {
+            margin: 0;
+            color: #777777;
+            font-size: 12px;
+        }
+        .btn {
+            display: block;
+            width: fit-content;
+            margin: 24px auto;
+            padding: 13px 32px;
+            background-color: #1B4F72;
+            color: #FFFFFF;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .info-box {
+            background-color: #FEF9E7;
+            border-left: 4px solid #F39C12;
+            border-radius: 4px;
+            padding: 14px;
+            margin: 20px 0;
+        }
+        .info-box p {
+            color: #784212;
+            font-size: 13px;
+            margin: 0;
+        }
+        .footer {
+            background-color: #F2F3F4;
+            padding: 20px 32px;
+            text-align: center;
+            border-top: 1px solid #E0E0E0;
+        }
+        .footer p {
+            color: #888888;
+            font-size: 12px;
+            margin: 3px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- En-tête -->
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent multi-canaux</p>
+    </div>
+
+    <!-- Bannière de bienvenue -->
+    <div class="welcome-banner">
+        <h2>🎉 Bienvenue sur SendMe, <span th:text="${firstName}">Jean</span> !</h2>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${fullName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Votre compte SendMe a été créé avec succès.
+            Vous pouvez dès maintenant envoyer de l'argent
+            directement depuis votre carte bancaire vers
+            les canaux de votre choix.
+        </p>
+
+        <!-- Fonctionnalités -->
+        <div style="margin: 20px 0;">
+
+            <div class="feature-item">
+                <span class="feature-icon">🏦</span>
+                <div class="feature-text">
+                    <h4>Virement bancaire international</h4>
+                    <p>Envoyez vers n'importe quel compte SEPA/SWIFT</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <span class="feature-icon">🟠</span>
+                <div class="feature-text">
+                    <h4>Orange Money</h4>
+                    <p>Transfert instantané vers les comptes Orange Money</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <span class="feature-icon">🟡</span>
+                <div class="feature-text">
+                    <h4>MTN MoMo / Wave / Moov / Airtel</h4>
+                    <p>Tous les grands opérateurs Mobile Money supportés</p>
+                </div>
+            </div>
+
+            <div class="feature-item">
+                <span class="feature-icon">💰</span>
+                <div class="feature-text">
+                    <h4>Frais transparents — seulement 1.5%</h4>
+                    <p>Taux de change en temps réel, aucun frais caché</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Infos du compte -->
+        <div class="info-box">
+            <p>
+                📧 Votre email de connexion :
+                <strong th:text="${email}">jean@example.com</strong>
+            </p>
+        </div>
+
+        <!-- Bouton d'action -->
+        <a href="http://localhost:3000" class="btn">
+            🚀 Commencer à transférer
+        </a>
+
+        <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+            Si vous n'êtes pas à l'origine de cette inscription,
+            ignorez cet email ou contactez
+            <strong>support@sendme.com</strong>
+        </p>
+
+    </div>
+
+    <!-- Pied de page -->
+    <div class="footer">
+        <p><strong>SendMe</strong> — Passerelle de transfert d'argent</p>
+        <p>support@sendme.com | www.sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

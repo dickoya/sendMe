@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte suspendu — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #FADBD8; padding: 16px 32px; text-align: center; border-bottom: 2px solid #C0392B; }
+        .status-banner p { color: #C0392B; font-size: 16px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .info-box { background-color: #FADBD8; border-left: 4px solid #C0392B; border-radius: 4px; padding: 14px; margin: 20px 0; }
+        .info-box p { color: #922B21; font-size: 13px; margin: 4px 0; }
+        .steps { margin: 20px 0; }
+        .step { display: flex; align-items: flex-start; margin-bottom: 10px; }
+        .step-num { background-color: #1B4F72; color: #FFFFFF; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; margin-right: 10px; margin-top: 1px; }
+        .step p { margin: 0; color: #555555; font-size: 13px; }
+        .btn { display: block; width: fit-content; margin: 24px auto; padding: 13px 32px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>⚠️ Votre compte a été suspendu</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${fullName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Nous vous informons que votre compte SendMe associé à l'adresse
+            <strong th:text="${email}">jean@example.com</strong>
+            a été temporairement suspendu par notre équipe d'administration.
+        </p>
+
+        <!-- Détails de la suspension -->
+        <div class="info-box">
+            <p>
+                📅 Date de suspension :
+                <strong th:text="${disabledDate}">09 juin 2025 à 14:32</strong>
+            </p>
+            <p>
+                ⛔ Conséquence : vous ne pouvez plus vous connecter
+                ni effectuer de transferts.
+            </p>
+        </div>
+
+        <!-- Étapes pour résoudre -->
+        <p><strong>Que faire ?</strong></p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <p>Contactez notre support à <strong>support@sendme.com</strong></p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <p>Indiquez votre email et la référence de suspension</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <p>Notre équipe étudiera votre dossier sous 48h ouvrées</p>
+            </div>
+        </div>
+
+        <a href="mailto:support@sendme.com" class="btn">
+            📧 Contacter le support
+        </a>
+
+        <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+            Si vous pensez qu'il s'agit d'une erreur,
+            contactez-nous immédiatement.
+        </p>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+### 2. Envoie l'email de test depuis Postman :
+POST http://localhost:8080/api/auth/test-email?to=test@example.com
+#Tu dois voir dans la console :
+#[EMAIL] Envoi de l'email de test vers : test@example.com
+#[EMAIL] Email de test envoyé avec succès vers : test@example.com

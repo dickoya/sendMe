@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import ibrahima.dickoya.sendme.entity.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -109,6 +110,134 @@ public class EmailService {
         } catch (Exception e) {
             log.error("[EMAIL] Échec envoi email de test : {}", e.getMessage());
             throw new RuntimeException("Échec envoi email de test : " + e.getMessage());
+        }
+    }
+    /**
+     * Envoie l'email de bienvenue après l'inscription.
+     *
+     * Déclenché automatiquement par AuthService.register()
+     * après la sauvegarde du compte en base de données.
+     *
+     * Variables Thymeleaf utilisées dans welcome.html :
+     * - firstName  : prénom seul pour le titre de bienvenue
+     * - fullName   : prénom + nom pour la salutation
+     * - email      : email de connexion du nouvel utilisateur
+     *
+     * @param user l'utilisateur qui vient de s'inscrire
+     */
+    @Async
+    public void sendWelcomeEmail(User user) {
+        try {
+            log.info("[EMAIL] Envoi email de bienvenue à : {}", user.getEmail());
+
+            // Préparer le contexte avec les variables du template
+            Context context = new Context();
+            context.setVariable("firstName", user.getFirstName());
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("email", user.getEmail());
+
+            // Générer le HTML depuis le template Thymeleaf
+            String htmlContent = templateEngine.process(
+                    "emails/welcome", context);
+
+            // Envoyer l'email
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "🎉 Bienvenue sur SendMe — Votre compte est prêt !",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email de bienvenue envoyé à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            // On ne bloque jamais l'inscription si l'email échoue
+            log.error("[EMAIL] Échec email bienvenue pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de notification de suspension de compte.
+     *
+     * Déclenché par AdminService.toggleUserStatus()
+     * quand l'admin désactive un compte utilisateur.
+     *
+     * Variables Thymeleaf utilisées dans account-disabled.html :
+     * - fullName     : prénom + nom pour la salutation
+     * - email        : email du compte suspendu
+     * - disabledDate : date et heure de la suspension
+     *
+     * @param user l'utilisateur dont le compte vient d'être suspendu
+     */
+    @Async
+    public void sendAccountDisabledEmail(User user) {
+        try {
+            log.info("[EMAIL] Envoi email suspension compte à : {}", user.getEmail());
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("email", user.getEmail());
+            context.setVariable("disabledDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/account-disabled", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "⚠️ Votre compte SendMe a été suspendu",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email suspension compte envoyé à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email suspension pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de notification de réactivation de compte.
+     *
+     * Déclenché par AdminService.toggleUserStatus()
+     * quand l'admin réactive un compte utilisateur préalablement suspendu.
+     *
+     * Variables Thymeleaf utilisées dans account-reactivated.html :
+     * - fullName         : prénom + nom pour la salutation
+     * - email            : email du compte réactivé
+     * - reactivatedDate  : date et heure de la réactivation
+     *
+     * @param user l'utilisateur dont le compte vient d'être réactivé
+     */
+    @Async
+    public void sendAccountReactivatedEmail(User user) {
+        try {
+            log.info("[EMAIL] Envoi email réactivation compte à : {}", user.getEmail());
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("email", user.getEmail());
+            context.setVariable("reactivatedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/account-reactivated", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "✅ Votre compte SendMe a été réactivé",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email réactivation compte envoyé à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email réactivation pour {} : {}",
+                    user.getEmail(), e.getMessage());
         }
     }
 
