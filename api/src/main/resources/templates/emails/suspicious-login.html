@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activité suspecte — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #922B21; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #F1948A; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #FADBD8; padding: 20px 32px; text-align: center; border-bottom: 3px solid #C0392B; }
+        .status-banner h2 { color: #922B21; font-size: 18px; margin: 0 0 6px; }
+        .status-banner p { color: #C0392B; font-size: 14px; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .alert-count { background-color: #FADBD8; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .alert-count h3 { color: #C0392B; font-size: 32px; margin: 0; }
+        .alert-count p { color: #922B21; font-size: 13px; margin: 4px 0 0; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+        .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+        .details-table td:first-child { color: #777777; width: 40%; font-weight: bold; }
+        .tips { margin: 20px 0; }
+        .tip-item { display: flex; align-items: flex-start; margin-bottom: 10px; padding: 10px 12px; background-color: #F8F9FA; border-radius: 4px; }
+        .tip-icon { font-size: 16px; margin-right: 10px; flex-shrink: 0; }
+        .tip-text { color: #555555; font-size: 13px; }
+        .btn-danger { display: block; width: fit-content; margin: 24px auto 10px; padding: 13px 32px; background-color: #C0392B; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>🚨 SendMe — Alerte Sécurité</h1>
+        <p>Activité suspecte détectée sur votre compte</p>
+    </div>
+
+    <div class="status-banner">
+        <h2>⚠️ Tentatives de connexion suspectes</h2>
+        <p>Plusieurs tentatives de connexion échouées ont été détectées</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${fullName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Nous avons détecté plusieurs tentatives de connexion
+            échouées sur votre compte SendMe.
+            Cela peut indiquer une tentative d'accès non autorisé.
+        </p>
+
+        <!-- Compteur de tentatives -->
+        <div class="alert-count">
+            <h3 th:text="${attempts}">5</h3>
+            <p>tentatives de connexion échouées consécutives</p>
+        </div>
+
+        <!-- Détails de l'activité suspecte -->
+        <table class="details-table">
+            <tr>
+                <td>📅 Dernière tentative</td>
+                <td th:text="${lastAttemptDate}">09 juin 2025 à 14:32</td>
+            </tr>
+            <tr>
+                <td>🌐 Adresse IP suspecte</td>
+                <td th:text="${ipAddress}">192.168.1.1</td>
+            </tr>
+            <tr>
+                <td>📧 Compte ciblé</td>
+                <td th:text="${email}">jean@example.com</td>
+            </tr>
+        </table>
+
+        <!-- Conseils de sécurité -->
+        <p><strong>Actions recommandées :</strong></p>
+        <div class="tips">
+            <div class="tip-item">
+                <span class="tip-icon">🔑</span>
+                <span class="tip-text">
+                    Changez immédiatement votre mot de passe
+                    si vous suspectez une compromission
+                </span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">🔒</span>
+                <span class="tip-text">
+                    Utilisez un mot de passe fort : minimum 12 caractères,
+                    majuscules, chiffres et caractères spéciaux
+                </span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">📵</span>
+                <span class="tip-text">
+                    Ne partagez jamais votre mot de passe
+                    avec qui que ce soit, même notre support
+                </span>
+            </div>
+            <div class="tip-item">
+                <span class="tip-icon">📧</span>
+                <span class="tip-text">
+                    Contactez notre support si vous n'êtes
+                    pas à l'origine de ces tentatives
+                </span>
+            </div>
+        </div>
+
+        <a href="mailto:support@sendme.com" class="btn-danger">
+            🚨 Signaler une activité suspecte
+        </a>
+
+        <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+            Si c'était vous qui testiez votre mot de passe,
+            vous pouvez ignorer cet email.
+        </p>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

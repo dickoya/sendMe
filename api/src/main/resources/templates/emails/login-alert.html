@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle connexion — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #D6EAF8; padding: 16px 32px; text-align: center; border-bottom: 2px solid #2E86C1; }
+        .status-banner p { color: #1A5276; font-size: 15px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; border-radius: 6px; overflow: hidden; }
+        .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+        .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+        .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+        .details-table td:first-child { color: #777777; width: 40%; font-weight: bold; }
+        .details-table td:last-child { color: #1C2833; }
+        .warning-box { background-color: #FDEDEC; border-left: 4px solid #C0392B; border-radius: 4px; padding: 14px; margin: 20px 0; }
+        .warning-box p { color: #922B21; font-size: 13px; margin: 4px 0; }
+        .btn-danger { display: block; width: fit-content; margin: 20px auto; padding: 12px 28px; background-color: #C0392B; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .btn-safe { display: block; width: fit-content; margin: 10px auto 20px; padding: 12px 28px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: bold; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>🔒 Nouvelle connexion détectée sur votre compte</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${fullName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Une nouvelle connexion vient d'être détectée sur votre
+            compte SendMe. Voici les détails :
+        </p>
+
+        <!-- Tableau des détails de connexion -->
+        <table class="details-table">
+            <tr>
+                <td>📅 Date et heure</td>
+                <td th:text="${loginDate}">09 juin 2025 à 14:32</td>
+            </tr>
+            <tr>
+                <td>🌐 Adresse IP</td>
+                <td th:text="${ipAddress}">192.168.1.1</td>
+            </tr>
+            <tr>
+                <td>📧 Email utilisé</td>
+                <td th:text="${email}">jean@example.com</td>
+            </tr>
+        </table>
+
+        <!-- Avertissement -->
+        <div class="warning-box">
+            <p>
+                ⚠️ <strong>Ce n'était pas vous ?</strong>
+                Sécurisez immédiatement votre compte en
+                changeant votre mot de passe.
+            </p>
+        </div>
+
+        <!-- Boutons d'action -->
+        <a href="mailto:support@sendme.com" class="btn-danger">
+            🚨 Ce n'était pas moi — Sécuriser mon compte
+        </a>
+        <a href="http://localhost:3000" class="btn-safe">
+            ✅ C'était bien moi — Continuer
+        </a>
+
+        <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+            Si c'était bien vous, vous pouvez ignorer cet email.
+            Nous vous envoyons ce message pour votre sécurité.
+        </p>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

@@ -1,5 +1,29 @@
 ### 2. Envoie l'email de test depuis Postman :
 POST http://localhost:8080/api/auth/test-email?to=test@example.com
 #Tu dois voir dans la console :
-#[EMAIL] Envoi de l'email de test vers : test@example.com
+#[EMAIL] Envoi de l'email de test vers : test@sendme.com
 #[EMAIL] Email de test envoyé avec succès vers : test@example.com
+
+###2. Test alerte connexion — connecte-toi normalement :
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "ibrahima@sendme.com",
+    "password": "motdepasse123"
+}
+### Dans Mailtrap tu dois voir :
+
+Objet : 🔒 Nouvelle connexion détectée sur votre compte SendMe
+IP affichée : 127.0.0.1 (localhost)
+Date et heure correctes
+
+
+### 3. Test tentatives suspectes — envoie 5 mauvais mots de passe :
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "ibrahima@sendme.com",
+    "password": "mauvais_mot_de_passe"
+}

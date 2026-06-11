@@ -288,4 +288,100 @@ public class EmailService {
 
         log.debug("[EMAIL] Email envoyé → {} | Objet : {}", to, subject);
     }
+    /**
+     * Envoie un email d'alerte de nouvelle connexion.
+     *
+     * Déclenché à chaque connexion réussie via POST /api/auth/login.
+     * Permet à l'utilisateur de détecter une connexion non autorisée
+     * et de sécuriser son compte rapidement.
+     *
+     * Variables Thymeleaf utilisées dans login-alert.html :
+     * - fullName  : prénom + nom pour la salutation
+     * - email     : email du compte connecté
+     * - ipAddress : adresse IP de la connexion
+     * - loginDate : date et heure de la connexion
+     *
+     * @param user      l'utilisateur qui vient de se connecter
+     * @param ipAddress l'adresse IP depuis laquelle la connexion a eu lieu
+     */
+    @Async
+    public void sendLoginAlertEmail(User user, String ipAddress) {
+        try {
+            log.info("[EMAIL] Envoi alerte connexion à : {} depuis IP : {}",
+                    user.getEmail(), ipAddress);
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("email", user.getEmail());
+            context.setVariable("ipAddress", ipAddress);
+            context.setVariable("loginDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/login-alert", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "🔒 Nouvelle connexion détectée sur votre compte SendMe",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Alerte connexion envoyée à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            // Ne jamais bloquer le login si l'email échoue
+            log.error("[EMAIL] Échec alerte connexion pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie un email d'alerte de tentatives de connexion suspectes.
+     *
+     * Déclenché dans AuthService.login() quand le nombre de tentatives
+     * échouées consécutives atteint le seuil défini (5 par défaut).
+     *
+     * Variables Thymeleaf utilisées dans suspicious-login.html :
+     * - fullName        : prénom + nom pour la salutation
+     * - email           : email du compte ciblé
+     * - ipAddress       : adresse IP des tentatives
+     * - attempts        : nombre de tentatives échouées
+     * - lastAttemptDate : date et heure de la dernière tentative
+     *
+     * @param user      l'utilisateur dont le compte est ciblé
+     * @param ipAddress l'adresse IP depuis laquelle viennent les tentatives
+     * @param attempts  le nombre de tentatives échouées consécutives
+     */
+    @Async
+    public void sendSuspiciousLoginEmail(User user, String ipAddress, int attempts) {
+        try {
+            log.warn("[EMAIL] Envoi alerte activité suspecte à : {} — {} tentatives",
+                    user.getEmail(), attempts);
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("email", user.getEmail());
+            context.setVariable("ipAddress", ipAddress);
+            context.setVariable("attempts", attempts);
+            context.setVariable("lastAttemptDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            String htmlContent = templateEngine.process(
+                    "emails/suspicious-login", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "🚨 Alerte sécurité — Activité suspecte sur votre compte SendMe",
+                    htmlContent
+            );
+
+            log.warn("[EMAIL] Alerte activité suspecte envoyée à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec alerte suspecte pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
 }

@@ -133,11 +133,21 @@ public class AuthController {
                     description = "Compte désactivé par l'administrateur"
             )
     })
+    /**
+     * Connexion utilisateur avec génération des tokens JWT.
+     * La HttpServletRequest est injectée automatiquement par Spring
+     * pour récupérer l'adresse IP de la connexion.
+     */
+
     public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>>
-    login(@Valid @RequestBody LoginRequest request) {
-        var response = authService.login(request);
-        return ResponseEntity.ok(ibrahima.dickoya.sendme.dto.response.ApiResponse
-                .success("Connexion reussie", response));
+    login(
+            @Valid @RequestBody LoginRequest request,
+            jakarta.servlet.http.HttpServletRequest httpRequest) {
+
+        var response = authService.login(request, httpRequest);
+        return ResponseEntity.ok(
+                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                        .success("Connexion reussie", response));
     }
     /**
      * Endpoint temporaire pour tester la configuration email.
