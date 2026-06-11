@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement refusé — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #FADBD8; padding: 16px 32px; text-align: center; border-bottom: 2px solid #C0392B; }
+        .status-banner p { color: #C0392B; font-size: 15px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .amount-box { background-color: #FADBD8; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .amount-box p { color: #922B21; font-size: 12px; margin: 0 0 4px; }
+        .amount-box h2 { color: #C0392B; font-size: 26px; font-weight: bold; margin: 0; text-decoration: line-through; opacity: 0.7; }
+        .amount-box span.no-charge { display: block; color: #1E8449; font-size: 13px; font-weight: bold; margin-top: 6px; }
+        .details-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        .details-table tr:nth-child(even) { background-color: #F2F3F4; }
+        .details-table tr:nth-child(odd) { background-color: #FFFFFF; }
+        .details-table td { padding: 11px 14px; font-size: 13px; border: 1px solid #E0E0E0; }
+        .details-table td:first-child { color: #777777; width: 45%; }
+        .details-table td:last-child { color: #1C2833; font-weight: bold; }
+        .causes { margin: 20px 0; }
+        .cause-item { display: flex; align-items: flex-start; margin-bottom: 10px; padding: 10px 12px; background-color: #FEF9E7; border-radius: 4px; border-left: 3px solid #F39C12; }
+        .cause-icon { font-size: 16px; margin-right: 10px; flex-shrink: 0; }
+        .cause-text { font-size: 13px; color: #555555; }
+        .btn { display: block; width: fit-content; margin: 24px auto 10px; padding: 13px 32px; background-color: #1B4F72; color: #FFFFFF; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: bold; }
+        .btn-support { display: block; width: fit-content; margin: 10px auto; padding: 11px 28px; background-color: transparent; color: #1B4F72; text-decoration: none; border-radius: 6px; font-size: 13px; border: 1px solid #1B4F72; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>❌ Paiement refusé par votre banque</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${senderName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Votre paiement par carte bancaire a été
+            <strong>refusé par Stripe</strong>.
+            Aucun montant n'a été débité de votre compte.
+        </p>
+
+        <!-- Montant non débité -->
+        <div class="amount-box">
+            <p>Montant non débité</p>
+            <h2>
+                <span th:text="${amount}">203.00</span>
+                <span th:text="${currency}">EUR</span>
+            </h2>
+            <span class="no-charge">✅ Aucun prélèvement effectué</span>
+        </div>
+
+        <!-- Détails du refus -->
+        <table class="details-table">
+            <tr>
+                <td>Référence SendMe</td>
+                <td th:text="${reference}">TXN-20250609-0001</td>
+            </tr>
+            <tr>
+                <td>Raison du refus</td>
+                <td style="color: #C0392B;"
+                    th:text="${failureReason}">
+                    Fonds insuffisants
+                </td>
+            </tr>
+            <tr>
+                <td>Montant concerné</td>
+                <td>
+                    <span th:text="${amount}">203.00</span>
+                    <span th:text="${currency}">EUR</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Date du refus</td>
+                <td th:text="${failedDate}">09 juin 2025 à 14:33</td>
+            </tr>
+        </table>
+
+        <!-- Causes possibles -->
+        <p><strong>Causes possibles :</strong></p>
+        <div class="causes">
+            <div class="cause-item">
+                <span class="cause-icon">💰</span>
+                <span class="cause-text">
+                    Solde insuffisant sur votre compte bancaire
+                </span>
+            </div>
+            <div class="cause-item">
+                <span class="cause-icon">🔒</span>
+                <span class="cause-text">
+                    Paiement en ligne bloqué par votre banque
+                    (vérifiez vos paramètres de sécurité)
+                </span>
+            </div>
+            <div class="cause-item">
+                <span class="cause-icon">💳</span>
+                <span class="cause-text">
+                    Carte expirée ou informations incorrectes
+                </span>
+            </div>
+            <div class="cause-item">
+                <span class="cause-icon">🌍</span>
+                <span class="cause-text">
+                    Plafond de paiement international atteint
+                </span>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <a href="http://localhost:3000" class="btn">
+            🔄 Réessayer avec une autre carte
+        </a>
+        <a href="mailto:support@sendme.com" class="btn-support">
+            📧 Contacter le support
+        </a>
+
+    </div>
+
+    <div class="footer">
+        <p>
+            <strong>SendMe</strong> — Paiements sécurisés par
+            <strong style="color: #635BFF;">Stripe</strong>
+        </p>
+        <p>support@sendme.com | www.sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

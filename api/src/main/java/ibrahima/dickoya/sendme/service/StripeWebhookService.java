@@ -26,26 +26,26 @@ public class StripeWebhookService {
 
     private final TransactionRepository transactionRepository;
     private final NotificationService notificationService;
+    /**
+     * Service email pour notifier l'utilisateur
+     * des événements de paiement Stripe via webhook.
+     */
+    private final EmailService emailService;
 
     /**
      * Traite l'événement payment_intent.succeeded.
-     *
-     * Déclenché par Stripe quand le paiement carte est confirmé.
-     * On envoie une notification à l'utilisateur pour le tenir informé.
-     *
-     * @param paymentIntent le PaymentIntent confirmé par Stripe
+     * Envoie un email de confirmation de paiement Stripe.
      */
     @Transactional
     public void handlePaymentSucceeded(PaymentIntent paymentIntent) {
 
         log.info("[WEBHOOK] Paiement confirmé : {}", paymentIntent.getId());
 
-        // Retrouver la transaction par son PaymentIntent Stripe
         transactionRepository
                 .findByStripePaymentIntentId(paymentIntent.getId())
                 .ifPresent(transaction -> {
 
-                    // Envoyer une notification de confirmation de paiement
+                    // Notification SSE déjà existante
                     notificationService.createAndSend(
                             transaction.getSender(),
                             String.format(
@@ -55,20 +55,20 @@ public class StripeWebhookService {
                                     transaction.getBeneficiary().getFirstName(),
                                     transaction.getBeneficiary().getLastName()
                             ),
-                            NotificationType.PAYMENT_CONFIRMED,
+                            ibrahima.dickoya.sendme.enums.NotificationType
+                                    .PAYMENT_CONFIRMED,
                             transaction
                     );
+
+                    // Email de confirmation de paiement Stripe
+                    emailService.sendPaymentConfirmedEmail(
+                            transaction.getSender(), transaction);
                 });
     }
 
     /**
      * Traite l'événement payment_intent.payment_failed.
-     *
-     * Déclenché par Stripe quand le paiement carte échoue
-     * (carte expirée, fonds insuffisants, etc.).
-     * On met à jour le statut de la transaction et on notifie.
-     *
-     * @param paymentIntent le PaymentIntent échoué
+     * Envoie un email d'alerte de refus de paiement.
      */
     @Transactional
     public void handlePaymentFailed(PaymentIntent paymentIntent) {
@@ -80,11 +80,18 @@ public class StripeWebhookService {
                 .ifPresent(transaction -> {
 
                     // Mettre à jour le statut de la transaction
-                    transaction.setStatus(TransactionStatus.FAILED);
+                    transaction.setStatus(
+                            ibrahima.dickoya.sendme.enums.TransactionStatus.FAILED);
                     transaction.setStripePaymentStatus("payment_failed");
                     transactionRepository.save(transaction);
 
-                    // Notifier l'utilisateur
+                    // Récupérer la raison du refus depuis Stripe
+                    String failureReason = paymentIntent
+                            .getLastPaymentError() != null
+                            ? paymentIntent.getLastPaymentError().getMessage()
+                            : "Paiement refusé par votre banque";
+
+                    // Notification SSE déjà existante
                     notificationService.createAndSend(
                             transaction.getSender(),
                             String.format(
@@ -92,9 +99,16 @@ public class StripeWebhookService {
                                             "Vérifiez vos informations de carte.",
                                     transaction.getReference()
                             ),
-                            NotificationType.PAYMENT_FAILED,
+                            ibrahima.dickoya.sendme.enums.NotificationType
+                                    .PAYMENT_FAILED,
                             transaction
                     );
+
+                    // Email d'alerte paiement refusé
+                    emailService.sendPaymentFailedEmail(
+                            transaction.getSender(),
+                            transaction,
+                            failureReason);
                 });
     }
 

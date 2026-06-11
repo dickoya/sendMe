@@ -659,4 +659,156 @@ public class EmailService {
                     transaction.getReference(), e.getMessage());
         }
     }
+    /**
+     * Envoie l'email de confirmation de paiement Stripe.
+     *
+     * Déclenché par StripeWebhookService.handlePaymentSucceeded()
+     * quand Stripe confirme via webhook que le paiement carte
+     * a bien été traité côté bancaire.
+     *
+     * Note : Cet email est complémentaire à sendTransferInitiatedEmail().
+     * Il confirme spécifiquement que le débit carte a réussi
+     * alors que sendTransferInitiatedEmail() confirme la création
+     * de la transaction dans SendMe.
+     *
+     * Variables du template payment-confirmed.html :
+     * - senderName           : prénom + nom de l'expéditeur
+     * - reference            : référence unique SendMe
+     * - stripePaymentIntentId: identifiant Stripe (pi_XXXX)
+     * - totalDebited         : montant total débité
+     * - currencySent         : devise du débit
+     * - beneficiaryName      : prénom + nom du bénéficiaire
+     * - channel              : canal de réception formaté
+     * - confirmedDate        : date et heure de confirmation Stripe
+     *
+     * @param user        l'expéditeur du transfert
+     * @param transaction la transaction dont le paiement est confirmé
+     */
+    @Async
+    public void sendPaymentConfirmedEmail(User user, Transaction transaction) {
+        try {
+            log.info("[EMAIL] Envoi email paiement confirmé pour : {}",
+                    transaction.getReference());
+
+            // Calculer le total débité (montant + frais)
+            java.math.BigDecimal totalDebited = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            // Formater le canal pour l'affichage
+            String channelDisplay = transaction.getChannel()
+                    .name().replace("_", " ");
+
+            // Nom complet du bénéficiaire
+            String beneficiaryName = transaction.getBeneficiary().getFirstName()
+                    + " " + transaction.getBeneficiary().getLastName();
+
+            // Préparer les variables du template
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference",
+                    transaction.getReference());
+            context.setVariable("stripePaymentIntentId",
+                    transaction.getStripePaymentIntentId());
+            context.setVariable("totalDebited", totalDebited);
+            context.setVariable("currencySent",
+                    transaction.getCurrencySent());
+            context.setVariable("beneficiaryName", beneficiaryName);
+            context.setVariable("channel", channelDisplay);
+            context.setVariable("confirmedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            // Générer le HTML depuis le template Thymeleaf
+            String htmlContent = templateEngine.process(
+                    "emails/payment-confirmed", context);
+
+            // Envoyer l'email
+            sendHtmlEmail(
+                    user.getEmail(),
+                    " Paiement confirmé — Transfert " +
+                            transaction.getReference() + " en cours d'envoi",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email paiement confirmé envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            // Ne jamais bloquer le flux si l'email échoue
+            log.error("[EMAIL] Échec email paiement confirmé {} : {}",
+                    transaction.getReference(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie l'email de notification de paiement refusé par Stripe.
+     *
+     * Déclenché par StripeWebhookService.handlePaymentFailed()
+     * quand Stripe notifie via webhook que le paiement a échoué
+     * (carte refusée, fonds insuffisants, carte expirée, etc.).
+     *
+     * Important : quand ce webhook arrive, aucun montant n'a été
+     * débité — Stripe n'a pas prélevé l'utilisateur.
+     * Le message doit donc être rassurant sur ce point.
+     *
+     * Variables du template payment-failed.html :
+     * - senderName    : prénom + nom de l'expéditeur
+     * - reference     : référence unique SendMe
+     * - amount        : montant du transfert tenté
+     * - currency      : devise
+     * - failureReason : raison du refus retournée par Stripe
+     * - failedDate    : date et heure du refus
+     *
+     * @param user          l'expéditeur dont le paiement a été refusé
+     * @param transaction   la transaction concernée
+     * @param failureReason la raison du refus fournie par Stripe
+     */
+    @Async
+    public void sendPaymentFailedEmail(
+            User user,
+            Transaction transaction,
+            String failureReason) {
+        try {
+            log.error("[EMAIL] Envoi email paiement refusé pour : {}",
+                    transaction.getReference());
+
+            // Calculer le montant total
+            java.math.BigDecimal totalAmount = transaction.getAmountSent()
+                    .add(transaction.getFees());
+
+            // Préparer les variables du template
+            Context context = new Context();
+            context.setVariable("senderName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("reference",
+                    transaction.getReference());
+            context.setVariable("amount", totalAmount);
+            context.setVariable("currency",
+                    transaction.getCurrencySent());
+            context.setVariable("failureReason",
+                    failureReason != null ? failureReason :
+                            "Paiement refusé par votre banque");
+            context.setVariable("failedDate",
+                    LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+            // Générer le HTML depuis le template Thymeleaf
+            String htmlContent = templateEngine.process(
+                    "emails/payment-failed", context);
+
+            // Envoyer l'email
+            sendHtmlEmail(
+                    user.getEmail(),
+                    " Paiement refusé — Aucun prélèvement effectué pour " +
+                            transaction.getReference(),
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email paiement refusé envoyé pour : {}",
+                    transaction.getReference());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email paiement refusé {} : {}",
+                    transaction.getReference(), e.getMessage());
+        }
+    }
 }
