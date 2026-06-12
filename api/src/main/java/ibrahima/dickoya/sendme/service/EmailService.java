@@ -81,7 +81,9 @@ public class EmailService {
      *
      * À appeler UNE SEULE FOIS après la configuration
      * pour valider la connexion Mailtrap.
-     *
+     *      * Méthode de diagnostic — peut être réutilisée pour
+     *      * tester la configuration SMTP en cas de problème futur.
+     *      * Non exposée via API (endpoint supprimé après Phase A).
      * @param toEmail adresse email de destination pour le test
      */
     @Async

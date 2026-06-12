@@ -1,0 +1,79 @@
+/**
+ * Variables CSS globales — Charte graphique SendMe
+ *
+ * Palette de couleurs reprise du cahier des charges :
+ * - Primaire : bleu profond (#1B4F72)
+ * - Secondaire : bleu moyen (#2E86C1)
+ * - Accent : teal (#148F77)
+ */
+:root {
+    /* ── Couleurs principales ────────────────────────────────────── */
+    --color-primary: #1B4F72;
+    --color-primary-light: #2E86C1;
+    --color-primary-dark: #154360;
+
+    --color-secondary: #2E86C1;
+    --color-accent: #148F77;
+
+    /* ── Couleurs sémantiques (statuts de transaction) ──────────────── */
+    --color-success: #1E8449;
+    --color-success-bg: #D5F5E3;
+
+    --color-danger: #C0392B;
+    --color-danger-bg: #FADBD8;
+
+    --color-warning: #F39C12;
+    --color-warning-bg: #FEF9E7;
+
+    --color-info: #2E86C1;
+    --color-info-bg: #D6EAF8;
+
+    /* ── Couleurs neutres ─────────────────────────────────────────── */
+    --color-text-primary: #1C2833;
+    --color-text-secondary: #555555;
+    --color-text-tertiary: #888888;
+
+    --color-bg-primary: #FFFFFF;
+    --color-bg-secondary: #F2F3F4;
+    --color-bg-tertiary: #E5E7E9;
+
+    --color-border: #E0E0E0;
+    --color-border-light: #F0F0F0;
+
+    /* ── Typographie ──────────────────────────────────────────────── */
+    --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.875rem;  /* 14px */
+    --font-size-base: 1rem;    /* 16px */
+    --font-size-lg: 1.125rem;  /* 18px */
+    --font-size-xl: 1.25rem;   /* 20px */
+    --font-size-2xl: 1.5rem;   /* 24px */
+    --font-size-3xl: 1.875rem; /* 30px */
+
+    /* ── Espacements ──────────────────────────────────────────────── */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+
+    /* ── Bordures et ombres ───────────────────────────────────────── */
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --border-radius-full: 9999px;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+
+    /* ── Transitions ──────────────────────────────────────────────── */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.25s ease;
+
+    /* ── Sidebar ──────────────────────────────────────────────────── */
+    --sidebar-width: 240px;
+    --header-height: 64px;
+}
