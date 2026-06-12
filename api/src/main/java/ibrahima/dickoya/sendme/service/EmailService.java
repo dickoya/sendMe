@@ -811,4 +811,121 @@ public class EmailService {
                     transaction.getReference(), e.getMessage());
         }
     }
+    /**
+     * Envoie un email d'annonce de maintenance programmée.
+     *
+     * Déclenché par AdminService.sendMaintenanceNotification()
+     * quand l'administrateur planifie une maintenance et souhaite
+     * en informer tous les utilisateurs actifs.
+     *
+     * Variables du template maintenance.html :
+     * - fullName         : prénom + nom de l'utilisateur
+     * - maintenanceDate  : date et heure de la maintenance
+     * - duration         : durée estimée
+     *
+     * @param user             l'utilisateur destinataire
+     * @param maintenanceDate  date et heure de la maintenance (format libre)
+     * @param duration         durée estimée (ex: "2 heures")
+     */
+    @Async
+    public void sendMaintenanceEmail(
+            User user,
+            String maintenanceDate,
+            String duration) {
+        try {
+            log.info("[EMAIL] Envoi email maintenance à : {}", user.getEmail());
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("maintenanceDate", maintenanceDate);
+            context.setVariable("duration", duration);
+
+            String htmlContent = templateEngine.process(
+                    "emails/maintenance", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "🔧 SendMe — Maintenance programmée le " + maintenanceDate,
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email maintenance envoyé à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email maintenance pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
+
+    /**
+     * Envoie un email d'information sur le changement des tarifs.
+     *
+     * Déclenché par AdminService.updateFeeRate()
+     * quand l'administrateur modifie le taux de commission
+     * de la plateforme via PUT /api/admin/config/fees.
+     *
+     * Calcule automatiquement un exemple concret sur 100 EUR
+     * pour illustrer la différence entre l'ancien et le nouveau taux.
+     *
+     * Variables du template fee-update.html :
+     * - fullName       : prénom + nom de l'utilisateur
+     * - oldRate        : ancien taux en pourcentage (ex: "1.5")
+     * - newRate        : nouveau taux en pourcentage (ex: "2.0")
+     * - effectiveDate  : date d'application du nouveau taux
+     * - oldFeeExample  : frais calculés sur 100 EUR avec l'ancien taux
+     * - newFeeExample  : frais calculés sur 100 EUR avec le nouveau taux
+     *
+     * @param user            l'utilisateur destinataire
+     * @param oldRate         ancien taux en pourcentage (ex: 1.5)
+     * @param newRate         nouveau taux en pourcentage (ex: 2.0)
+     * @param effectiveDate   date d'application (format libre)
+     */
+    @Async
+    public void sendFeeUpdateEmail(
+            User user,
+            java.math.BigDecimal oldRate,
+            java.math.BigDecimal newRate,
+            String effectiveDate) {
+        try {
+            log.info("[EMAIL] Envoi email changement tarifs à : {}", user.getEmail());
+
+            // Calculer les frais exemples sur une base de 100 EUR
+            // Frais = 100 × (taux / 100)
+            java.math.BigDecimal base = new java.math.BigDecimal("100");
+            java.math.BigDecimal oldFeeExample = base
+                    .multiply(oldRate)
+                    .divide(new java.math.BigDecimal("100"))
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+            java.math.BigDecimal newFeeExample = base
+                    .multiply(newRate)
+                    .divide(new java.math.BigDecimal("100"))
+                    .setScale(2, java.math.RoundingMode.HALF_UP);
+
+            Context context = new Context();
+            context.setVariable("fullName",
+                    user.getFirstName() + " " + user.getLastName());
+            context.setVariable("oldRate", oldRate);
+            context.setVariable("newRate", newRate);
+            context.setVariable("effectiveDate", effectiveDate);
+            context.setVariable("oldFeeExample", oldFeeExample);
+            context.setVariable("newFeeExample", newFeeExample);
+
+            String htmlContent = templateEngine.process(
+                    "emails/fee-update", context);
+
+            sendHtmlEmail(
+                    user.getEmail(),
+                    "💰 SendMe — Mise à jour de nos tarifs (" +
+                            oldRate + "% → " + newRate + "%)",
+                    htmlContent
+            );
+
+            log.info("[EMAIL] Email changement tarifs envoyé à : {}", user.getEmail());
+
+        } catch (Exception e) {
+            log.error("[EMAIL] Échec email changement tarifs pour {} : {}",
+                    user.getEmail(), e.getMessage());
+        }
+    }
 }

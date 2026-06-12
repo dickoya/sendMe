@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance prévue — SendMe</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #F2F3F4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #1B4F72; padding: 24px 32px; text-align: center; }
+        .header h1 { color: #FFFFFF; margin: 0; font-size: 24px; }
+        .header p { color: #A8D5F5; margin: 4px 0 0; font-size: 13px; }
+        .status-banner { background-color: #FEF9E7; padding: 16px 32px; text-align: center; border-bottom: 2px solid #F39C12; }
+        .status-banner p { color: #784212; font-size: 15px; font-weight: bold; margin: 0; }
+        .content { padding: 32px; }
+        .content p { color: #555555; font-size: 14px; line-height: 1.7; }
+        .schedule-box { background-color: #FEF9E7; border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0; }
+        .schedule-box p { color: #B9770E; font-size: 12px; margin: 0 0 4px; }
+        .schedule-box h2 { color: #784212; font-size: 22px; font-weight: bold; margin: 0; }
+        .schedule-box .duration { color: #B9770E; font-size: 13px; margin-top: 6px; }
+        .impact-list { margin: 20px 0; }
+        .impact-item { display: flex; align-items: flex-start; margin-bottom: 10px; padding: 10px 12px; background-color: #F8F9FA; border-radius: 4px; }
+        .impact-icon { font-size: 16px; margin-right: 10px; flex-shrink: 0; }
+        .impact-text { font-size: 13px; color: #555555; }
+        .tips-box { background-color: #D6EAF8; border-left: 4px solid #1B4F72; border-radius: 4px; padding: 14px; margin: 20px 0; }
+        .tips-box p { color: #1A5276; font-size: 13px; margin: 4px 0; }
+        .footer { background-color: #F2F3F4; padding: 20px 32px; text-align: center; border-top: 1px solid #E0E0E0; }
+        .footer p { color: #888888; font-size: 12px; margin: 3px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>SendMe</h1>
+        <p>Passerelle de transfert d'argent</p>
+    </div>
+
+    <div class="status-banner">
+        <p>🔧 Maintenance programmée</p>
+    </div>
+
+    <div class="content">
+
+        <p>
+            Bonjour <strong th:text="${fullName}">Jean Dupont</strong>,
+        </p>
+        <p>
+            Nous vous informons qu'une maintenance technique
+            est programmée afin d'améliorer la qualité de service
+            de la plateforme SendMe.
+        </p>
+
+        <!-- Date et durée -->
+        <div class="schedule-box">
+            <p>Date et heure de la maintenance</p>
+            <h2 th:text="${maintenanceDate}">15 juin 2025 à 02:00</h2>
+            <p class="duration">
+                ⏱️ Durée estimée :
+                <strong th:text="${duration}">2 heures</strong>
+            </p>
+        </div>
+
+        <!-- Impact -->
+        <p><strong>Pendant cette période :</strong></p>
+        <div class="impact-list">
+            <div class="impact-item">
+                <span class="impact-icon">⛔</span>
+                <span class="impact-text">
+                    L'application sera temporairement inaccessible
+                </span>
+            </div>
+            <div class="impact-item">
+                <span class="impact-icon">💳</span>
+                <span class="impact-text">
+                    Aucun nouveau transfert ne pourra être initié
+                </span>
+            </div>
+            <div class="impact-item">
+                <span class="impact-icon">✅</span>
+                <span class="impact-text">
+                    Les transferts en cours seront traités normalement
+                    avant l'arrêt
+                </span>
+            </div>
+            <div class="impact-item">
+                <span class="impact-icon">📊</span>
+                <span class="impact-text">
+                    Vos données et historique resteront intacts
+                </span>
+            </div>
+        </div>
+
+        <!-- Conseils -->
+        <div class="tips-box">
+            <p>
+                💡 <strong>Conseil :</strong> Si vous avez un transfert
+                urgent, nous vous recommandons de l'effectuer
+                avant le début de la maintenance.
+            </p>
+        </div>
+
+        <p style="color: #AAAAAA; font-size: 12px; text-align: center;">
+            Nous nous excusons pour la gêne occasionnée
+            et vous remercions de votre compréhension.
+        </p>
+
+    </div>
+
+    <div class="footer">
+        <p><strong>SendMe</strong> — support@sendme.com</p>
+        <p>© 2025 SendMe — Tous droits réservés</p>
+    </div>
+
+</div>
+</body>
+</html>

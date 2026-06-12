@@ -249,18 +249,35 @@ public class AdminService {
     }
 
     /**
-     * Met à jour le taux de commission de la plateforme.
+     * Met à jour le taux de commission de la plateforme
+     * et notifie tous les utilisateurs actifs par email.
      *
      * Le nouveau taux est appliqué immédiatement à tous
-     * les nouveaux transferts. Les transactions en cours
-     * ne sont pas affectées.
+     * les nouveaux transferts. Les utilisateurs reçoivent
+     * un email les informant du changement.
      *
      * @param request le nouveau taux et la raison du changement
      */
     public void updateFeeRate(FeeConfigRequest request) {
+
+        // Récupérer l'ancien taux AVANT la mise à jour
+        java.math.BigDecimal oldRate = simulatorService.getCurrentFeeRate()
+                .multiply(new java.math.BigDecimal("100")); // convertir en %
+
+        // Appliquer le nouveau taux
         simulatorService.updateFeeRate(request.getFeeRate());
-        log.info("[ADMIN] Taux de commission mis a jour : {}% — Raison : {}",
-                request.getFeeRate(), request.getReason());
+
+        log.info("[ADMIN] Taux de commission mis a jour : {}% → {}% — Raison : {}",
+                oldRate, request.getFeeRate(), request.getReason());
+
+        // Date d'application = demain
+        String effectiveDate = java.time.LocalDate.now()
+                .plusDays(1)
+                .format(java.time.format.DateTimeFormatter
+                        .ofPattern("dd MMMM yyyy"));
+
+        // Envoyer la notification à tous les utilisateurs actifs
+        sendFeeUpdateNotification(oldRate, request.getFeeRate(), effectiveDate);
     }
 
     /**
@@ -318,5 +335,67 @@ public class AdminService {
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .build();
+    }
+    /**
+     * Envoie une notification de maintenance programmée
+     * à tous les utilisateurs ayant un compte actif.
+     *
+     * Appelé manuellement par l'administrateur via
+     * POST /api/admin/notifications/maintenance
+     * quand une maintenance technique est planifiée.
+     *
+     * Chaque email est envoyé de manière asynchrone (@Async)
+     * pour ne pas bloquer la réponse HTTP même avec
+     * un grand nombre d'utilisateurs.
+     *
+     * @param maintenanceDate date et heure de la maintenance (ex: "15 juin 2025 à 02:00")
+     * @param duration        durée estimée (ex: "2 heures")
+     */
+    @Transactional(readOnly = true)
+    public void sendMaintenanceNotification(
+            String maintenanceDate,
+            String duration) {
+
+        // Récupérer uniquement les comptes actifs
+        List<User> activeUsers = userRepository.findByIsActiveTrue();
+
+        log.info("[ADMIN] Envoi notification maintenance à {} utilisateurs actifs",
+                activeUsers.size());
+
+        // Envoyer l'email à chaque utilisateur actif
+        activeUsers.forEach(user ->
+                emailService.sendMaintenanceEmail(
+                        user, maintenanceDate, duration));
+
+        log.info("[ADMIN] Notifications maintenance envoyées avec succès");
+    }
+
+    /**
+     * Envoie une notification de changement de tarif
+     * à tous les utilisateurs ayant un compte actif.
+     *
+     * Appelé automatiquement par updateFeeRate() après
+     * la mise à jour du taux de commission de la plateforme.
+     *
+     * @param oldRate       ancien taux de commission en pourcentage
+     * @param newRate       nouveau taux de commission en pourcentage
+     * @param effectiveDate date d'application du nouveau taux
+     */
+    @Transactional(readOnly = true)
+    public void sendFeeUpdateNotification(
+            java.math.BigDecimal oldRate,
+            java.math.BigDecimal newRate,
+            String effectiveDate) {
+
+        List<User> activeUsers = userRepository.findByIsActiveTrue();
+
+        log.info("[ADMIN] Envoi notification changement tarifs à {} utilisateurs actifs",
+                activeUsers.size());
+
+        activeUsers.forEach(user ->
+                emailService.sendFeeUpdateEmail(
+                        user, oldRate, newRate, effectiveDate));
+
+        log.info("[ADMIN] Notifications changement tarifs envoyées avec succès");
     }
 }

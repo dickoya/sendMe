@@ -5,6 +5,7 @@ import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
 import ibrahima.dickoya.sendme.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -233,5 +234,50 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success(
                 "Taux de commission mis a jour : " + request.getFeeRate() + "%",
                 null));
+    }
+
+    /**
+     * Envoie une notification de maintenance programmée
+     * à tous les utilisateurs ayant un compte actif.
+     *
+     * Utilisé par l'administrateur pour prévenir les utilisateurs
+     * avant une intervention technique sur la plateforme.
+     *
+     * Exemple :
+     * POST /api/admin/notifications/maintenance
+     *      ?date=15 juin 2025 à 02:00
+     *      &duration=2 heures
+     *
+     * @param date     date et heure de la maintenance
+     * @param duration durée estimée de la maintenance
+     * @return 200 OK avec message de confirmation
+     */
+    @PostMapping("/notifications/maintenance")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Notifier une maintenance programmée",
+            description = """
+        Envoie un email d'annonce de maintenance à TOUS
+        les utilisateurs ayant un compte actif.
+
+        Les emails sont envoyés de manière asynchrone
+        et n'impactent pas le temps de réponse de cet endpoint.
+        """
+    )
+    public ResponseEntity<ApiResponse<Void>> sendMaintenanceNotification(
+            @Parameter(description = "Date et heure de la maintenance",
+                    example = "15 juin 2025 à 02:00")
+            @RequestParam String date,
+
+            @Parameter(description = "Durée estimée de la maintenance",
+                    example = "2 heures")
+            @RequestParam String duration) {
+
+        adminService.sendMaintenanceNotification(date, duration);
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        "Notification de maintenance envoyée à tous les utilisateurs actifs",
+                        null));
     }
 }

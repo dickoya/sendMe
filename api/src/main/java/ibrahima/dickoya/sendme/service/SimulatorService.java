@@ -135,4 +135,16 @@ public class SimulatorService {
         this.feeRate = newRate.divide(new BigDecimal("100"));
         log.info("[SIMULATOR] Taux de commission mis a jour : {}%", newRate);
     }
+    /**
+     * Retourne le taux de commission actuel sous forme décimale.
+     * Exemple : si le taux est 1.5%, retourne 0.015
+     *
+     * Utilisé par AdminService.updateFeeRate() pour comparer
+     * l'ancien et le nouveau taux dans l'email de notification.
+     *
+     * @return BigDecimal le taux actuel sous forme décimale
+     */
+    public BigDecimal getCurrentFeeRate() {
+        return this.feeRate;
+    }
 }

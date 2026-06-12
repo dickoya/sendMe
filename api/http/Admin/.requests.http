@@ -32,3 +32,23 @@ Content-Type: application/json
 ### 6. Toutes les transactions filtrées par statut :
 GET http://localhost:8080/api/admin/transactions?status=FAILED&page=0&size=10
 Authorization: Bearer <admin_access_token>
+
+
+###  Test changement de tarif :
+PUT http://localhost:8080/api/admin/config/fees
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+    "feeRate": 2.0,
+    "reason": "Ajustement tarif test"
+}
+
+### Test notification maintenance :
+POST http://localhost:8080/api/admin/notifications/maintenance?date=15 juin 2025 à 02:00&duration=2 heures
+Authorization: Bearer <admin_token>
+
+#Dans Mailtrap tu dois voir, pour chaque utilisateur actif :
+#
+#Objet :  SendMe — Maintenance programmée le 15 juin 2025 à 02:00
+#Date, durée, et liste des impacts affichés
