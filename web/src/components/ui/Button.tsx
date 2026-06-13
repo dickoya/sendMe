@@ -46,6 +46,7 @@ export interface ButtonProps
     extends ButtonHTMLAttributes<HTMLButtonElement>,
         VariantProps<typeof buttonVariants> {
     /** Affiche un spinner et désactive le bouton */
+    icon?: React.ReactNode;
     loading?: boolean;
 }
 
@@ -58,7 +59,7 @@ export interface ButtonProps
  * </Button>
  */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant, size, fullWidth, loading, disabled, children, ...props }, ref) => {
+    ({ className, variant, size, fullWidth, loading, disabled, icon, children, ...props }, ref) => {
         return (
             <button
                 ref={ref}
