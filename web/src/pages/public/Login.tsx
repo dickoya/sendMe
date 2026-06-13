@@ -1,13 +1,44 @@
-import { Link } from 'react-router-dom';
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import { Mail, Lock } from 'lucide-react';
+import { useAuth } from '@/store/auth/authContext';
+import { useToast } from '@/store/notification/toastContext';
 
 /**
- * Page de connexion — placeholder visuel.
- * La logique d'authentification sera ajoutée à l'Étape 4.
+ * Page de connexion.
+ *
+ * Flux :
+ * 1. Soumission du formulaire → useAuth().login()
+ * 2. En cas de succès → redirection vers /dashboard
+ * 3. En cas d'échec → message d'erreur affiché sous le formulaire
  */
 function Login() {
+    const { login, error, clearError } = useAuth();
+    const { showToast } = useToast();
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        clearError();
+        setIsSubmitting(true);
+
+        try {
+            await login({ email, password });
+            showToast('Connexion réussie. Bienvenue !', 'success');
+            navigate('/dashboard');
+        } catch {
+            // L'erreur est déjà capturée dans le context (affichée ci-dessous)
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-6">
             <div>
@@ -17,10 +48,33 @@ function Login() {
                 </p>
             </div>
 
-            <form className="flex flex-col gap-4">
-                <Input label="Email" type="email" placeholder="jean@example.com" icon={<Mail size={16} />} required />
-                <Input label="Mot de passe" type="password" placeholder="••••••••" icon={<Lock size={16} />} required />
-                <Button type="submit" size="lg" fullWidth>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <Input
+                    label="Email"
+                    type="email"
+                    placeholder="jean@example.com"
+                    icon={<Mail size={16} />}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <Input
+                    label="Mot de passe"
+                    type="password"
+                    placeholder="••••••••"
+                    icon={<Lock size={16} />}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+
+                {error && (
+                    <div className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-600">
+                        {error}
+                    </div>
+                )}
+
+                <Button type="submit" size="lg" fullWidth loading={isSubmitting}>
                     Se connecter
                 </Button>
             </form>

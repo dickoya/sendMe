@@ -190,3 +190,12 @@ export interface DashboardResponse {
     transactionsByChannel: Record<string, number>;
     activeSSEConnections: number;
 }
+// ── Erreurs API ────────────────────────────────────────────────────────
+/**
+ * Format d'erreur retourné par GlobalExceptionHandler du backend.
+ */
+export interface ApiError {
+    success: false;
+    message: string;
+    data?: null;
+}

@@ -1,7 +1,8 @@
 import type { ChannelType, TransactionStatus, NotificationType } from '@/types';
 
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+//export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+export const API_BASE_URL = 'http://localhost:8080/api';
 
 export const CHANNEL_LABELS: Record<ChannelType, string> = {
     BANK_TRANSFER: 'Virement bancaire',

@@ -4,6 +4,7 @@ import ibrahima.dickoya.sendme.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.*;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -17,6 +18,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Configuration principale de Spring Security pour SendMe.
@@ -32,6 +39,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -91,11 +99,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 1. Activer et lier la configuration CORS globale
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
                 // Désactiver CSRF — inutile pour une API REST stateless
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Configurer les autorisations par route
                 .authorizeHttpRequests(auth -> auth
+                        // ── LA LIGNE MAGIQUE : Autoriser toutes les requêtes de vérification OPTIONS ──
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // ── Routes publiques — aucun JWT requis ──────────────────
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
@@ -107,22 +120,36 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
 
-                // Session STATELESS — Spring Security ne crée pas de session HTTP
-                // Le JWT remplace complètement la session
+                // Session STATELESS
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Provider d'authentification avec BCrypt et UserDetailsService
                 .authenticationProvider(authenticationProvider())
-
-                // Ajouter le filtre JWT avant le filtre standard Spring Security
-                .addFilterBefore(jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+    /**
+     * Configuration CORS globale pour l'ensemble de l'application Spring Security.
+     * C'est elle qui va injecter les bons headers requis par ton application React (Vite).
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Autorise ton application Frontend
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        // Autorise les méthodes standards
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Autorise l'envoi des headers comme "Authorization" (essentiel pour ton JWT) et "Content-Type"
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Cache-Control"));
+        // Permet l'échange de cookies ou d'en-têtes de session si nécessaire
+        configuration.setAllowCredentials(true);
 
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     /**
      * Configure le provider d'authentification.
      * Utilise BCrypt pour vérifier les mots de passe
