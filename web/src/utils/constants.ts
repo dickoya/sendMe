@@ -57,3 +57,11 @@ export const NOTIFICATION_TYPES: Record<string, NotificationType> = {
     PAYMENT_CONFIRMED: 'PAYMENT_CONFIRMED',
     PAYMENT_FAILED: 'PAYMENT_FAILED',
 };
+
+/**
+ * Détermine la devise de réception selon le canal,
+ * miroir de TransferService.getCurrencyForChannel() côté backend.
+ */
+export function getCurrencyForChannel(channel: ChannelType): string {
+    return channel === 'BANK_TRANSFER' ? 'EUR' : 'XOF';
+}
