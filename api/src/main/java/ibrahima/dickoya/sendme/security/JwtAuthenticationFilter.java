@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -29,23 +29,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        // Utilisation de la nouvelle méthode d'extraction hybride (Header ou Query Param)
+        final String jwt = extractToken(request);
         final String userEmail;
 
-        // Pas de token — on laisse passer
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Pas de token trouvé — on laisse passer la requête vers le filtre suivant
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Extraire le token
-        jwt = authHeader.substring(7);
-
         try {
             userEmail = jwtService.extractUsername(jwt);
 
-            // Si l'utilisateur n'est pas encore authentifie
+            // Si un utilisateur est trouvé et qu'il n'est pas encore authentifié dans le contexte
             if (userEmail != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -60,9 +57,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Token invalide — on laisse Spring Security gérer
+            // Token invalide ou expiré — on laisse Spring Security gérer la suite (ex: renvoyer un 401/403)
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Extrait le token JWT de la requête.
+     * * Pour la majorité des routes : header "Authorization: Bearer <token>"
+     * Pour /api/notifications/stream : query param "?token=<token>"
+     * (nécessaire car EventSource ne supporte pas les headers personnalisés)
+     * * @param request la requête HTTP
+     * @return le token JWT, ou null si absent
+     */
+    private String extractToken(HttpServletRequest request) {
+        // 1. Tenter le header Authorization standard
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        // 2. Fallback pour SSE — token en query param
+        if ("/api/notifications/stream".equals(request.getRequestURI())) {
+            String tokenParam = request.getParameter("token");
+            if (tokenParam != null && !tokenParam.isEmpty()) {
+                return tokenParam;
+            }
+        }
+
+        return null;
     }
 }
