@@ -1,31 +1,65 @@
 @import "tailwindcss";
+@plugin "tailwindcss-animate";
 
 /**
  * Design tokens SendMe — Thème fintech moderne
- * Inspiré de Wise/Revolut : bleu profond + accents teal,
- * surfaces neutres, dark mode prêt via la variante .dark
+ * Inspiré de Wise/Revolut.
  */
 @theme {
-  /* Couleur de marque */
+  /* Couleur de marque (bleu profond) */
   --color-brand-50: #E6F1FB;
   --color-brand-100: #B5D4F4;
   --color-brand-200: #85B7EB;
+  --color-brand-300: #5A9FE0;
   --color-brand-400: #2E86C1;
+  --color-brand-500: #21618C;
   --color-brand-600: #1B4F72;
-  --color-brand-800: #154360;
+  --color-brand-700: #154360;
+  --color-brand-800: #0F2F45;
   --color-brand-900: #0C2D40;
 
-  /* Couleur accent (succès / montant reçu) */
+  /* Couleur accent — succès / montants reçus (teal) */
   --color-accent-50: #E1F5EE;
+  --color-accent-100: #B8E8D6;
   --color-accent-400: #1D9E75;
+  --color-accent-500: #178060;
   --color-accent-600: #0F6E56;
+
+  /* Couleurs sémantiques */
+  --color-danger-50: #FDEDEC;
+  --color-danger-500: #C0392B;
+  --color-danger-600: #A93226;
+
+  --color-warning-50: #FEF9E7;
+  --color-warning-500: #F39C12;
+  --color-warning-600: #B9770E;
+
+  --color-purple-50: #F4ECF7;
+  --color-purple-500: #8E44AD;
+  --color-purple-600: #6C3483;
 
   /* Police */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Rayon de bordure custom (plus arrondi = look fintech) */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
 }
 
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+
+  /* Scrollbar discrète */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400;
   }
 }

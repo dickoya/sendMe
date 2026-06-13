@@ -4,11 +4,14 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
   resolve: {
     alias: {
-      // Permet d'importer avec "@/components/..." au lieu de "../../components/..."
       '@': path.resolve(__dirname, './src'),
     },
+    tsconfigPaths: true, // ✅ active la résolution native
   },
 });
