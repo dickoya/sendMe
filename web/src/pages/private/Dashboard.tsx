@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Send, Users, ArrowRight, Wallet, History as HistoryIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Send, Users, ArrowRight, Wallet } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -9,19 +10,18 @@ import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useTransferHistory } from '@/hooks/useTransfer';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDateShort } from '@/utils/formatDate';
-import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
-
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 
 /**
  * Tableau de bord principal de l'utilisateur.
  *
- * Affiche :
- * - Message de bienvenue
- * - Raccourcis d'action (nouveau transfert, ajouter bénéficiaire)
- * - Aperçu des bénéficiaires (3 premiers)
- * - 5 dernières transactions
+ * Migration i18n (Phase 6) : namespace "dashboard" pour le contenu
+ * propre à la page, "common" pour les libellés de canaux (réutilisés
+ * via getChannelLabel — voir 6.2) et de statuts.
  */
 function Dashboard() {
+    const { t } = useTranslation('dashboard');
+    const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
     const { beneficiaries, isLoading: beneficiariesLoading } = useBeneficiary();
     const { transactions, isLoading: transactionsLoading } = useTransferHistory(5);
@@ -31,15 +31,13 @@ function Dashboard() {
             {/* Bannière de bienvenue */}
             <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-md">
                 <h2 className="text-xl font-bold">
-                    Bonjour, {user?.firstName} 👋
+                    {t('welcome', { firstName: user?.firstName ?? '' })}
                 </h2>
-                <p className="mt-1 text-sm text-brand-50">
-                    Envoyez de l'argent instantanément vers 6 canaux différents.
-                </p>
+                <p className="mt-1 text-sm text-brand-50">{t('tagline')}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                     <Link to="/transfer">
                         <Button variant="secondary" size="sm" icon={<Send size={16} />} className="bg-white text-brand-700 hover:bg-brand-50">
-                            Nouveau transfert
+                            {t('newTransfer')}
                         </Button>
                     </Link>
                     <Link to="/beneficiaries">
@@ -48,7 +46,7 @@ function Dashboard() {
                             icon={<Users size={16} />}
                             className="bg-brand-700/40 text-white hover:bg-brand-700/60"
                         >
-                            Gérer mes bénéficiaires
+                            {t('manageBeneficiaries')}
                         </Button>
                     </Link>
                 </div>
@@ -57,10 +55,10 @@ function Dashboard() {
             <div className="grid gap-6 lg:grid-cols-3">
                 {/* Bénéficiaires */}
                 <Card
-                    title="Mes bénéficiaires"
+                    title={t('cards.myBeneficiaries')}
                     actions={
                         <Link to="/beneficiaries" className="text-sm font-medium text-brand-600 hover:underline">
-                            Tout voir
+                            {tCommon('actions.seeAll')}
                         </Link>
                     }
                     className="lg:col-span-1"
@@ -70,8 +68,8 @@ function Dashboard() {
                     ) : beneficiaries.length === 0 ? (
                         <EmptyState
                             icon={<Users size={20} />}
-                            text="Aucun bénéficiaire enregistré"
-                            actionLabel="Ajouter un bénéficiaire"
+                            text={t('empty.noBeneficiaries')}
+                            actionLabel={t('empty.addBeneficiary')}
                             actionTo="/beneficiaries"
                         />
                     ) : (
@@ -86,7 +84,7 @@ function Dashboard() {
                                             {b.firstName} {b.lastName}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            {CHANNEL_ICONS[b.channel]} {CHANNEL_LABELS[b.channel]}
+                                            {getChannelIcon(b.channel)} {getChannelLabel(b.channel, tCommon)}
                                         </p>
                                     </div>
                                 </div>
@@ -97,10 +95,10 @@ function Dashboard() {
 
                 {/* Dernières transactions */}
                 <Card
-                    title="Transactions récentes"
+                    title={t('cards.recentTransactions')}
                     actions={
                         <Link to="/history" className="text-sm font-medium text-brand-600 hover:underline">
-                            Historique complet
+                            {tCommon('actions.seeFullHistory')}
                         </Link>
                     }
                     className="lg:col-span-2"
@@ -110,8 +108,8 @@ function Dashboard() {
                     ) : transactions.length === 0 ? (
                         <EmptyState
                             icon={<Wallet size={20} />}
-                            text="Aucune transaction pour le moment"
-                            actionLabel="Effectuer un transfert"
+                            text={t('empty.noTransactions')}
+                            actionLabel={t('empty.makeTransfer')}
                             actionTo="/transfer"
                         />
                     ) : (
@@ -120,7 +118,7 @@ function Dashboard() {
                                 <div key={tx.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                                     <div className="flex items-center gap-3 min-w-0">
                                         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 text-lg">
-                                            {CHANNEL_ICONS[tx.channel]}
+                                            {getChannelIcon(tx.channel)}
                                         </div>
                                         <div className="min-w-0">
                                             <p className="truncate text-sm font-medium text-gray-900">

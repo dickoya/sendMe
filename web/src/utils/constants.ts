@@ -1,4 +1,5 @@
 import type { ChannelType, TransactionStatus, NotificationType } from '@/types';
+import type { TFunction } from 'i18next';
 
 //export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
@@ -13,13 +14,16 @@ export const CHANNEL_LABELS: Record<ChannelType, string> = {
     AIRTEL_MONEY: 'Airtel Money',
 };
 
+/**
+ * Icônes par canal — statiques, indépendantes de la langue.
+ */
 export const CHANNEL_ICONS: Record<ChannelType, string> = {
     BANK_TRANSFER: '🏦',
     ORANGE_MONEY: '🟠',
     MTN_MOBILE_MONEY: '🟡',
-    WAVE: '🌊',
-    MOOV_MONEY: '📱',
-    AIRTEL_MONEY: '📡',
+    WAVE: '🔵',
+    MOOV_MONEY: '🟢',
+    AIRTEL_MONEY: '🔴',
 };
 
 export const STATUS_LABELS: Record<TransactionStatus, string> = {
@@ -59,12 +63,49 @@ export const NOTIFICATION_TYPES: Record<string, NotificationType> = {
 };
 
 /**
+ * Retourne l'icône d'un canal. Fonction (plutôt qu'accès direct à
+ * CHANNEL_ICONS) pour garder une API symétrique avec getChannelLabel
+ * dans les composants qui affichent icône + libellé ensemble.
+ */
+export function getChannelIcon(channel: ChannelType): string {
+    return CHANNEL_ICONS[channel];
+}
+
+/**
+ * Retourne le libellé traduit d'un canal.
+ *
+ * @param channel Le type de canal
+ * @param t       Fonction de traduction du namespace "common"
+ *                (useTranslation('common').t)
+ *
+ * @example
+ * const { t } = useTranslation('common');
+ * getChannelLabel('ORANGE_MONEY', t) // "Orange Money" (identique FR/EN)
+ * getChannelLabel('BANK_TRANSFER', t) // "Virement bancaire" ou "Bank transfer"
+ */
+export function getChannelLabel(channel: ChannelType, t: TFunction): string {
+    return t(`channels.${channel}`);
+}
+
+/**
  * Détermine la devise de réception selon le canal,
  * miroir de TransferService.getCurrencyForChannel() côté backend.
  */
 export function getCurrencyForChannel(channel: ChannelType): string {
     return channel === 'BANK_TRANSFER' ? 'EUR' : 'XOF';
 }
+
+/**
+ * Retourne le libellé traduit d'un statut de transaction.
+ *
+ * @example
+ * const { t } = useTranslation('common');
+ * getStatusLabel('COMPLETED', t) // "Complétée" ou "Completed"
+ */
+export function getStatusLabel(status: string, t: TFunction): string {
+    return t(`status.${status}`);
+}
+
 /**
  * Langues disponibles dans l'application.
  *
