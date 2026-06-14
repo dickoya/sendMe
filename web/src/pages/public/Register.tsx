@@ -1,130 +1,109 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Mail, Lock, User, Phone } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import { useAuth } from '@/store/auth/authContext';
-import { useToast } from '@/store/notification/toastContext';
+import { getErrorMessage } from '@/lib/utils';
 
 /**
  * Page d'inscription.
  *
- * Validation côté client :
- * - Tous les champs obligatoires (sauf téléphone) doivent être remplis
- * - Le mot de passe doit faire au moins 8 caractères
- *   (le backend valide aussi, mais on évite un aller-retour inutile)
+ * Migration i18n (Phase 5) : namespace "auth" (clés auth.register.*).
+ * Validation client (mot de passe trop court, champs requis) traduite
+ * directement ; erreurs serveur mappées via mapRegisterError().
  */
 function Register() {
-    const { register, error, clearError } = useAuth();
-    const { showToast } = useToast();
+    const { t } = useTranslation('auth');
     const navigate = useNavigate();
+    const { register } = useAuth();
 
-    const [form, setForm] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneNumber: '',
-        password: '',
-    });
-    const [passwordHint, setPasswordHint] = useState<string | undefined>(
-        'Minimum 8 caractères'
-    );
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleChange = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm((prev) => ({ ...prev, [field]: e.target.value }));
-    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        clearError();
+        setError(null);
 
-        // Validation locale rapide du mot de passe
-        if (form.password.length < 8) {
-            setPasswordHint(undefined);
+        if (password.length < 8) {
+            setError(t('register.errors.passwordTooShort'));
             return;
         }
 
         setIsSubmitting(true);
         try {
-            await register({
-                firstName: form.firstName,
-                lastName: form.lastName,
-                email: form.email,
-                password: form.password,
-                phoneNumber: form.phoneNumber || undefined,
-            });
-            showToast('Compte créé avec succès. Bienvenue sur SendMe !', 'success');
+            await register({ firstName, lastName, email, password, phoneNumber });
             navigate('/dashboard');
-        } catch {
-            // Erreur affichée via le context
+        } catch (err) {
+            setError(mapRegisterError(err, t));
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    const passwordError =
-        form.password.length > 0 && form.password.length < 8
-            ? 'Le mot de passe doit contenir au moins 8 caractères'
-            : undefined;
-
     return (
-        <div className="flex flex-col gap-6">
-            <div>
-                <h2 className="text-2xl font-bold text-gray-900">Créer un compte</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                    Rejoignez SendMe en quelques secondes
-                </p>
-            </div>
+        <Card title={t('register.title')} className="w-full max-w-sm">
+            <p className="-mt-2 mb-4 text-sm text-gray-500">{t('register.subtitle')}</p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                     <Input
-                        label="Prénom"
-                        placeholder="Jean"
+                        label={t('register.firstName')}
+                        placeholder={t('register.firstNamePlaceholder')}
                         icon={<User size={16} />}
-                        value={form.firstName}
-                        onChange={handleChange('firstName')}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                         required
+                        autoComplete="given-name"
                     />
                     <Input
-                        label="Nom"
-                        placeholder="Dupont"
-                        value={form.lastName}
-                        onChange={handleChange('lastName')}
+                        label={t('register.lastName')}
+                        placeholder={t('register.lastNamePlaceholder')}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                         required
+                        autoComplete="family-name"
                     />
                 </div>
 
                 <Input
-                    label="Email"
+                    label={t('register.email')}
                     type="email"
-                    placeholder="jean@example.com"
+                    placeholder={t('register.emailPlaceholder')}
                     icon={<Mail size={16} />}
-                    value={form.email}
-                    onChange={handleChange('email')}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                 />
 
                 <Input
-                    label="Téléphone"
-                    type="tel"
-                    placeholder="+33 6 00 00 00 00"
-                    icon={<Phone size={16} />}
-                    value={form.phoneNumber}
-                    onChange={handleChange('phoneNumber')}
-                />
-
-                <Input
-                    label="Mot de passe"
+                    label={t('register.password')}
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t('register.passwordPlaceholder')}
                     icon={<Lock size={16} />}
-                    value={form.password}
-                    onChange={handleChange('password')}
-                    error={passwordError}
-                    hint={passwordError ? undefined : passwordHint}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    hint={t('register.passwordHint')}
                     required
+                    autoComplete="new-password"
+                />
+
+                <Input
+                    label={t('register.phone')}
+                    type="tel"
+                    placeholder={t('register.phonePlaceholder')}
+                    icon={<Phone size={16} />}
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    autoComplete="tel"
                 />
 
                 {error && (
@@ -133,19 +112,34 @@ function Register() {
                     </div>
                 )}
 
-                <Button type="submit" size="lg" fullWidth loading={isSubmitting}>
-                    Créer mon compte
+                <Button type="submit" fullWidth loading={isSubmitting}>
+                    {t('register.submit')}
                 </Button>
             </form>
 
-            <p className="text-center text-sm text-gray-500">
-                Déjà un compte ?{' '}
+            <p className="mt-4 text-center text-sm text-gray-500">
+                {t('register.hasAccount')}{' '}
                 <Link to="/login" className="font-medium text-brand-600 hover:underline">
-                    Se connecter
+                    {t('register.loginLink')}
                 </Link>
             </p>
-        </div>
+        </Card>
     );
+}
+
+/**
+ * Mappe une erreur API d'inscription vers un message traduit.
+ */
+function mapRegisterError(err: unknown, t: (key: string) => string): string {
+    const raw = getErrorMessage(err);
+
+    if (/email.*(utilisé|use|exist)|already.*(use|exist)/i.test(raw)) {
+        return t('register.errors.emailTaken');
+    }
+    if (/requis|required|obligatoire/i.test(raw)) {
+        return t('register.errors.requiredField');
+    }
+    return raw;
 }
 
 export default Register;

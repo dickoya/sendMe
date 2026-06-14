@@ -1,78 +1,70 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Mail, Lock } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import { useAuth } from '@/store/auth/authContext';
-import { useToast } from '@/store/notification/toastContext';
+import { getErrorMessage } from '@/lib/utils';
 
 /**
  * Page de connexion.
  *
- * Flux :
- * 1. Soumission du formulaire → useAuth().login()
- * 2. En cas de succès → redirection vers /dashboard
- * 3. En cas d'échec → message d'erreur affiché sous le formulaire
+ * Migration i18n (Phase 5) : namespace "auth" (clés auth.login.*).
+ * Les messages d'erreur backend connus sont mappés vers des clés
+ * traduites via mapLoginError() — voir aussi Phase 12 pour la
+ * généralisation de ce pattern à getErrorMessage().
  */
 function Login() {
-    const { login, error, clearError } = useAuth();
-    const { showToast } = useToast();
+    const { t } = useTranslation('auth');
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        clearError();
+        setError(null);
         setIsSubmitting(true);
 
         try {
-            // 1. On récupère l'utilisateur connecté
-            const loggedUser = await login({ email, password });
-            showToast('Connexion réussie. Bienvenue !', 'success');
-
-            // 2. Redirection conditionnelle selon le rôle
-            if (loggedUser && loggedUser.role === 'ROLE_ADMIN') {
-                navigate('/admin'); // Redirection vers l'espace administration
-            } else {
-                navigate('/dashboard'); // Redirection vers l'espace utilisateur standard
-            }
-        } catch {
-            // L'erreur est capturée et gérée par le contexte
+            await login(email, password);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(mapLoginError(err, t));
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="flex flex-col gap-6">
-            <div>
-                <h2 className="text-2xl font-bold text-gray-900">Connexion</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                    Accédez à votre espace SendMe
-                </p>
-            </div>
+        <Card title={t('login.title')} className="w-full max-w-sm">
+            <p className="-mt-2 mb-4 text-sm text-gray-500">{t('login.subtitle')}</p>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                 <Input
-                    label="Email"
+                    label={t('login.email')}
                     type="email"
-                    placeholder="jean@example.com"
+                    placeholder={t('login.emailPlaceholder')}
                     icon={<Mail size={16} />}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                 />
                 <Input
-                    label="Mot de passe"
+                    label={t('login.password')}
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t('login.passwordPlaceholder')}
                     icon={<Lock size={16} />}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete="current-password"
                 />
 
                 {error && (
@@ -81,19 +73,42 @@ function Login() {
                     </div>
                 )}
 
-                <Button type="submit" size="lg" fullWidth loading={isSubmitting}>
-                    Se connecter
+                <Button type="submit" fullWidth loading={isSubmitting}>
+                    {t('login.submit')}
                 </Button>
             </form>
 
-            <p className="text-center text-sm text-gray-500">
-                Pas encore de compte ?{' '}
+            <p className="mt-4 text-center text-sm text-gray-500">
+                {t('login.noAccount')}{' '}
                 <Link to="/register" className="font-medium text-brand-600 hover:underline">
-                    S'inscrire
+                    {t('login.registerLink')}
                 </Link>
             </p>
-        </div>
+        </Card>
     );
+}
+
+/**
+ * Mappe une erreur API de connexion vers un message traduit.
+ *
+ * Le backend renvoie des messages en français en dur — on les
+ * reconnaît par mot-clé pour leur substituer une clé i18n. Tout
+ * message non reconnu retombe sur l'erreur générique traduite
+ * (common.errors.generic, gérée par getErrorMessage en Phase 12).
+ */
+function mapLoginError(err: unknown, t: (key: string) => string): string {
+    const raw = getErrorMessage(err);
+
+    if (/suspendu|disabled|désactivé/i.test(raw)) {
+        return t('login.errors.accountDisabled');
+    }
+    if (/trop de tentatives|too many attempts/i.test(raw)) {
+        return t('login.errors.tooManyAttempts');
+    }
+    if (/identifiants|invalid credentials|incorrect/i.test(raw)) {
+        return t('login.errors.invalidCredentials');
+    }
+    return raw;
 }
 
 export default Login;
