@@ -1,0 +1,9 @@
+{
+  "app": {
+    "name": "SendMe",
+    "loading": "Chargement..."
+  },
+  "test": {
+    "greeting": "Bonjour, {{name}} !"
+  }
+}

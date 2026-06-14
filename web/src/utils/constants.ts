@@ -65,3 +65,18 @@ export const NOTIFICATION_TYPES: Record<string, NotificationType> = {
 export function getCurrencyForChannel(channel: ChannelType): string {
     return channel === 'BANK_TRANSFER' ? 'EUR' : 'XOF';
 }
+/**
+ * Langues disponibles dans l'application.
+ *
+ * Utilisé par le sélecteur de langue (Phase 3) et par la configuration
+ * i18next (src/i18n/config.ts — supportedLngs doit rester synchronisé
+ * avec cette liste).
+ *
+ * Pour ajouter une langue : voir le commentaire dans i18n/config.ts.
+ */
+export const LANGUAGES = [
+    { code: 'fr', label: 'Français', flag: '🇫🇷' },
+    { code: 'en', label: 'English', flag: '🇬🇧' },
+] as const;
+
+export type LanguageCode = (typeof LANGUAGES)[number]['code'];

@@ -11,6 +11,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDateShort } from '@/utils/formatDate';
 import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
 
+
 /**
  * Tableau de bord principal de l'utilisateur.
  *
