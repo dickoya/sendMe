@@ -8,6 +8,8 @@ type SSEEventHandler = (notification: Notification) => void;
  * /api/notifications/stream.
  *
  * Reconnexion automatique : EventSource reconnecte nativement
+ *
+ *
  * en cas de coupure (comportement natif du navigateur),
  * sauf si le composant est démonté (cleanup ferme la connexion).
  *
