@@ -1,0 +1,11 @@
+{
+  "app": {
+    "name": "SendMe",
+    "tagline": "Passerelle de transfert d'argent"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  }
+}

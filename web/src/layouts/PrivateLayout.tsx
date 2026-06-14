@@ -1,63 +1,49 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 
 /**
- * Map des chemins vers leur titre affiché dans le Header.
- * Étendre cette map au fur et à mesure de l'ajout des pages.
- */
-const PAGE_TITLES: Record<string, string> = {
-    '/dashboard': 'Tableau de bord',
-    '/transfer': 'Nouveau transfert',
-    '/beneficiaries': 'Bénéficiaires',
-    '/history': 'Historique',
-    '/notifications': 'Notifications',
-    '/profile': 'Mon profil',
-};
-
-/**
- * Layout pour les pages privées (utilisateur connecté).
- * Sidebar fixe à gauche (desktop) + Header en haut + contenu scrollable.
- * La sidebar se transforme en panneau coulissant sur mobile.
+ * Layout des pages privées (utilisateur connecté).
+ *
+ * Migration i18n (Phase 4) : le titre affiché dans le Header est
+ * déterminé dynamiquement selon la route, via les clés du namespace
+ * "common" (nav.*) — garantit la cohérence avec les libellés de la Sidebar.
  */
 function PrivateLayout() {
-    const [mobileOpen, setMobileOpen] = useState(false);
+    const { t } = useTranslation('common');
     const location = useLocation();
-    const title = PAGE_TITLES[location.pathname] ?? '';
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const pageTitle = getPageTitle(location.pathname, t);
 
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-50">
-            {/* Sidebar desktop */}
-            <Sidebar variant="user" />
+        <div className="flex min-h-screen bg-gray-50">
+            <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} variant="user" />
 
-            {/* Sidebar mobile (overlay) */}
-            {mobileOpen && (
-                <div className="fixed inset-0 z-40 flex md:hidden">
-                    <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
-                    <div className="relative z-50 w-60 bg-white shadow-xl">
-                        <button
-                            onClick={() => setMobileOpen(false)}
-                            className="absolute right-3 top-3 rounded-md p-1.5 text-gray-500 hover:bg-gray-100"
-                            aria-label="Fermer le menu"
-                        >
-                            <X size={18} />
-                        </button>
-                        <Sidebar variant="user" />
-                    </div>
-                </div>
-            )}
-
-            {/* Contenu principal */}
-            <div className="flex flex-1 flex-col overflow-hidden">
-                <Header title={title} onMenuClick={() => setMobileOpen(true)} />
-                <main className="flex-1 overflow-y-auto p-4 md:p-6">
+            <div className="flex flex-1 flex-col">
+                <Header title={pageTitle} onMenuClick={() => setSidebarOpen(true)} />
+                <main className="flex-1 p-4 md:p-6">
                     <Outlet />
                 </main>
             </div>
         </div>
     );
+}
+
+/**
+ * Détermine le titre de page à afficher dans le Header selon la route.
+ * Réutilise les clés de navigation (common.nav.*) pour éviter la
+ * duplication de libellés.
+ */
+function getPageTitle(pathname: string, t: (key: string) => string): string {
+    if (pathname.startsWith('/dashboard')) return t('nav.dashboard');
+    if (pathname.startsWith('/beneficiaries')) return t('nav.beneficiaries');
+    if (pathname.startsWith('/transfer')) return t('nav.transfer');
+    if (pathname.startsWith('/history')) return t('nav.history');
+    if (pathname.startsWith('/notifications')) return t('nav.notifications');
+    return '';
 }
 
 export default PrivateLayout;

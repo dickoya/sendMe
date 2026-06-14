@@ -36,7 +36,8 @@
     "preview": "Preview",
     "seeAll": "See all",
     "seeFullHistory": "Full history",
-    "retry": "Retry"
+    "retry": "Retry",
+    "openMenu": "Open menu"
   },
   "states": {
     "loading": "Loading...",

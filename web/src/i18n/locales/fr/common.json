@@ -36,7 +36,8 @@
     "preview": "Prévisualiser",
     "seeAll": "Tout voir",
     "seeFullHistory": "Historique complet",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "openMenu": "Ouvrir le menu"
   },
   "states": {
     "loading": "Chargement...",
