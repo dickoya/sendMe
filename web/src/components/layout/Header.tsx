@@ -2,6 +2,7 @@ import { LogOut, Menu } from 'lucide-react';
 import { useAuth } from '@/store/auth/authContext';
 import { useNavigate } from 'react-router-dom';
 import NotificationBell from '@/components/notification/NotificationBell';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 
 export interface HeaderProps {
     title?: string;
@@ -31,6 +32,7 @@ function Header({ title, onMenuClick }: HeaderProps) {
             </div>
 
             <div className="flex items-center gap-2">
+                <LanguageSwitcher />
                 <NotificationBell />
 
                 <button

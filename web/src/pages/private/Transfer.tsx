@@ -13,12 +13,13 @@ import TransferSuccess from '@/components/transfer/TransferSuccess';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useToast } from '@/store/notification/toastContext';
-import { stripePromise } from '@/services/stripeService';
 import { transferService } from '@/services/transferService';
 import { getErrorMessage } from '@/lib/utils';
 import { getCurrencyForChannel } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { SimulateResponse, Transaction, Beneficiary } from '@/types';
+import {getStripe} from "@/services/stripeService.ts";
+export const stripePromise = getStripe('fr');
 
 type Step = 'form' | 'summary' | 'payment' | 'success';
 
