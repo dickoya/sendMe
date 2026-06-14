@@ -197,4 +197,38 @@ public class TransferController {
                         "attachment; filename=\"" + filename + "\"")
                 .body(pdfBytes);
     }
+
+    @GetMapping("/api/transactions/{id}/receipt/preview")
+    @Operation(
+            summary = "Prévisualiser le reçu PDF",
+            description = """
+            Génère le reçu PDF officiel d'une transaction et le retourne pour affichage en ligne.
+            Contrairement au téléchargement, le Content-Disposition est mis à 'inline' 
+            pour permettre au navigateur d'ouvrir le fichier directement dans un nouvel onglet.
+            """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "PDF généré et retourné pour prévisualisation"),
+            @ApiResponse(responseCode = "403", description = "Cette transaction ne vous appartient pas"),
+            @ApiResponse(responseCode = "404", description = "Transaction non trouvée")
+    })
+    public ResponseEntity<byte[]> previewReceipt(
+            @Parameter(description = "Identifiant de la transaction", required = true)
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // 1. Récupérer l'entité et vérifier les droits d'accès
+        Transaction transaction = transferService
+                .getEntityById(id, userDetails.getUsername());
+
+        // 2. Réutiliser ton service de génération PDF existant
+        byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
+        String filename = "recu-" + transaction.getReference() + ".pdf";
+
+        // 3. Retourner le flux avec la disposition INLINE (ouvre l'onglet au lieu de forcer le téléchargement)
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
+                .body(pdfBytes);
+    }
 }
