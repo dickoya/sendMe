@@ -1,9 +1,75 @@
 {
   "app": {
     "name": "SendMe",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "tagline": "Instant money transfers"
   },
-  "test": {
-    "greeting": "Hello, {{name}}!"
+  "nav": {
+    "dashboard": "Dashboard",
+    "beneficiaries": "Beneficiaries",
+    "transfer": "New transfer",
+    "history": "History",
+    "notifications": "Notifications",
+    "admin": {
+      "dashboard": "Overview",
+      "users": "Users",
+      "transactions": "Transactions",
+      "settings": "Settings"
+    },
+    "logout": "Logout",
+    "backToSite": "Back to site",
+    "login": "Login",
+    "register": "Create account"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "confirm": "Confirm",
+    "close": "Close",
+    "back": "Back",
+    "continue": "Continue",
+    "submit": "Submit",
+    "download": "Download",
+    "preview": "Preview",
+    "seeAll": "See all",
+    "seeFullHistory": "Full history",
+    "retry": "Retry"
+  },
+  "states": {
+    "loading": "Loading...",
+    "noData": "No data available",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "channels": {
+    "BANK_TRANSFER": "Bank transfer",
+    "ORANGE_MONEY": "Orange Money",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "WAVE": "Wave",
+    "MOOV_MONEY": "Moov Money",
+    "AIRTEL_MONEY": "Airtel Money"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "PROCESSING": "Processing",
+    "COMPLETED": "Completed",
+    "FAILED": "Failed",
+    "REFUNDED": "Refunded",
+    "ALL": "All"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Unable to reach the server. Check your connection.",
+    "unauthorized": "Your session has expired. Please log in again.",
+    "forbidden": "You don't have access to this resource.",
+    "notFound": "Resource not found.",
+    "validation": "Please check the information you entered.",
+    "conflict": "This resource already exists."
+  },
+  "languageSwitcher": {
+    "label": "Language"
   }
 }

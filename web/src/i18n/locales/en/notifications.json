@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Notification center",
+  "markAllRead": "Mark all as read",
+  "markAllReadWithCount": "Mark all as read ({{count}})",
+  "empty": {
+    "title": "No notifications",
+    "message": "You'll be notified here about your account activity."
+  },
+  "types": {
+    "TRANSFER_INITIATED": "Transfer {{reference}} initiated",
+    "TRANSFER_PROCESSING": "Transfer {{reference}} is being processed",
+    "TRANSFER_COMPLETED": "Transfer {{reference}} completed successfully",
+    "TRANSFER_FAILED": "Transfer {{reference}} failed",
+    "TRANSFER_REFUNDED": "Transfer {{reference}} refunded",
+    "PAYMENT_CONFIRMED": "Payment confirmed for {{reference}}",
+    "PAYMENT_FAILED": "Payment failed for {{reference}}",
+    "ACCOUNT_CREATED": "Welcome to SendMe!",
+    "ACCOUNT_DISABLED": "Your account has been suspended",
+    "ACCOUNT_REACTIVATED": "Your account has been reactivated",
+    "SECURITY_LOGIN": "New login detected",
+    "SECURITY_PASSWORD_CHANGED": "Your password has been changed",
+    "SECURITY_SUSPICIOUS_LOGIN": "Suspicious login activity detected",
+    "INFO": "Information",
+    "MAINTENANCE": "Scheduled maintenance on {{date}}",
+    "FEE_UPDATE": "The commission rate has been updated"
+  }
+}

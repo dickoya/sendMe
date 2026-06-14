@@ -1,1 +1,49 @@
-{}
+{
+  "stepTitles": {
+    "form": "Nouveau transfert",
+    "summary": "Récapitulatif",
+    "payment": "Paiement par carte",
+    "success": ""
+  },
+  "form": {
+    "beneficiaryLabel": "Bénéficiaire",
+    "noBeneficiary": "Vous n'avez aucun bénéficiaire enregistré.",
+    "addBeneficiaryLink": "Ajouter un bénéficiaire",
+    "amountLabel": "Montant à envoyer",
+    "amountHint": "Devise de paiement : {{currency}}",
+    "continueButton": "Continuer"
+  },
+  "simulator": {
+    "calculating": "Calcul en cours...",
+    "emptyHint": "Entrez un montant pour voir le récapitulatif",
+    "amountSent": "Montant envoyé",
+    "fees": "Frais plateforme ({{rate}}%)",
+    "exchangeRate": "Taux de change",
+    "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "totalDebited": "Total débité",
+    "amountReceived": "Montant reçu"
+  },
+  "summary": {
+    "totalToPay": "Total à payer",
+    "willReceive": "{{name}} recevra",
+    "backButton": "Retour",
+    "proceedButton": "Procéder au paiement"
+  },
+  "payment": {
+    "cardInfoLabel": "Informations de carte",
+    "securityNote": "Paiement sécurisé par Stripe — vos données bancaires ne sont jamais stockées par SendMe",
+    "payButton": "Payer {{amount}}",
+    "backToSummary": "Retour au récapitulatif",
+    "genericCardError": "Carte invalide"
+  },
+  "success": {
+    "title": "Transfert réussi !",
+    "reference": "Référence : {{reference}}",
+    "receivedLabel": "Montant reçu par le bénéficiaire",
+    "viewReceipt": "Voir le reçu",
+    "newTransfer": "Nouveau transfert"
+  },
+  "toasts": {
+    "success": "Transfert effectué avec succès !"
+  }
+}

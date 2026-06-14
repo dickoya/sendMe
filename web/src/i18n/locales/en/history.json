@@ -1,1 +1,22 @@
-{}
+{
+  "pageTitle": "Transaction history",
+  "totalCount": "{{count}} total",
+  "empty": {
+    "title": "No transactions",
+    "message": "Your transfers will appear here once completed.",
+    "filteredMessage": "No transactions match this filter."
+  },
+  "detailModal": {
+    "title": "Transaction details",
+    "fees": "Platform fee",
+    "exchangeRate": "Exchange rate",
+    "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "amountReceived": "Amount received",
+    "channel": "Receiving channel",
+    "stripeReference": "Stripe reference",
+    "lastUpdated": "Last updated"
+  },
+  "actions": {
+    "downloadReceipt": "Download receipt"
+  }
+}

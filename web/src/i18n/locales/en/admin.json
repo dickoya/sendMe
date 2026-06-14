@@ -1,1 +1,106 @@
-{}
+{
+  "dashboard": {
+    "stats": {
+      "totalUsers": "Total users",
+      "activeInactive": "{{active}} active · {{inactive}} suspended",
+      "totalVolume": "Total volume",
+      "totalFeesCollected": "{{amount}} in fees collected",
+      "activeConnections": "Active connections",
+      "activeConnectionsSubtext": "Users connected in real time",
+      "totalTransactions": "Total transactions",
+      "completed": "Completed",
+      "failed": "Failed",
+      "successRate": "Success rate"
+    },
+    "todayActivity": {
+      "title": "Today's activity",
+      "volumeToday": "Volume today",
+      "transactionsToday": "Transactions today",
+      "pending": "Pending / processing",
+      "refunded": "Refunded"
+    },
+    "channelChart": {
+      "title": "Breakdown by channel"
+    },
+    "errors": {
+      "loadFailed": "Unable to load the dashboard"
+    }
+  },
+  "users": {
+    "pageTitle": "User management",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "transactions": "Transactions",
+      "volumeSent": "Volume sent",
+      "registeredOn": "Registered on",
+      "action": "Action"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "User"
+    },
+    "status": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "buttons": {
+      "suspend": "Suspend",
+      "reactivate": "Reactivate"
+    },
+    "toasts": {
+      "suspended": "{{name}}'s account has been suspended",
+      "reactivated": "{{name}}'s account has been reactivated"
+    }
+  },
+  "transactions": {
+    "pageTitle": "All transactions",
+    "table": {
+      "reference": "Reference",
+      "channel": "Channel",
+      "amountSent": "Amount sent",
+      "amountReceived": "Amount received",
+      "status": "Status",
+      "date": "Date"
+    },
+    "empty": {
+      "title": "No transactions",
+      "message": "No transactions match this filter."
+    }
+  },
+  "settings": {
+    "fees": {
+      "title": "Platform fees",
+      "rateLabel": "New commission rate (%)",
+      "rateHint": "Between 0% and 10%. Example: 1.5 for 1.5%",
+      "reasonLabel": "Reason for the change",
+      "reasonPlaceholder": "E.g.: Quarterly rate adjustment",
+      "reasonHint": "Kept in logs for audit purposes",
+      "warning": "⚠️ The new rate will be applied immediately to new transfers and an email will be sent to all active users.",
+      "submitButton": "Update rate",
+      "errors": {
+        "invalidRate": "The rate must be between 0% and 10%",
+        "reasonRequired": "Please provide a reason for this change"
+      },
+      "toasts": {
+        "success": "Rate updated to {{rate}}% — an email was sent to all active users"
+      }
+    },
+    "maintenance": {
+      "title": "Maintenance notification",
+      "dateLabel": "Maintenance date and time",
+      "datePlaceholder": "June 15, 2025 at 2:00 AM",
+      "dateHint": "Free format — used as-is in the email",
+      "durationLabel": "Estimated duration",
+      "durationPlaceholder": "2 hours",
+      "submitButton": "Send notification",
+      "errors": {
+        "fieldsRequired": "Please provide both the date and duration"
+      },
+      "toasts": {
+        "success": "Maintenance notification sent to all active users"
+      }
+    }
+  }
+}

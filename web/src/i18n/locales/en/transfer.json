@@ -1,1 +1,49 @@
-{}
+{
+  "stepTitles": {
+    "form": "New transfer",
+    "summary": "Summary",
+    "payment": "Card payment",
+    "success": ""
+  },
+  "form": {
+    "beneficiaryLabel": "Beneficiary",
+    "noBeneficiary": "You don't have any beneficiaries yet.",
+    "addBeneficiaryLink": "Add a beneficiary",
+    "amountLabel": "Amount to send",
+    "amountHint": "Payment currency: {{currency}}",
+    "continueButton": "Continue"
+  },
+  "simulator": {
+    "calculating": "Calculating...",
+    "emptyHint": "Enter an amount to see the summary",
+    "amountSent": "Amount sent",
+    "fees": "Platform fee ({{rate}}%)",
+    "exchangeRate": "Exchange rate",
+    "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "totalDebited": "Total charged",
+    "amountReceived": "Amount received"
+  },
+  "summary": {
+    "totalToPay": "Total to pay",
+    "willReceive": "{{name}} will receive",
+    "backButton": "Back",
+    "proceedButton": "Proceed to payment"
+  },
+  "payment": {
+    "cardInfoLabel": "Card information",
+    "securityNote": "Payment secured by Stripe — your card details are never stored by SendMe",
+    "payButton": "Pay {{amount}}",
+    "backToSummary": "Back to summary",
+    "genericCardError": "Invalid card"
+  },
+  "success": {
+    "title": "Transfer successful!",
+    "reference": "Reference: {{reference}}",
+    "receivedLabel": "Amount received by the beneficiary",
+    "viewReceipt": "View receipt",
+    "newTransfer": "New transfer"
+  },
+  "toasts": {
+    "success": "Transfer completed successfully!"
+  }
+}

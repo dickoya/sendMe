@@ -1,1 +1,22 @@
-{}
+{
+  "pageTitle": "Historique des transactions",
+  "totalCount": "{{count}} au total",
+  "empty": {
+    "title": "Aucune transaction",
+    "message": "Vos transferts apparaîtront ici une fois effectués.",
+    "filteredMessage": "Aucune transaction ne correspond à ce filtre."
+  },
+  "detailModal": {
+    "title": "Détail de la transaction",
+    "fees": "Frais plateforme",
+    "exchangeRate": "Taux de change",
+    "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "amountReceived": "Montant reçu",
+    "channel": "Canal de réception",
+    "stripeReference": "Référence Stripe",
+    "lastUpdated": "Dernière mise à jour"
+  },
+  "actions": {
+    "downloadReceipt": "Télécharger le reçu"
+  }
+}

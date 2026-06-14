@@ -1,1 +1,16 @@
-{}
+{
+  "welcome": "Bonjour, {{firstName}} 👋",
+  "tagline": "Envoyez de l'argent instantanément vers 6 canaux différents.",
+  "newTransfer": "Nouveau transfert",
+  "manageBeneficiaries": "Gérer mes bénéficiaires",
+  "cards": {
+    "myBeneficiaries": "Mes bénéficiaires",
+    "recentTransactions": "Transactions récentes"
+  },
+  "empty": {
+    "noBeneficiaries": "Aucun bénéficiaire enregistré",
+    "noTransactions": "Aucune transaction pour le moment",
+    "addBeneficiary": "Ajouter un bénéficiaire",
+    "makeTransfer": "Effectuer un transfert"
+  }
+}

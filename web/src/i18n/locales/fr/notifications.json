@@ -1,1 +1,27 @@
-{}
+{
+  "title": "Centre de notifications",
+  "markAllRead": "Tout marquer comme lu",
+  "markAllReadWithCount": "Tout marquer comme lu ({{count}})",
+  "empty": {
+    "title": "Aucune notification",
+    "message": "Vous serez notifié ici de l'activité de votre compte."
+  },
+  "types": {
+    "TRANSFER_INITIATED": "Transfert {{reference}} initié",
+    "TRANSFER_PROCESSING": "Transfert {{reference}} en cours de traitement",
+    "TRANSFER_COMPLETED": "Transfert {{reference}} complété avec succès",
+    "TRANSFER_FAILED": "Le transfert {{reference}} a échoué",
+    "TRANSFER_REFUNDED": "Transfert {{reference}} remboursé",
+    "PAYMENT_CONFIRMED": "Paiement confirmé pour {{reference}}",
+    "PAYMENT_FAILED": "Le paiement pour {{reference}} a échoué",
+    "ACCOUNT_CREATED": "Bienvenue sur SendMe !",
+    "ACCOUNT_DISABLED": "Votre compte a été suspendu",
+    "ACCOUNT_REACTIVATED": "Votre compte a été réactivé",
+    "SECURITY_LOGIN": "Nouvelle connexion détectée",
+    "SECURITY_PASSWORD_CHANGED": "Votre mot de passe a été modifié",
+    "SECURITY_SUSPICIOUS_LOGIN": "Activité de connexion suspecte détectée",
+    "INFO": "Information",
+    "MAINTENANCE": "Maintenance programmée le {{date}}",
+    "FEE_UPDATE": "Le taux de commission a été mis à jour"
+  }
+}

@@ -1,1 +1,36 @@
-{}
+{
+  "pageTitle": "Mes bénéficiaires",
+  "addButton": "Ajouter",
+  "form": {
+    "firstName": "Prénom",
+    "firstNamePlaceholder": "Mamadou",
+    "lastName": "Nom",
+    "lastNamePlaceholder": "Diallo",
+    "channelLabel": "Canal de réception",
+    "bankName": "Nom de la banque",
+    "bankNamePlaceholder": "BNP Paribas",
+    "iban": "IBAN",
+    "ibanPlaceholder": "FR76 3000 6000 0112 3456 7890 189",
+    "bic": "BIC / SWIFT",
+    "bicPlaceholder": "BNPAFRPPXXX",
+    "phoneNumber": "Numéro de téléphone Mobile Money",
+    "phoneNumberPlaceholder": "+225 07 00 00 00 00",
+    "submitCreate": "Ajouter le bénéficiaire",
+    "submitEdit": "Enregistrer les modifications"
+  },
+  "modals": {
+    "createTitle": "Ajouter un bénéficiaire",
+    "editTitle": "Modifier le bénéficiaire",
+    "deleteTitle": "Supprimer ce bénéficiaire ?",
+    "deleteMessage": "Êtes-vous sûr de vouloir supprimer {{name}} de votre carnet de bénéficiaires ? Cette action est irréversible."
+  },
+  "toasts": {
+    "created": "Bénéficiaire ajouté avec succès",
+    "updated": "Bénéficiaire mis à jour avec succès",
+    "deleted": "Bénéficiaire supprimé"
+  },
+  "empty": {
+    "title": "Aucun bénéficiaire",
+    "message": "Ajoutez votre premier bénéficiaire pour commencer à envoyer de l'argent."
+  }
+}

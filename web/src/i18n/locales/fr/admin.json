@@ -1,1 +1,106 @@
-{}
+{
+  "dashboard": {
+    "stats": {
+      "totalUsers": "Utilisateurs totaux",
+      "activeInactive": "{{active}} actifs · {{inactive}} suspendus",
+      "totalVolume": "Volume total",
+      "totalFeesCollected": "{{amount}} de frais collectés",
+      "activeConnections": "Connexions actives",
+      "activeConnectionsSubtext": "Utilisateurs connectés en temps réel",
+      "totalTransactions": "Transactions totales",
+      "completed": "Complétées",
+      "failed": "Échouées",
+      "successRate": "Taux de succès"
+    },
+    "todayActivity": {
+      "title": "Activité du jour",
+      "volumeToday": "Volume aujourd'hui",
+      "transactionsToday": "Transactions aujourd'hui",
+      "pending": "En attente / en cours",
+      "refunded": "Remboursées"
+    },
+    "channelChart": {
+      "title": "Répartition par canal"
+    },
+    "errors": {
+      "loadFailed": "Impossible de charger le tableau de bord"
+    }
+  },
+  "users": {
+    "pageTitle": "Gestion des utilisateurs",
+    "table": {
+      "user": "Utilisateur",
+      "role": "Rôle",
+      "status": "Statut",
+      "transactions": "Transactions",
+      "volumeSent": "Volume envoyé",
+      "registeredOn": "Inscrit le",
+      "action": "Action"
+    },
+    "roles": {
+      "admin": "Admin",
+      "user": "Utilisateur"
+    },
+    "status": {
+      "active": "Actif",
+      "suspended": "Suspendu"
+    },
+    "buttons": {
+      "suspend": "Suspendre",
+      "reactivate": "Réactiver"
+    },
+    "toasts": {
+      "suspended": "Compte de {{name}} suspendu",
+      "reactivated": "Compte de {{name}} réactivé"
+    }
+  },
+  "transactions": {
+    "pageTitle": "Toutes les transactions",
+    "table": {
+      "reference": "Référence",
+      "channel": "Canal",
+      "amountSent": "Montant envoyé",
+      "amountReceived": "Montant reçu",
+      "status": "Statut",
+      "date": "Date"
+    },
+    "empty": {
+      "title": "Aucune transaction",
+      "message": "Aucune transaction ne correspond à ce filtre."
+    }
+  },
+  "settings": {
+    "fees": {
+      "title": "Frais de la plateforme",
+      "rateLabel": "Nouveau taux de commission (%)",
+      "rateHint": "Entre 0% et 10%. Exemple : 1.5 pour 1,5%",
+      "reasonLabel": "Raison du changement",
+      "reasonPlaceholder": "Ex: Ajustement tarifaire trimestriel",
+      "reasonHint": "Conservée dans les logs pour audit",
+      "warning": "⚠️ Le nouveau taux sera appliqué immédiatement aux nouveaux transferts et un email sera envoyé à tous les utilisateurs actifs.",
+      "submitButton": "Mettre à jour le taux",
+      "errors": {
+        "invalidRate": "Le taux doit être compris entre 0% et 10%",
+        "reasonRequired": "Veuillez indiquer une raison pour ce changement"
+      },
+      "toasts": {
+        "success": "Taux mis à jour à {{rate}}% — un email a été envoyé à tous les utilisateurs actifs"
+      }
+    },
+    "maintenance": {
+      "title": "Notification de maintenance",
+      "dateLabel": "Date et heure de la maintenance",
+      "datePlaceholder": "15 juin 2025 à 02:00",
+      "dateHint": "Format libre — repris tel quel dans l'email",
+      "durationLabel": "Durée estimée",
+      "durationPlaceholder": "2 heures",
+      "submitButton": "Envoyer la notification",
+      "errors": {
+        "fieldsRequired": "Veuillez renseigner la date et la durée"
+      },
+      "toasts": {
+        "success": "Notification de maintenance envoyée à tous les utilisateurs actifs"
+      }
+    }
+  }
+}

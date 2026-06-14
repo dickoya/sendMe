@@ -1,1 +1,36 @@
-{}
+{
+  "pageTitle": "My beneficiaries",
+  "addButton": "Add",
+  "form": {
+    "firstName": "First name",
+    "firstNamePlaceholder": "John",
+    "lastName": "Last name",
+    "lastNamePlaceholder": "Doe",
+    "channelLabel": "Receiving channel",
+    "bankName": "Bank name",
+    "bankNamePlaceholder": "BNP Paribas",
+    "iban": "IBAN",
+    "ibanPlaceholder": "FR76 3000 6000 0112 3456 7890 189",
+    "bic": "BIC / SWIFT",
+    "bicPlaceholder": "BNPAFRPPXXX",
+    "phoneNumber": "Mobile Money phone number",
+    "phoneNumberPlaceholder": "+225 07 00 00 00 00",
+    "submitCreate": "Add beneficiary",
+    "submitEdit": "Save changes"
+  },
+  "modals": {
+    "createTitle": "Add a beneficiary",
+    "editTitle": "Edit beneficiary",
+    "deleteTitle": "Delete this beneficiary?",
+    "deleteMessage": "Are you sure you want to remove {{name}} from your beneficiaries? This action cannot be undone."
+  },
+  "toasts": {
+    "created": "Beneficiary added successfully",
+    "updated": "Beneficiary updated successfully",
+    "deleted": "Beneficiary removed"
+  },
+  "empty": {
+    "title": "No beneficiaries",
+    "message": "Add your first beneficiary to start sending money."
+  }
+}

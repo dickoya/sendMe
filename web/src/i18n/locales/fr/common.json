@@ -1,9 +1,75 @@
 {
   "app": {
     "name": "SendMe",
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "tagline": "Transferts d'argent instantanés"
   },
-  "test": {
-    "greeting": "Bonjour, {{name}} !"
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "beneficiaries": "Bénéficiaires",
+    "transfer": "Nouveau transfert",
+    "history": "Historique",
+    "notifications": "Notifications",
+    "admin": {
+      "dashboard": "Vue d'ensemble",
+      "users": "Utilisateurs",
+      "transactions": "Transactions",
+      "settings": "Paramètres"
+    },
+    "logout": "Déconnexion",
+    "backToSite": "Retour au site",
+    "login": "Connexion",
+    "register": "Créer un compte"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "add": "Ajouter",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "back": "Retour",
+    "continue": "Continuer",
+    "submit": "Valider",
+    "download": "Télécharger",
+    "preview": "Prévisualiser",
+    "seeAll": "Tout voir",
+    "seeFullHistory": "Historique complet",
+    "retry": "Réessayer"
+  },
+  "states": {
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "yes": "Oui",
+    "no": "Non"
+  },
+  "channels": {
+    "BANK_TRANSFER": "Virement bancaire",
+    "ORANGE_MONEY": "Orange Money",
+    "MTN_MOBILE_MONEY": "MTN Mobile Money",
+    "WAVE": "Wave",
+    "MOOV_MONEY": "Moov Money",
+    "AIRTEL_MONEY": "Airtel Money"
+  },
+  "status": {
+    "PENDING": "En attente",
+    "PROCESSING": "En cours",
+    "COMPLETED": "Complétée",
+    "FAILED": "Échouée",
+    "REFUNDED": "Remboursée",
+    "ALL": "Toutes"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue. Veuillez réessayer.",
+    "network": "Impossible de contacter le serveur. Vérifiez votre connexion.",
+    "unauthorized": "Votre session a expiré. Veuillez vous reconnecter.",
+    "forbidden": "Vous n'avez pas accès à cette ressource.",
+    "notFound": "Ressource introuvable.",
+    "validation": "Veuillez vérifier les informations saisies.",
+    "conflict": "Cette ressource existe déjà."
+  },
+  "languageSwitcher": {
+    "label": "Langue"
   }
 }
