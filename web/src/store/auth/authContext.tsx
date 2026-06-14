@@ -16,7 +16,7 @@ interface AuthContextValue {
     isLoading: boolean;
     /** Erreur du dernier login/register, à afficher dans le formulaire */
     error: string | null;
-    login: (payload: LoginPayload) => Promise<void>;
+    login: (payload: LoginPayload) => Promise<AuthUser>; // 👈 1. Changé void en Promise<AuthUser>
     register: (payload: RegisterPayload) => Promise<void>;
     logout: () => void;
     clearError: () => void;
@@ -45,12 +45,6 @@ function persistSession(response: AuthResponse): AuthUser {
 
 /**
  * Provider global d'authentification.
- *
- * Au montage, restaure la session depuis le localStorage
- * (évite une déconnexion au rechargement de la page).
- *
- * Expose login() et register() qui appellent l'API,
- * persistent la session et mettent à jour le state.
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AuthUser | null>(null);
@@ -72,11 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     }, []);
 
-    const login = async (payload: LoginPayload) => {
+    const login = async (payload: LoginPayload): Promise<AuthUser> => { // 👈 2. Ajout du type de retour
         setError(null);
         try {
             const response = await authService.login(payload);
-            setUser(persistSession(response));
+            const sessionUser = persistSession(response); // 👈 3. Stocké dans une variable "sessionUser"
+            setUser(sessionUser);
+            return sessionUser; // 👈 4. On retourne la variable
         } catch (err) {
             setError(extractMessage(err));
             throw err;
@@ -112,18 +108,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 }
 
-/**
- * Hook pour accéder à l'état et aux actions d'authentification.
- *
- * @example
- * const { user, login, isAuthenticated } = useAuth();
- * await login({ email, password });
- */
 export function useAuth() {
     const context = useContext(AuthContext);
     if (!context) throw new Error('useAuth doit être utilisé dans un AuthProvider');
     return context;
 }
 
-// Import local pour éviter une dépendance circulaire avec lib/utils
 import { getErrorMessage as extractMessage } from '@/lib/utils';

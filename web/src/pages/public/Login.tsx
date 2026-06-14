@@ -29,11 +29,18 @@ function Login() {
         setIsSubmitting(true);
 
         try {
-            await login({ email, password });
+            // 1. On récupère l'utilisateur connecté
+            const loggedUser = await login({ email, password });
             showToast('Connexion réussie. Bienvenue !', 'success');
-            navigate('/dashboard');
+
+            // 2. Redirection conditionnelle selon le rôle
+            if (loggedUser && loggedUser.role === 'ROLE_ADMIN') {
+                navigate('/admin'); // Redirection vers l'espace administration
+            } else {
+                navigate('/dashboard'); // Redirection vers l'espace utilisateur standard
+            }
         } catch {
-            // L'erreur est déjà capturée dans le context (affichée ci-dessous)
+            // L'erreur est capturée et gérée par le contexte
         } finally {
             setIsSubmitting(false);
         }
