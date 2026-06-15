@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Card from '@/components/ui/Card';
 import Spinner from '@/components/ui/Spinner';
 import Pagination from '@/components/ui/Pagination';
@@ -6,8 +7,7 @@ import StatusFilter from '@/components/transfer/StatusFilter';
 import TransactionStatusBadge from '@/components/transfer/TransactionStatusBadge';
 import Modal from '@/components/ui/Modal';
 import { useAdminTransactions } from '@/hooks/useAdminTransactions';
-import { CHANNEL_ICONS, getChannelLabel } from '@/utils/constants';
-import { useTranslation } from 'react-i18next';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
 import { ArrowRightLeft } from 'lucide-react';
@@ -15,9 +15,16 @@ import type { Transaction } from '@/types';
 
 /**
  * Page admin — toutes les transactions de la plateforme.
+ *
+ * Migration i18n (Phase 11) : namespace "admin" (clés transactions.*),
+ * "transfer" pour les libellés financiers réutilisés dans la modale
+ * de détail (cohérence avec History — Phase 9).
  */
 function AdminTransactions() {
-    const { t } = useTranslation('common'); // ◄── Initialisation du hook i18n
+    const { t } = useTranslation('admin');
+    const { t: tCommon } = useTranslation('common');
+    const { t: tTransfer } = useTranslation('transfer');
+
     const {
         transactions,
         totalPages,
@@ -33,27 +40,27 @@ function AdminTransactions() {
 
     return (
         <Card
-            title="Toutes les transactions"
-            actions={<span className="text-sm text-gray-400">{totalElements} au total</span>}
+            title={t('transactions.pageTitle')}
+            actions={<span className="text-sm text-gray-400">{t('transactions.totalCount', { count: totalElements })}</span>}
         >
             <div className="flex flex-col gap-4">
                 <StatusFilter value={statusFilter} onChange={setStatusFilter} />
 
                 {isLoading ? (
-                    <Spinner label="Chargement des transactions..." />
+                    <Spinner label={tCommon('states.loading')} />
                 ) : transactions.length === 0 ? (
-                    <EmptyState />
+                    <EmptyState title={t('transactions.empty.title')} message={t('transactions.empty.message')} />
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead>
                             <tr className="border-b border-gray-100 text-xs uppercase text-gray-400">
-                                <th className="py-3 font-medium">Référence</th>
-                                <th className="py-3 font-medium">Canal</th>
-                                <th className="py-3 font-medium text-right">Montant envoyé</th>
-                                <th className="py-3 font-medium text-right">Montant reçu</th>
-                                <th className="py-3 font-medium">Statut</th>
-                                <th className="py-3 font-medium">Date</th>
+                                <th className="py-3 font-medium">{t('transactions.table.reference')}</th>
+                                <th className="py-3 font-medium">{t('transactions.table.channel')}</th>
+                                <th className="py-3 font-medium text-right">{t('transactions.table.amountSent')}</th>
+                                <th className="py-3 font-medium text-right">{t('transactions.table.amountReceived')}</th>
+                                <th className="py-3 font-medium">{t('transactions.table.status')}</th>
+                                <th className="py-3 font-medium">{t('transactions.table.date')}</th>
                             </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
@@ -65,8 +72,7 @@ function AdminTransactions() {
                                 >
                                     <td className="py-3 font-medium text-gray-900">{tx.reference}</td>
                                     <td className="py-3 text-gray-700">
-                                        {/* ◄── Traduction dynamique du canal dans le tableau */}
-                                        {CHANNEL_ICONS[tx.channel]} {getChannelLabel(tx.channel, t)}
+                                        {getChannelIcon(tx.channel)} {getChannelLabel(tx.channel, tCommon)}
                                     </td>
                                     <td className="py-3 text-right text-gray-900">
                                         {formatCurrency(tx.amountSent, tx.currencySent)}
@@ -91,22 +97,35 @@ function AdminTransactions() {
             </div>
 
             {/* Modale de détail simplifiée (lecture seule, pas de reçu) */}
-            <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Détail de la transaction" size="md">
+            <Modal isOpen={!!selected} onClose={() => setSelected(null)} title={t('transactions.pageTitle')} size="md">
                 {selected && (
                     <div className="flex flex-col gap-3 text-sm">
-                        <Row label="Référence" value={selected.reference} />
-                        {/* ◄── Traduction dynamique du canal dans la modale */}
-                        <Row label="Canal" value={`${CHANNEL_ICONS[selected.channel]} ${getChannelLabel(selected.channel, t)}`} />
-                        <Row label="Montant envoyé" value={formatCurrency(selected.amountSent, selected.currencySent)} />
-                        <Row label="Frais" value={formatCurrency(selected.fees, selected.currencySent)} />
-                        <Row label="Taux de change" value={`1 ${selected.currencySent} = ${selected.exchangeRate} ${selected.currencyReceived}`} />
+                        <Row label={t('transactions.table.reference')} value={selected.reference} />
+                        <Row
+                            label={t('transactions.table.channel')}
+                            value={`${getChannelIcon(selected.channel)} ${getChannelLabel(selected.channel, tCommon)}`}
+                        />
+                        <Row label={t('transactions.table.fees')} value={formatCurrency(selected.fees, selected.currencySent)} />
+                        <Row label={t('transactions.table.amountSent')} value={formatCurrency(selected.fees, selected.currencySent)} />
+                        <Row
+                            label={tTransfer('simulator.exchangeRate')}
+                            value={tTransfer('simulator.exchangeRateValue', {
+                                from: selected.currencySent,
+                                rate: selected.exchangeRate,
+                                to: selected.currencyReceived,
+                            })}
+                        />
                         {selected.status === 'COMPLETED' && (
-                            <Row label="Montant reçu" value={formatCurrency(selected.amountReceived, selected.currencyReceived)} highlight />
+                            <Row
+                                label={t('transactions.table.amountReceived')}
+                                value={formatCurrency(selected.amountReceived, selected.currencyReceived)}
+                                highlight
+                            />
                         )}
                         {selected.stripePaymentIntentId && (
-                            <Row label="Référence Stripe" value={selected.stripePaymentIntentId} mono />
+                            <Row label="Stripe" value={selected.stripePaymentIntentId} mono />
                         )}
-                        <Row label="Date" value={formatDate(selected.createdAt)} />
+                        <Row label={t('transactions.table.date')} value={formatDate(selected.createdAt)} />
                         <div className="pt-2">
                             <TransactionStatusBadge status={selected.status} />
                         </div>
@@ -128,14 +147,14 @@ function Row({ label, value, highlight, mono }: { label: string; value: string; 
     );
 }
 
-function EmptyState() {
+function EmptyState({ title, message }: { title: string; message: string }) {
     return (
         <div className="flex flex-col items-center gap-2 py-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
                 <ArrowRightLeft size={22} />
             </div>
-            <p className="font-medium text-gray-900">Aucune transaction</p>
-            <p className="text-sm text-gray-500">Aucune transaction ne correspond à ce filtre.</p>
+            <p className="font-medium text-gray-900">{title}</p>
+            <p className="text-sm text-gray-500">{message}</p>
         </div>
     );
 }

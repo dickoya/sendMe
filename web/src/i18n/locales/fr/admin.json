@@ -12,6 +12,16 @@
       "failed": "Échouées",
       "successRate": "Taux de succès"
     },
+    "table": {
+      "reference": "Référence",
+      "channel": "Canal",
+      "amountSent": "Montant envoyé",
+      "fees": "Frais",
+      "amountReceived": "Montant reçu",
+      "status": "Statut",
+      "date": "Date"
+    },
+
     "todayActivity": {
       "title": "Activité du jour",
       "volumeToday": "Volume aujourd'hui",

@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { CHANNEL_ICONS, getChannelLabel } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import type { ChannelType } from '@/types';
 
 export interface ChannelChartProps {
@@ -16,16 +16,20 @@ const ALL_CHANNELS: ChannelType[] = [
 ];
 
 /**
- * Graphique en barres horizontales de la répartition des transactions par canal.
- * Implémenté en CSS pur — pas de dépendance de charting.
+ * Graphique en barres horizontales de la répartition par canal.
+ *
+ * Migration i18n (Phase 11) : libellés via getChannelLabel (namespace
+ * "common", déjà utilisé depuis la Phase 6) ; "Aucune donnée disponible"
+ * via common.states.noData (clé déjà existante depuis Phase 2 — pas de
+ * nouvelle clé nécessaire).
  */
 function ChannelChart({ data }: ChannelChartProps) {
-    const { t } = useTranslation('common'); // ◄── Initialisation de la traduction (Namespace common)
+    const { t } = useTranslation('common');
     const maxValue = Math.max(...Object.values(data), 1);
     const total = Object.values(data).reduce((sum, v) => sum + v, 0);
 
     if (total === 0) {
-        return <p className="py-6 text-center text-sm text-gray-400">Aucune donnée disponible</p>;
+        return <p className="py-6 text-center text-sm text-gray-400">{t('states.noData')}</p>;
     }
 
     return (
@@ -37,8 +41,7 @@ function ChannelChart({ data }: ChannelChartProps) {
                 return (
                     <div key={channel} className="flex items-center gap-3">
                         <div className="flex w-36 flex-shrink-0 items-center gap-2 text-sm text-gray-700">
-                            <span>{CHANNEL_ICONS[channel]}</span>
-                            {/* ◄── Utilisation de la fonction dynamique getChannelLabel ici */}
+                            <span>{getChannelIcon(channel)}</span>
                             <span className="truncate">{getChannelLabel(channel, t)}</span>
                         </div>
                         <div className="flex-1">
@@ -50,8 +53,8 @@ function ChannelChart({ data }: ChannelChartProps) {
                             </div>
                         </div>
                         <span className="w-10 flex-shrink-0 text-right text-sm font-medium text-gray-900">
-                            {count}
-                        </span>
+              {count}
+            </span>
                     </div>
                 );
             })}

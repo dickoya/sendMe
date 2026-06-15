@@ -12,6 +12,16 @@
       "failed": "Failed",
       "successRate": "Success rate"
     },
+    "table": {
+      "reference": "Reference",
+      "channel": "Channel",
+      "amountSent": "Amount sent",
+      "fees": "Fees",
+      "amountReceived": "Amount received",
+      "status": "Status",
+      "date": "Date"
+    },
+
     "todayActivity": {
       "title": "Today's activity",
       "volumeToday": "Volume today",

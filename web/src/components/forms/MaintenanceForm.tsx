@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Wrench, Calendar, Clock } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -7,10 +8,18 @@ import { useToast } from '@/store/notification/toastContext';
 import { getErrorMessage } from '@/lib/utils';
 
 /**
- * Formulaire d'envoi d'une notification de maintenance programmée
- * à tous les utilisateurs actifs (email — Phase F backend).
+ * Formulaire d'envoi d'une notification de maintenance.
+ *
+ * Migration i18n (Phase 11) : namespace "admin" (clés settings.maintenance.*).
+ *
+ * Limitation documentée (héritée du plan, Phase 9/14) : les champs
+ * `date` et `duration` sont en texte libre, envoyés tels quels au
+ * backend pour l'email (toujours en français). Si l'admin saisit en
+ * anglais ici, l'email résultant mélangera FR/EN — non traité dans ce
+ * plan (sur-ingénierie pour le périmètre TFE).
  */
 function MaintenanceForm() {
+    const { t } = useTranslation('admin');
     const { showToast } = useToast();
     const [date, setDate] = useState('');
     const [duration, setDuration] = useState('');
@@ -22,14 +31,14 @@ function MaintenanceForm() {
         setError(null);
 
         if (!date.trim() || !duration.trim()) {
-            setError('Veuillez renseigner la date et la durée');
+            setError(t('settings.maintenance.errors.fieldsRequired'));
             return;
         }
 
         setIsSubmitting(true);
         try {
             await adminService.sendMaintenanceNotification(date, duration);
-            showToast('Notification de maintenance envoyée à tous les utilisateurs actifs', 'success');
+            showToast(t('settings.maintenance.toasts.success'), 'success');
             setDate('');
             setDuration('');
         } catch (err) {
@@ -42,18 +51,18 @@ function MaintenanceForm() {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
-                label="Date et heure de la maintenance"
-                placeholder="15 juin 2025 à 02:00"
+                label={t('settings.maintenance.dateLabel')}
+                placeholder={t('settings.maintenance.datePlaceholder')}
                 icon={<Calendar size={16} />}
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                hint="Format libre — repris tel quel dans l'email"
+                hint={t('settings.maintenance.dateHint')}
                 required
             />
 
             <Input
-                label="Durée estimée"
-                placeholder="2 heures"
+                label={t('settings.maintenance.durationLabel')}
+                placeholder={t('settings.maintenance.durationPlaceholder')}
                 icon={<Clock size={16} />}
                 value={duration}
                 onChange={(e) => setDuration(e.target.value)}
@@ -65,7 +74,7 @@ function MaintenanceForm() {
             )}
 
             <Button type="submit" loading={isSubmitting} icon={<Wrench size={16} />} className="self-start">
-                Envoyer la notification
+                {t('settings.maintenance.submitButton')}
             </Button>
         </form>
     );

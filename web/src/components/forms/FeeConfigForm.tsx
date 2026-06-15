@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Percent } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -7,13 +8,12 @@ import { useToast } from '@/store/notification/toastContext';
 import { getErrorMessage } from '@/lib/utils';
 
 /**
- * Formulaire de modification du taux de commission de la plateforme.
+ * Formulaire de modification du taux de commission.
  *
- * Soumission → PUT /api/admin/config/fees
- * Déclenche côté backend l'envoi d'un email "Mise à jour des tarifs"
- * à tous les utilisateurs actifs (Phase F).
+ * Migration i18n (Phase 11) : namespace "admin" (clés settings.fees.*).
  */
 function FeeConfigForm() {
+    const { t } = useTranslation('admin');
     const { showToast } = useToast();
     const [feeRate, setFeeRate] = useState('1.5');
     const [reason, setReason] = useState('');
@@ -26,21 +26,18 @@ function FeeConfigForm() {
 
         const rate = parseFloat(feeRate);
         if (isNaN(rate) || rate < 0 || rate > 10) {
-            setError('Le taux doit être compris entre 0% et 10%');
+            setError(t('settings.fees.errors.invalidRate'));
             return;
         }
         if (!reason.trim()) {
-            setError('Veuillez indiquer une raison pour ce changement');
+            setError(t('settings.fees.errors.reasonRequired'));
             return;
         }
 
         setIsSubmitting(true);
         try {
             await adminService.updateFeeRate({ feeRate: rate, reason });
-            showToast(
-                `Taux mis à jour à ${rate}% — un email a été envoyé à tous les utilisateurs actifs`,
-                'success'
-            );
+            showToast(t('settings.fees.toasts.success', { rate }), 'success');
             setReason('');
         } catch (err) {
             setError(getErrorMessage(err));
@@ -52,7 +49,7 @@ function FeeConfigForm() {
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
-                label="Nouveau taux de commission (%)"
+                label={t('settings.fees.rateLabel')}
                 type="number"
                 step="0.1"
                 min="0"
@@ -60,16 +57,16 @@ function FeeConfigForm() {
                 icon={<Percent size={16} />}
                 value={feeRate}
                 onChange={(e) => setFeeRate(e.target.value)}
-                hint="Entre 0% et 10%. Exemple : 1.5 pour 1,5%"
+                hint={t('settings.fees.rateHint')}
                 required
             />
 
             <Input
-                label="Raison du changement"
-                placeholder="Ex: Ajustement tarifaire trimestriel"
+                label={t('settings.fees.reasonLabel')}
+                placeholder={t('settings.fees.reasonPlaceholder')}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                hint="Conservée dans les logs pour audit"
+                hint={t('settings.fees.reasonHint')}
                 required
             />
 
@@ -78,12 +75,11 @@ function FeeConfigForm() {
             )}
 
             <div className="rounded-lg bg-warning-50 px-3 py-2 text-xs text-warning-600">
-                ⚠️ Le nouveau taux sera appliqué immédiatement aux nouveaux transferts et un email
-                sera envoyé à tous les utilisateurs actifs.
+                {t('settings.fees.warning')}
             </div>
 
             <Button type="submit" loading={isSubmitting} className="self-start">
-                Mettre à jour le taux
+                {t('settings.fees.submitButton')}
             </Button>
         </form>
     );

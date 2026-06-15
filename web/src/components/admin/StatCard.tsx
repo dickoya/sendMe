@@ -4,14 +4,16 @@ export interface StatCardProps {
     label: string;
     value: string | number;
     icon: React.ReactNode;
-    /** Couleur de l'icône — classes Tailwind */
     iconClassName?: string;
-    /** Texte secondaire affiché sous la valeur (ex: "12 aujourd'hui") */
     subtext?: string;
 }
 
 /**
  * Carte de statistique pour le tableau de bord admin.
+ *
+ * Pas de migration i18n directe — `label` et `subtext` sont fournis
+ * déjà traduits par le composant appelant (AdminDashboard, Phase 11).
+ * Inchangé depuis l'Étape 9.
  */
 function StatCard({ label, value, icon, iconClassName, subtext }: StatCardProps) {
     return (

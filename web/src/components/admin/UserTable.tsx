@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Loader2, UserCheck, UserX } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -12,8 +13,12 @@ export interface UserTableProps {
 
 /**
  * Tableau des utilisateurs avec activation/désactivation en ligne.
+ *
+ * Migration i18n (Phase 11) : namespace "admin" (clés users.table.*,
+ * users.roles.*, users.status.*, users.buttons.*).
  */
 function UserTable({ users, onToggleStatus }: UserTableProps) {
+    const { t } = useTranslation('admin');
     const [togglingId, setTogglingId] = useState<number | null>(null);
 
     const handleToggle = async (id: number) => {
@@ -30,13 +35,13 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
             <table className="w-full text-left text-sm">
                 <thead>
                 <tr className="border-b border-gray-100 text-xs uppercase text-gray-400">
-                    <th className="py-3 font-medium">Utilisateur</th>
-                    <th className="py-3 font-medium">Rôle</th>
-                    <th className="py-3 font-medium">Statut</th>
-                    <th className="py-3 font-medium text-right">Transactions</th>
-                    <th className="py-3 font-medium text-right">Volume envoyé</th>
-                    <th className="py-3 font-medium">Inscrit le</th>
-                    <th className="py-3 font-medium text-right">Action</th>
+                    <th className="py-3 font-medium">{t('users.table.user')}</th>
+                    <th className="py-3 font-medium">{t('users.table.role')}</th>
+                    <th className="py-3 font-medium">{t('users.table.status')}</th>
+                    <th className="py-3 font-medium text-right">{t('users.table.transactions')}</th>
+                    <th className="py-3 font-medium text-right">{t('users.table.volumeSent')}</th>
+                    <th className="py-3 font-medium">{t('users.table.registeredOn')}</th>
+                    <th className="py-3 font-medium text-right">{t('users.table.action')}</th>
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -57,12 +62,12 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
                         </td>
                         <td className="py-3">
                             <Badge variant={user.role === 'ROLE_ADMIN' ? 'purple' : 'gray'}>
-                                {user.role === 'ROLE_ADMIN' ? 'Admin' : 'Utilisateur'}
+                                {user.role === 'ROLE_ADMIN' ? t('users.roles.admin') : t('users.roles.user')}
                             </Badge>
                         </td>
                         <td className="py-3">
                             <Badge variant={user.isActive ? 'success' : 'danger'}>
-                                {user.isActive ? 'Actif' : 'Suspendu'}
+                                {user.isActive ? t('users.status.active') : t('users.status.suspended')}
                             </Badge>
                         </td>
                         <td className="py-3 text-right font-medium text-gray-900">
@@ -90,7 +95,7 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
                                     ) : (
                                         <UserCheck size={14} />
                                     )}
-                                    {user.isActive ? 'Suspendre' : 'Réactiver'}
+                                    {user.isActive ? t('users.buttons.suspend') : t('users.buttons.reactivate')}
                                 </button>
                             )}
                         </td>
