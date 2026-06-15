@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { STATUS_LABELS } from '@/utils/constants';
+import { getStatusLabel } from '@/utils/constants';
 import type { TransactionStatus } from '@/types';
 
 export interface StatusFilterProps {
@@ -18,8 +19,15 @@ const STATUSES: (TransactionStatus | 'ALL')[] = [
 
 /**
  * Barre de filtres par statut sous forme de pills cliquables.
+ *
+ * Migration i18n (Phase 9) : "ALL" est traité comme une clé de statut
+ * à part entière dans common.json (status.ALL = "Toutes"/"All"),
+ * donc getStatusLabel() fonctionne uniformément pour toutes les
+ * valeurs sans cas particulier.
  */
 function StatusFilter({ value, onChange }: StatusFilterProps) {
+    const { t } = useTranslation('common');
+
     return (
         <div className="flex flex-wrap gap-2">
             {STATUSES.map((status) => (
@@ -33,7 +41,7 @@ function StatusFilter({ value, onChange }: StatusFilterProps) {
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     )}
                 >
-                    {status === 'ALL' ? 'Toutes' : STATUS_LABELS[status]}
+                    {getStatusLabel(status, t)}
                 </button>
             ))}
         </div>

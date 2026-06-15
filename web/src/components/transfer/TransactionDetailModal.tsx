@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Download, Eye, Loader2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import TransactionStatusBadge from './TransactionStatusBadge';
-import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
 import type { Transaction } from '@/types';
@@ -17,8 +18,12 @@ export interface TransactionDetailModalProps {
 }
 
 /**
- * Modale de détail complet d'une transaction —
- * tous les champs renvoyés par GET /api/transactions/{id}.
+ * Modale de détail complet d'une transaction.
+ *
+ * Migration i18n (Phase 9) : namespace "history" pour les libellés
+ * propres à cette modale, "transfer" pour les libellés financiers
+ * réutilisés (amountSent, exchangeRate — déjà traduits en Phase 8,
+ * évite la duplication).
  */
 function TransactionDetailModal({
                                     transaction,
@@ -28,12 +33,16 @@ function TransactionDetailModal({
                                     isDownloading,
                                     isPreviewing,
                                 }: TransactionDetailModalProps) {
+    const { t } = useTranslation('history');
+    const { t: tTransfer } = useTranslation('transfer');
+    const { t: tCommon } = useTranslation('common');
+
     if (!transaction) return null;
 
     const canDownloadReceipt = transaction.status === 'COMPLETED';
 
     return (
-        <Modal isOpen={!!transaction} onClose={onClose} title="Détail de la transaction" size="md">
+        <Modal isOpen={!!transaction} onClose={onClose} title={t('detailModal.title')} size="md">
             <div className="flex flex-col gap-4">
                 {/* En-tête */}
                 <div className="flex items-center justify-between">
@@ -46,16 +55,20 @@ function TransactionDetailModal({
 
                 {/* Montants */}
                 <div className="flex flex-col gap-2 rounded-xl bg-gray-50 p-4 text-sm">
-                    <DetailRow label="Montant envoyé" value={formatCurrency(transaction.amountSent, transaction.currencySent)} />
-                    <DetailRow label="Frais plateforme" value={formatCurrency(transaction.fees, transaction.currencySent)} muted />
+                    <DetailRow label={tTransfer('simulator.amountSent')} value={formatCurrency(transaction.amountSent, transaction.currencySent)} />
+                    <DetailRow label={t('detailModal.fees')} value={formatCurrency(transaction.fees, transaction.currencySent)} muted />
                     <DetailRow
-                        label="Taux de change"
-                        value={`1 ${transaction.currencySent} = ${transaction.exchangeRate} ${transaction.currencyReceived}`}
+                        label={tTransfer('simulator.exchangeRate')}
+                        value={tTransfer('simulator.exchangeRateValue', {
+                            from: transaction.currencySent,
+                            rate: transaction.exchangeRate,
+                            to: transaction.currencyReceived,
+                        })}
                         muted
                     />
                     <div className="h-px bg-gray-200" />
                     <DetailRow
-                        label="Montant reçu"
+                        label={t('detailModal.amountReceived')}
                         value={formatCurrency(transaction.amountReceived, transaction.currencyReceived)}
                         highlight
                     />
@@ -63,12 +76,15 @@ function TransactionDetailModal({
 
                 {/* Canal et référence Stripe */}
                 <div className="flex flex-col gap-2 text-sm">
-                    <DetailRow label="Canal de réception" value={`${CHANNEL_ICONS[transaction.channel]} ${CHANNEL_LABELS[transaction.channel]}`} />
+                    <DetailRow
+                        label={t('detailModal.channel')}
+                        value={`${getChannelIcon(transaction.channel)} ${getChannelLabel(transaction.channel, tCommon)}`}
+                    />
                     {transaction.stripePaymentIntentId && (
-                        <DetailRow label="Référence Stripe" value={transaction.stripePaymentIntentId} mono />
+                        <DetailRow label={t('detailModal.stripeReference')} value={transaction.stripePaymentIntentId} mono />
                     )}
                     {transaction.updatedAt && transaction.updatedAt !== transaction.createdAt && (
-                        <DetailRow label="Dernière mise à jour" value={formatDate(transaction.updatedAt)} />
+                        <DetailRow label={t('detailModal.lastUpdated')} value={formatDate(transaction.updatedAt)} />
                     )}
                 </div>
 
@@ -82,7 +98,7 @@ function TransactionDetailModal({
                             onClick={() => onPreview(transaction)}
                             disabled={isPreviewing}
                         >
-                            Prévisualiser
+                            {tCommon('actions.preview')}
                         </Button>
                         <Button
                             fullWidth
@@ -90,7 +106,7 @@ function TransactionDetailModal({
                             onClick={() => onDownload(transaction)}
                             disabled={isDownloading}
                         >
-                            Télécharger le reçu
+                            {t('actions.downloadReceipt')}
                         </Button>
                     </div>
                 )}

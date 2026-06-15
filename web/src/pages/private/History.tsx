@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Card from '@/components/ui/Card';
 import Spinner from '@/components/ui/Spinner';
 import Pagination from '@/components/ui/Pagination';
@@ -15,12 +16,13 @@ import type { Transaction } from '@/types';
 /**
  * Page d'historique des transactions.
  *
- * - Filtrage par statut (pills)
- * - Pagination serveur (page/size)
- * - Clic sur une ligne → modale de détail
- * - Téléchargement et prévisualisation du reçu PDF (transactions COMPLETED)
+ * Migration i18n (Phase 9) : namespace "history" pour le contenu
+ * propre à la page, "common" pour les états de chargement.
  */
 function History() {
+    const { t } = useTranslation('history');
+    const { t: tCommon } = useTranslation('common');
+
     const {
         transactions,
         totalPages,
@@ -61,14 +63,17 @@ function History() {
 
     return (
         <div className="flex flex-col gap-4">
-            <Card title="Historique des transactions">
+            <Card title={t('pageTitle')}>
                 <div className="flex flex-col gap-4">
                     <StatusFilter value={statusFilter} onChange={setStatusFilter} />
 
                     {isLoading ? (
-                        <Spinner label="Chargement de l'historique..." />
+                        <Spinner label={tCommon('states.loading')} />
                     ) : transactions.length === 0 ? (
-                        <EmptyHistory />
+                        <EmptyHistory
+                            title={t('empty.title')}
+                            message={statusFilter === 'ALL' ? t('empty.message') : t('empty.filteredMessage')}
+                        />
                     ) : (
                         <div className="flex flex-col gap-2">
                             {transactions.map((tx) => (
@@ -101,16 +106,14 @@ function History() {
     );
 }
 
-function EmptyHistory() {
+function EmptyHistory({ title, message }: { title: string; message: string }) {
     return (
         <div className="flex flex-col items-center gap-2 py-12 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
                 <HistoryIcon size={22} />
             </div>
-            <p className="font-medium text-gray-900">Aucune transaction</p>
-            <p className="text-sm text-gray-500">
-                Vos transferts apparaîtront ici une fois effectués.
-            </p>
+            <p className="font-medium text-gray-900">{title}</p>
+            <p className="text-sm text-gray-500">{message}</p>
         </div>
     );
 }

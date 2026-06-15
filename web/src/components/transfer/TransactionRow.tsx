@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { Download, Eye, Loader2 } from 'lucide-react';
 import TransactionStatusBadge from './TransactionStatusBadge';
-import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
 import type { Transaction } from '@/types';
@@ -14,14 +15,16 @@ export interface TransactionRowProps {
 }
 
 /**
- * Ligne de transaction dans l'historique — affiche toutes les infos
- * clés et les actions de téléchargement/prévisualisation du reçu.
+ * Ligne de transaction dans l'historique.
  *
- * Le reçu PDF n'a de sens que pour les transactions COMPLETED
- * (le backend génère le PDF pour tout statut, mais visuellement
- * on ne propose l'action que si le transfert a abouti).
+ * Migration i18n (Phase 9) : libellé/icône de canal via les helpers
+ * de Phase 6, aria-labels via "common", formatDate sensible à la
+ * langue (voir Phase 12 — pour l'instant formatDate reste en fr,
+ * sera adapté globalement en Phase 12).
  */
 function TransactionRow({ transaction, onDownload, onPreview, isDownloading, isPreviewing }: TransactionRowProps) {
+    const { t: tCommon } = useTranslation('common');
+    const { t } = useTranslation('history');
     const canDownloadReceipt = transaction.status === 'COMPLETED';
 
     return (
@@ -29,12 +32,12 @@ function TransactionRow({ transaction, onDownload, onPreview, isDownloading, isP
             {/* Infos principales */}
             <div className="flex items-center gap-3 min-w-0">
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 text-xl">
-                    {CHANNEL_ICONS[transaction.channel]}
+                    {getChannelIcon(transaction.channel)}
                 </div>
                 <div className="min-w-0">
                     <p className="truncate font-medium text-gray-900">{transaction.reference}</p>
                     <p className="text-sm text-gray-500">
-                        {CHANNEL_LABELS[transaction.channel]} • {formatDate(transaction.createdAt)}
+                        {getChannelLabel(transaction.channel, tCommon)} • {formatDate(transaction.createdAt)}
                     </p>
                 </div>
             </div>
@@ -61,8 +64,8 @@ function TransactionRow({ transaction, onDownload, onPreview, isDownloading, isP
                             onClick={(e) => { e.stopPropagation(); onPreview(); }}
                             disabled={isPreviewing}
                             className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-brand-600 disabled:opacity-50"
-                            aria-label="Prévisualiser le reçu"
-                            title="Prévisualiser"
+                            aria-label={tCommon('actions.preview')}
+                            title={tCommon('actions.preview')}
                         >
                             {isPreviewing ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
                         </button>
@@ -70,8 +73,8 @@ function TransactionRow({ transaction, onDownload, onPreview, isDownloading, isP
                             onClick={(e) => { e.stopPropagation(); onDownload(); }}
                             disabled={isDownloading}
                             className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-brand-600 disabled:opacity-50"
-                            aria-label="Télécharger le reçu"
-                            title="Télécharger PDF"
+                            aria-label={t('actions.downloadReceipt')}
+                            title={t('actions.downloadReceipt')}
                         >
                             {isDownloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                         </button>
