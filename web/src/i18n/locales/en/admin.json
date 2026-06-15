@@ -32,6 +32,20 @@
     "channelChart": {
       "title": "Breakdown by channel"
     },
+    "allExchangeRates": {
+      "title": "Exchange rates — all pairs",
+      "pair": "Pair",
+      "rawRate": "Raw rate",
+      "marginRate": "Rate with margin",
+      "cacheTimestamp": "Cache"
+    },
+    "exchangeRateDebug": {
+      "title": "Exchange rate debug",
+      "rawRate": "Raw rate",
+      "marginRate": "Rate with margin",
+      "cacheTimestamp": "Cache",
+      "pair": "Tracked pair: {{from}} -> {{to}}"
+    },
     "errors": {
       "loadFailed": "Unable to load the dashboard"
     }

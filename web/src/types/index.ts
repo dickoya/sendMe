@@ -190,6 +190,22 @@ export interface DashboardResponse {
     transactionsByChannel: Record<string, number>;
     activeSSEConnections: number;
 }
+
+export interface ExchangeRateDebug {
+    from: string;
+    to: string;
+    rawRate: number | null;
+    marginRate: number | null;
+    cacheTimestamp: string;
+}
+
+export interface ExchangeRateDebugEntry {
+    from: string;
+    to: string;
+    rawRate: number | null;
+    marginRate: number | null;
+    cacheTimestamp: string;
+}
 // ── Erreurs API ────────────────────────────────────────────────────────
 /**
  * Format d'erreur retourné par GlobalExceptionHandler du backend.

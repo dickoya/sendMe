@@ -6,6 +6,7 @@ import StatCard from '@/components/admin/StatCard';
 import ChannelChart from '@/components/admin/ChannelChart';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { formatCurrency } from '@/utils/formatCurrency';
+import type { ExchangeRateDebugEntry } from '@/types';
 
 /**
  * Tableau de bord administrateur.
@@ -16,7 +17,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 function AdminDashboard() {
     const { t } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
-    const { dashboard, isLoading, error } = useAdminDashboard();
+    const { dashboard, exchangeRateDebug, allExchangeRates, isLoading, error } = useAdminDashboard();
 
     if (isLoading) {
         return <Spinner fullPage label={tCommon('states.loading')} />;
@@ -119,8 +120,96 @@ function AdminDashboard() {
                     <ChannelChart data={dashboard.transactionsByChannel} />
                 </Card>
             </div>
+
+            {/* ── Taux de change : toutes les paires ──────────────────────────────── */}
+            {allExchangeRates.length > 0 && (
+                <Card title={t('dashboard.allExchangeRates.title')}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead>
+                                <tr className="border-b border-gray-200 text-xs font-medium uppercase text-gray-500">
+                                    <th className="px-3 py-2">{t('dashboard.allExchangeRates.pair')}</th>
+                                    <th className="px-3 py-2">{t('dashboard.allExchangeRates.rawRate')}</th>
+                                    <th className="px-3 py-2">{t('dashboard.allExchangeRates.marginRate')}</th>
+                                    <th className="px-3 py-2">{t('dashboard.allExchangeRates.cacheTimestamp')}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {allExchangeRates.map((rate) => (
+                                    <tr key={`${rate.from}-${rate.to}`} className="border-b border-gray-100 hover:bg-gray-50">
+                                        <td className="whitespace-nowrap px-3 py-2 font-medium text-gray-900">
+                                            {rate.from} → {rate.to}
+                                        </td>
+                                        <td className="whitespace-nowrap px-3 py-2 text-gray-700">
+                                            {formatRateDebug(rate.rawRate)}
+                                        </td>
+                                        <td className="whitespace-nowrap px-3 py-2 text-accent-700">
+                                            {formatRateDebug(rate.marginRate)}
+                                        </td>
+                                        <td className="whitespace-nowrap px-3 py-2 text-xs text-gray-500">
+                                            {formatCacheTimestamp(rate.cacheTimestamp)}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </Card>
+            )}
+
+            {/* ── Debug EUR → XOF (carte existante) ──────────────────────────────── */}
+            {exchangeRateDebug && (
+                <Card title={t('dashboard.exchangeRateDebug.title')}>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div className="rounded-lg bg-gray-50 px-4 py-3">
+                            <p className="text-xs font-medium uppercase text-gray-500">
+                                {t('dashboard.exchangeRateDebug.rawRate')}
+                            </p>
+                            <p className="mt-1 text-lg font-semibold text-gray-900">
+                                {formatRateDebug(exchangeRateDebug.rawRate)}
+                            </p>
+                        </div>
+                        <div className="rounded-lg bg-accent-50 px-4 py-3">
+                            <p className="text-xs font-medium uppercase text-accent-700">
+                                {t('dashboard.exchangeRateDebug.marginRate')}
+                            </p>
+                            <p className="mt-1 text-lg font-semibold text-accent-700">
+                                {formatRateDebug(exchangeRateDebug.marginRate)}
+                            </p>
+                        </div>
+                        <div className="rounded-lg bg-brand-50 px-4 py-3">
+                            <p className="text-xs font-medium uppercase text-brand-700">
+                                {t('dashboard.exchangeRateDebug.cacheTimestamp')}
+                            </p>
+                            <p className="mt-1 break-words text-sm font-semibold text-brand-700">
+                                {formatCacheTimestamp(exchangeRateDebug.cacheTimestamp)}
+                            </p>
+                        </div>
+                    </div>
+                    <p className="mt-3 text-sm text-gray-500">
+                        {t('dashboard.exchangeRateDebug.pair', {
+                            from: exchangeRateDebug.from,
+                            to: exchangeRateDebug.to,
+                        })}
+                    </p>
+                </Card>
+            )}
         </div>
     );
+}
+
+function formatRateDebug(rate: number | null) {
+    if (rate == null) return 'N/A';
+    return rate.toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 6,
+    });
+}
+
+function formatCacheTimestamp(timestamp: string) {
+    const date = new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return timestamp;
+    return date.toLocaleString();
 }
 
 export default AdminDashboard;

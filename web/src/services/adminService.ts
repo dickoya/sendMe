@@ -1,5 +1,14 @@
 import api from './api';
-import type { ApiResponse, Page, UserResponse, Transaction, DashboardResponse, TransactionStatus } from '@/types';
+import type {
+    ApiResponse,
+    Page,
+    UserResponse,
+    Transaction,
+    DashboardResponse,
+    TransactionStatus,
+    ExchangeRateDebug,
+    ExchangeRateDebugEntry,
+} from '@/types';
 
 export interface FeeConfigPayload {
     feeRate: number;
@@ -17,6 +26,17 @@ export const adminService = {
      */
     async getDashboard(): Promise<DashboardResponse> {
         const { data } = await api.get<ApiResponse<DashboardResponse>>('/admin/dashboard');
+        return data.data;
+    },
+
+    /**
+     * Infos debug du taux EUR -> XOF affichees dans le dashboard admin.
+     * GET /api/admin/debug/rate?from=EUR&to=XOF
+     */
+    async getExchangeRateDebug(from = 'EUR', to = 'XOF'): Promise<ExchangeRateDebug> {
+        const { data } = await api.get<ApiResponse<ExchangeRateDebug>>('/admin/debug/rate', {
+            params: { from, to },
+        });
         return data.data;
     },
 
@@ -58,6 +78,15 @@ export const adminService = {
      */
     async updateFeeRate(payload: FeeConfigPayload): Promise<void> {
         await api.put('/admin/config/fees', payload);
+    },
+
+    /**
+     * Récupère les taux de change debug pour toutes les paires de devises.
+     * GET /api/debug/rates
+     */
+    async getAllExchangeRates(): Promise<ExchangeRateDebugEntry[]> {
+        const { data } = await api.get<ApiResponse<ExchangeRateDebugEntry[]>>('/debug/rates');
+        return data.data;
     },
 
     /**

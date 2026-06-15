@@ -32,6 +32,20 @@
     "channelChart": {
       "title": "Répartition par canal"
     },
+    "allExchangeRates": {
+      "title": "Taux de change — toutes les paires",
+      "pair": "Paire",
+      "rawRate": "Taux brut",
+      "marginRate": "Taux avec marge",
+      "cacheTimestamp": "Cache"
+    },
+    "exchangeRateDebug": {
+      "title": "Debug taux de change",
+      "rawRate": "Taux brut",
+      "marginRate": "Taux avec marge",
+      "cacheTimestamp": "Cache",
+      "pair": "Paire suivie : {{from}} -> {{to}}"
+    },
     "errors": {
       "loadFailed": "Impossible de charger le tableau de bord"
     }

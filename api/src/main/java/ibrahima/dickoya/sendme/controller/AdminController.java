@@ -4,6 +4,7 @@ import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
 import ibrahima.dickoya.sendme.service.AdminService;
+import ibrahima.dickoya.sendme.service.ExchangeRateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,10 @@ import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Contrôleur REST gérant tous les endpoints d'administration.
@@ -58,6 +63,7 @@ public class AdminController {
 
     /** Service contenant toute la logique métier admin. */
     private final AdminService adminService;
+    private final ExchangeRateService exchangeRateService;
 
     /**
      * Retourne le tableau de bord avec toutes les statistiques.
@@ -86,6 +92,30 @@ public class AdminController {
         DashboardResponse dashboard = adminService.getDashboard();
         return ResponseEntity.ok(
                 ApiResponse.success("Tableau de bord administrateur", dashboard));
+    }
+
+    @GetMapping("/debug/rate")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+            summary = "Debug taux de change",
+            description = "Retourne le taux brut, le taux avec marge et le timestamp du cache."
+    )
+    public ResponseEntity<ApiResponse<Map<String, Object>>> debugRate(
+            @RequestParam(defaultValue = "EUR") String from,
+            @RequestParam(defaultValue = "XOF") String to) {
+
+        Map<String, Object> debugInfo = new HashMap<>();
+        BigDecimal rawRate = exchangeRateService.getRawRate(from, to);
+        BigDecimal marginRate = exchangeRateService.getRate(from, to);
+
+        debugInfo.put("from", from.toUpperCase());
+        debugInfo.put("to", to.toUpperCase());
+        debugInfo.put("rawRate", rawRate);
+        debugInfo.put("marginRate", marginRate);
+        debugInfo.put("cacheTimestamp", exchangeRateService.getCacheTimestamp(from));
+
+        return ResponseEntity.ok(
+                ApiResponse.success("Debug taux de change", debugInfo));
     }
 
     /**
