@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import type { Beneficiary } from '@/types';
 
 export interface BeneficiarySelectorProps {
@@ -12,18 +13,23 @@ export interface BeneficiarySelectorProps {
 
 /**
  * Sélecteur de bénéficiaire sous forme de liste de cartes cliquables.
- * Affiche un lien vers /beneficiaries si le carnet est vide.
+ *
+ * Migration i18n (Phase 8) : namespace "transfer" pour les libellés
+ * propres au tunnel, "common" pour les canaux (getChannelLabel).
  */
 function BeneficiarySelector({ beneficiaries, value, onChange }: BeneficiarySelectorProps) {
+    const { t } = useTranslation('transfer');
+    const { t: tCommon } = useTranslation('common');
+
     if (beneficiaries.length === 0) {
         return (
             <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-gray-300 p-6 text-center">
-                <p className="text-sm text-gray-500">Vous n'avez aucun bénéficiaire enregistré.</p>
+                <p className="text-sm text-gray-500">{t('form.noBeneficiary')}</p>
                 <Link
                     to="/beneficiaries"
                     className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:underline"
                 >
-                    <Plus size={14} /> Ajouter un bénéficiaire
+                    <Plus size={14} /> {t('form.addBeneficiaryLink')}
                 </Link>
             </div>
         );
@@ -31,7 +37,7 @@ function BeneficiarySelector({ beneficiaries, value, onChange }: BeneficiarySele
 
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Bénéficiaire</label>
+            <label className="text-sm font-medium text-gray-700">{t('form.beneficiaryLabel')}</label>
             <div className="flex flex-col gap-2">
                 {beneficiaries.map((b) => (
                     <button
@@ -53,7 +59,7 @@ function BeneficiarySelector({ beneficiaries, value, onChange }: BeneficiarySele
                                 {b.firstName} {b.lastName}
                             </p>
                             <p className="text-xs text-gray-500">
-                                {CHANNEL_ICONS[b.channel]} {CHANNEL_LABELS[b.channel]}
+                                {getChannelIcon(b.channel)} {getChannelLabel(b.channel, tCommon)}
                             </p>
                         </div>
                     </button>

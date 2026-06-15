@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Elements } from '@stripe/react-stripe-js';
 import { ArrowLeft } from 'lucide-react';
 import Card from '@/components/ui/Card';
@@ -13,35 +14,34 @@ import TransferSuccess from '@/components/transfer/TransferSuccess';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useToast } from '@/store/notification/toastContext';
+import { getStripe } from '@/services/stripeService';
 import { transferService } from '@/services/transferService';
 import { getErrorMessage } from '@/lib/utils';
 import { getCurrencyForChannel } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { SimulateResponse, Transaction, Beneficiary } from '@/types';
-import {getStripe} from "@/services/stripeService.ts";
-export const stripePromise = getStripe('fr');
 
 type Step = 'form' | 'summary' | 'payment' | 'success';
 
 /**
- * Tunnel de transfert en plusieurs étapes :
+ * Tunnel de transfert en plusieurs étapes.
  *
- * 1. "form"    — choix du bénéficiaire + montant, simulation en temps réel
- * 2. "summary" — récapitulatif complet avant paiement
- * 3. "payment" — saisie de la carte via Stripe Elements
- * 4. "success" — confirmation avec référence et montant reçu
- *
- * La simulation (/transfers/simulate) est appelée automatiquement
- * (debounced) à chaque changement de montant ou de bénéficiaire,
- * sans créer de transaction en base.
+ * Migration i18n (Phase 8) :
+ * - namespace "transfer" pour tous les libellés du tunnel
+ * - "common" pour les boutons génériques (back, continue)
+ * - <Elements stripe={...}> utilise désormais getStripe(i18n.language)
+ *   (Phase 3) au lieu du singleton stripePromise — Stripe affichera
+ *   ses propres messages d'erreur dans la langue active
  */
 function Transfer() {
+    const { t, i18n } = useTranslation('transfer');
+    const { t: tCommon } = useTranslation('common');
     const { beneficiaries, isLoading: beneficiariesLoading } = useBeneficiary();
     const { showToast } = useToast();
 
     const [step, setStep] = useState<Step>('form');
     const [amount, setAmount] = useState('');
-    const [currency] = useState('EUR'); // EUR fixe — devise de la carte (RG-01)
+    const [currency] = useState('EUR');
     const [beneficiaryId, setBeneficiaryId] = useState<number | null>(null);
 
     const [simulation, setSimulation] = useState<SimulateResponse | null>(null);
@@ -108,7 +108,7 @@ function Transfer() {
 
             setCompletedTransaction(transaction);
             setStep('success');
-            showToast('Transfert effectué avec succès !', 'success');
+            showToast(t('toasts.success'), 'success');
         } catch (err) {
             setTransferError(getErrorMessage(err));
             showToast(getErrorMessage(err), 'error');
@@ -128,12 +128,12 @@ function Transfer() {
 
     // ── Rendu ─────────────────────────────────────────────────────────────────
     if (beneficiariesLoading) {
-        return <Spinner fullPage label="Chargement..." />;
+        return <Spinner fullPage label={tCommon('states.loading')} />;
     }
 
     return (
         <div className="mx-auto max-w-lg">
-            <Card title={stepTitle(step)}>
+            <Card title={stepTitle(step, t)}>
                 {/* ─────────────────────────── ÉTAPE 1 : FORMULAIRE ─────────────────────────── */}
                 {step === 'form' && (
                     <div className="flex flex-col gap-5">
@@ -144,13 +144,13 @@ function Transfer() {
                         />
 
                         <Input
-                            label="Montant à envoyer"
+                            label={t('form.amountLabel')}
                             type="number"
                             inputMode="decimal"
                             placeholder="0.00"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            hint={`Devise de paiement : ${currency}`}
+                            hint={t('form.amountHint', { currency })}
                             min="1"
                             step="0.01"
                         />
@@ -171,7 +171,7 @@ function Transfer() {
                             disabled={!selectedBeneficiary || !simulation}
                             onClick={() => setStep('summary')}
                         >
-                            Continuer
+                            {t('form.continueButton')}
                         </Button>
                     </div>
                 )}
@@ -187,10 +187,10 @@ function Transfer() {
 
                         <div className="flex gap-2">
                             <Button variant="outline" icon={<ArrowLeft size={16} />} onClick={() => setStep('form')}>
-                                Retour
+                                {t('summary.backButton')}
                             </Button>
                             <Button fullWidth onClick={() => setStep('payment')}>
-                                Procéder au paiement
+                                {t('summary.proceedButton')}
                             </Button>
                         </div>
                     </div>
@@ -203,10 +203,10 @@ function Transfer() {
                             onClick={() => setStep('summary')}
                             className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
                         >
-                            <ArrowLeft size={14} /> Retour au récapitulatif
+                            <ArrowLeft size={14} /> {t('payment.backToSummary')}
                         </button>
 
-                        <Elements stripe={stripePromise}>
+                        <Elements stripe={getStripe(i18n.language)}>
                             <StripePaymentForm
                                 amountLabel={formatCurrency(simulation.totalDebited, currency)}
                                 onPaymentMethodCreated={handlePayment}
@@ -234,12 +234,12 @@ function Transfer() {
 /**
  * Titre de carte affiché selon l'étape du tunnel.
  */
-function stepTitle(step: Step): string {
+function stepTitle(step: Step, t: (key: string) => string): string {
     switch (step) {
-        case 'form': return 'Nouveau transfert';
-        case 'summary': return 'Récapitulatif';
-        case 'payment': return 'Paiement par carte';
-        case 'success': return '';
+        case 'form': return t('stepTitles.form');
+        case 'summary': return t('stepTitles.summary');
+        case 'payment': return t('stepTitles.payment');
+        case 'success': return t('stepTitles.success');
     }
 }
 

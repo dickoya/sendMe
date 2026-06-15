@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Spinner from '@/components/ui/Spinner';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { SimulateResponse } from '@/types';
@@ -9,16 +10,19 @@ export interface FeeSimulatorProps {
 }
 
 /**
- * Affiche le récapitulatif en temps réel du calcul des frais
- * (montant envoyé, frais, taux de change, montant reçu, total débité).
+ * Affiche le récapitulatif en temps réel du calcul des frais.
  *
- * Affiche un état de chargement pendant l'appel debounced à /simulate.
+ * Migration i18n (Phase 8) : namespace "transfer" (clés simulator.*).
+ * Le taux de frais est interpolé en pourcentage déjà formaté
+ * (ex: "1.5"), la clé contient le symbole "%".
  */
 function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps) {
+    const { t } = useTranslation('transfer');
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center rounded-xl bg-gray-50 p-6">
-                <Spinner size="sm" label="Calcul en cours..." />
+                <Spinner size="sm" label={t('simulator.calculating')} />
             </div>
         );
     }
@@ -26,22 +30,26 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
     if (!simulation) {
         return (
             <div className="rounded-xl bg-gray-50 p-6 text-center text-sm text-gray-400">
-                Entrez un montant pour voir le récapitulatif
+                {t('simulator.emptyHint')}
             </div>
         );
     }
 
     return (
         <div className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
-            <Row label="Montant envoyé" value={formatCurrency(simulation.amountSent, currencyFrom)} />
+            <Row label={t('simulator.amountSent')} value={formatCurrency(simulation.amountSent, currencyFrom)} />
             <Row
-                label={`Frais plateforme (${(simulation.feeRate * 100).toFixed(1)}%)`}
+                label={t('simulator.fees', { rate: (simulation.feeRate * 100).toFixed(1) })}
                 value={`- ${formatCurrency(simulation.fees, currencyFrom)}`}
                 muted
             />
             <Row
-                label="Taux de change"
-                value={`1 ${currencyFrom} = ${simulation.exchangeRate} ${simulation.currencyTo}`}
+                label={t('simulator.exchangeRate')}
+                value={t('simulator.exchangeRateValue', {
+                    from: currencyFrom,
+                    rate: simulation.exchangeRate,
+                    to: simulation.currencyTo,
+                })}
                 muted
             />
 
@@ -49,7 +57,7 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
 
             {/* Total débité — mis en évidence */}
             <div className="flex items-center justify-between rounded-lg bg-brand-600 px-4 py-3">
-                <span className="text-sm font-medium text-white">Total débité</span>
+                <span className="text-sm font-medium text-white">{t('simulator.totalDebited')}</span>
                 <span className="text-base font-bold text-white">
           {formatCurrency(simulation.totalDebited, currencyFrom)}
         </span>
@@ -57,7 +65,7 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
 
             {/* Montant reçu — mis en évidence en vert */}
             <div className="flex items-center justify-between rounded-lg bg-accent-50 px-4 py-3">
-                <span className="text-sm font-medium text-accent-600">Montant reçu</span>
+                <span className="text-sm font-medium text-accent-600">{t('simulator.amountReceived')}</span>
                 <span className="text-base font-bold text-accent-600">
           {formatCurrency(simulation.amountReceived, simulation.currencyTo)}
         </span>
