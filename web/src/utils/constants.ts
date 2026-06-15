@@ -76,8 +76,8 @@ export function getStatusLabel(status: string, t: TFunction): string {
  * Langues disponibles dans l'application.
  */
 export const LANGUAGES = [
-    { code: 'fr', label: 'Français', flag: '🇫🇷' },
-    { code: 'en', label: 'English', flag: '🇬🇧' },
+    { code: 'fr', label: 'Français', flag: 'fr' },
+    { code: 'en', label: 'English', flag: 'gb' },
 ] as const;
 
 export type LanguageCode = (typeof LANGUAGES)[number]['code'];

@@ -10,6 +10,7 @@ import PrivateRoute from './PrivateRoute';
 import AdminRoute from './AdminRoute';
 
 // Pages publiques
+import Home from '@/pages/public/Home';
 import Login from '@/pages/public/Login';
 import Register from '@/pages/public/Register';
 
@@ -43,10 +44,10 @@ import NotFound from '@/pages/NotFound';
 function AppRoutes() {
     return (
         <Routes>
-            {/* Redirection racine */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            {/* ── Page d'accueil publique ──────────────────────────────────── */}
+            <Route path="/" element={<Home />} />
 
-            {/* ── Routes publiques ──────────────────────────────────────────── */}
+            {/* ── Routes publiques (Login, Register) ────────────────────────── */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />

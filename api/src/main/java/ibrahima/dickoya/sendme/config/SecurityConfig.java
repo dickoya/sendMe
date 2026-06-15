@@ -39,6 +39,9 @@ public class SecurityConfig {
             // ── Authentification ──────────────────────────────────────────────
             "/api/auth/**",
 
+            // ── Simulation de transfert (page d'accueil publique) ────────────
+            "/api/transfers/simulate",
+
             // ── Notifications & SSE (Ajusté selon tes logs d'arborescence) ────
             "/api/notifications/**",
 
@@ -73,11 +76,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // ── Tout le reste est sécurisé ──
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 // On garde le filtre mais les routes publiques déclarées ci-dessus
                 // n'exigeront aucun Context valide pour continuer

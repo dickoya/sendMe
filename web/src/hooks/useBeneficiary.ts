@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Beneficiary, BeneficiaryFormData } from '@/types';
 //import { beneficiaryService } from '@/services/beneficiaryService';
-import { beneficiaryService } from '@/services/ beneficiaryService.ts'
+import { beneficiaryService } from '@/services/beneficiaryService'
 import { getErrorMessage } from '@/lib/utils';
 
 /**

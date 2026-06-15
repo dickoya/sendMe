@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, ChevronDown, Globe } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LANGUAGES, type LanguageCode } from '@/utils/constants';
+import { FlagFr, FlagGb } from '@/components/ui/FlagIcons';
 
 /**
  * Sélecteur de langue — menu déroulant avec drapeaux.
@@ -26,6 +27,11 @@ function LanguageSwitcher() {
 
     const currentLanguage =
         LANGUAGES.find((lang) => lang.code === i18n.language) ?? LANGUAGES[0];
+
+    const flagComponents: Record<string, React.ReactNode> = {
+        fr: <FlagFr />,
+        gb: <FlagGb />,
+    };
 
     useEffect(() => {
         function handleClickOutside(e: MouseEvent) {
@@ -51,8 +57,7 @@ function LanguageSwitcher() {
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
             >
-                <Globe size={16} className="text-gray-400" />
-                <span>{currentLanguage.flag}</span>
+                <span className="flex items-center">{flagComponents[currentLanguage.flag]}</span>
                 <span className="hidden sm:inline">{currentLanguage.code.toUpperCase()}</span>
                 <ChevronDown size={14} className={cn('text-gray-400 transition-transform', isOpen && 'rotate-180')} />
             </button>
@@ -76,7 +81,7 @@ function LanguageSwitcher() {
                             )}
                         >
               <span className="flex items-center gap-2">
-                <span>{lang.flag}</span>
+                <span className="flex items-center">{flagComponents[lang.flag]}</span>
                 <span>{lang.label}</span>
               </span>
                             {lang.code === i18n.language && <Check size={14} />}

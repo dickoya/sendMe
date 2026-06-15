@@ -11,6 +11,7 @@ import transferFr from './locales/fr/transfer.json';
 import historyFr from './locales/fr/history.json';
 import notificationsFr from './locales/fr/notifications.json';
 import adminFr from './locales/fr/admin.json';
+import homeFr from './locales/fr/home.json';
 
 // EN
 import commonEn from './locales/en/common.json';
@@ -21,6 +22,7 @@ import transferEn from './locales/en/transfer.json';
 import historyEn from './locales/en/history.json';
 import notificationsEn from './locales/en/notifications.json';
 import adminEn from './locales/en/admin.json';
+import homeEn from './locales/en/home.json';
 
 /**
  * Liste des namespaces disponibles dans l'application.
@@ -39,6 +41,7 @@ export const NAMESPACES = [
     'history',
     'notifications',
     'admin',
+    'home',
 ] as const;
 
 /**
@@ -73,6 +76,7 @@ i18n
                 history: historyFr,
                 notifications: notificationsFr,
                 admin: adminFr,
+                home: homeFr,
             },
             en: {
                 common: commonEn,
@@ -83,6 +87,7 @@ i18n
                 history: historyEn,
                 notifications: notificationsEn,
                 admin: adminEn,
+                home: homeEn,
             },
         },
         fallbackLng: 'fr',

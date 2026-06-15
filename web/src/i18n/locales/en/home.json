@@ -1,0 +1,91 @@
+{
+  "hero": {
+    "title": "Send money to Africa, instantly",
+    "subtitle": "Send money to Africa from Europe securely, at competitive rates with no hidden fees.",
+    "cta": "Get started",
+    "trustBadge": "Trusted by thousands of users"
+  },
+  "simulator": {
+    "title": "Simulate your transfer",
+    "subtitle": "See how much your recipient will receive before you send",
+    "youSend": "You send",
+    "theyReceive": "They receive",
+    "fees": "Fees",
+    "exchangeRate": "Exchange rate",
+    "totalDebited": "Total debited",
+    "amountReceived": "Amount received",
+    "placeholder": "Amount",
+    "from": "From",
+    "to": "To",
+    "cta": "Send money",
+    "loading": "Calculating..."
+  },
+  "features": {
+    "title": "Why choose SendMe?",
+    "subtitle": "A transfer solution designed for you",
+    "speed": {
+      "title": "Instant",
+      "description": "Your transfers are processed in seconds, not days."
+    },
+    "security": {
+      "title": "Secure",
+      "description": "Enterprise-grade banking security for all your transactions."
+    },
+    "rates": {
+      "title": "Competitive rates",
+      "description": "Transparent fees and the best market rates."
+    },
+    "channels": {
+      "title": "Multi-operator",
+      "description": "Send to Orange Money, MTN, Wave, Moov, Airtel and bank transfers."
+    }
+  },
+  "howItWorks": {
+    "title": "How it works?",
+    "subtitle": "Three simple steps to send money",
+    "step1": {
+      "title": "Create your account",
+      "description": "Sign up for free in under a minute."
+    },
+    "step2": {
+      "title": "Choose your beneficiary",
+      "description": "Add a beneficiary and select the receiving method."
+    },
+    "step3": {
+      "title": "Send and track",
+      "description": "Pay by card and track your transfer in real time."
+    }
+  },
+  "stats": {
+    "title": "SendMe by the numbers",
+    "transactions": "Transactions processed",
+    "users": "Active users",
+    "countries": "Countries covered",
+    "speed": "Transfer speed"
+  },
+  "cta": {
+    "title": "Ready to get started?",
+    "subtitle": "Join thousands of users who trust SendMe for their transfers.",
+    "login": "Login",
+    "register": "Create account"
+  },
+  "footer": {
+    "description": "SendMe — Your money transfer gateway to Africa.",
+    "product": "Product",
+    "features": "Features",
+    "security": "Security",
+    "support": "Support",
+    "company": "Company",
+    "about": "About",
+    "contact": "Contact",
+    "legal": "Legal",
+    "copyright": "© {{year}} SendMe. All rights reserved."
+  },
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "howItWorks": "How it works",
+    "login": "Login",
+    "register": "Sign up"
+  }
+}
