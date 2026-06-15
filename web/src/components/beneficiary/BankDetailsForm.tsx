@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input';
 import { Landmark, Hash } from 'lucide-react';
 import type { BankDetails, MobileMoneyDetails, ChannelType } from '@/types';
@@ -13,8 +14,7 @@ export interface ChannelDetailsFormProps {
 /**
  * Sous-formulaire affichant les champs adaptés au canal sélectionné.
  *
- * - BANK_TRANSFER → bankName, iban, bic (RG-02)
- * - Tous les autres canaux → phoneNumber (RG-02)
+ * Migration i18n (Phase 7) : namespace "beneficiaries" (clés form.*).
  */
 function ChannelDetailsForm({
                                 channel,
@@ -23,28 +23,30 @@ function ChannelDetailsForm({
                                 onBankChange,
                                 onMobileChange,
                             }: ChannelDetailsFormProps) {
+    const { t } = useTranslation('beneficiaries');
+
     if (channel === 'BANK_TRANSFER') {
         return (
             <div className="flex flex-col gap-4">
                 <Input
-                    label="Nom de la banque"
-                    placeholder="BNP Paribas"
+                    label={t('form.bankName')}
+                    placeholder={t('form.bankNamePlaceholder')}
                     icon={<Landmark size={16} />}
                     value={bankDetails.bankName}
                     onChange={(e) => onBankChange('bankName', e.target.value)}
                     required
                 />
                 <Input
-                    label="IBAN"
-                    placeholder="FR76 3000 6000 0112 3456 7890 189"
+                    label={t('form.iban')}
+                    placeholder={t('form.ibanPlaceholder')}
                     icon={<Hash size={16} />}
                     value={bankDetails.iban}
                     onChange={(e) => onBankChange('iban', e.target.value.toUpperCase())}
                     required
                 />
                 <Input
-                    label="BIC / SWIFT"
-                    placeholder="BNPAFRPPXXX"
+                    label={t('form.bic')}
+                    placeholder={t('form.bicPlaceholder')}
                     value={bankDetails.bic}
                     onChange={(e) => onBankChange('bic', e.target.value.toUpperCase())}
                     required
@@ -55,9 +57,9 @@ function ChannelDetailsForm({
 
     return (
         <Input
-            label="Numéro de téléphone Mobile Money"
+            label={t('form.phoneNumber')}
             type="tel"
-            placeholder="+225 07 00 00 00 00"
+            placeholder={t('form.phoneNumberPlaceholder')}
             icon={<Hash size={16} />}
             value={mobileDetails.phoneNumber}
             onChange={(e) => onMobileChange('phoneNumber', e.target.value)}

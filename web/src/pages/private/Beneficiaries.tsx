@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Plus } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -14,11 +15,13 @@ import type { Beneficiary, BeneficiaryFormData } from '@/types';
 /**
  * Page de gestion du carnet de bénéficiaires (CRUD complet).
  *
- * - Liste tous les bénéficiaires de l'utilisateur
- * - Modale de création/édition (formulaire adaptatif selon le canal)
- * - Confirmation avant suppression
+ * Migration i18n (Phase 7) : namespace "beneficiaries" pour le contenu
+ * propre à la page, "common" pour les actions/boutons génériques.
  */
 function Beneficiaries() {
+    const { t } = useTranslation('beneficiaries');
+    const { t: tCommon } = useTranslation('common');
+
     const {
         beneficiaries,
         isLoading,
@@ -46,10 +49,10 @@ function Beneficiaries() {
     const handleSubmit = async (payload: BeneficiaryFormData) => {
         if (editing) {
             await updateBeneficiary(editing.id, payload);
-            showToast('Bénéficiaire mis à jour avec succès', 'success');
+            showToast(t('toasts.updated'), 'success');
         } else {
             await createBeneficiary(payload);
-            showToast('Bénéficiaire ajouté avec succès', 'success');
+            showToast(t('toasts.created'), 'success');
         }
         setFormOpen(false);
     };
@@ -59,7 +62,7 @@ function Beneficiaries() {
         setIsDeleting(true);
         try {
             await removeBeneficiary(deleting.id);
-            showToast('Bénéficiaire supprimé', 'success');
+            showToast(t('toasts.deleted'), 'success');
             setDeleting(null);
         } catch (err) {
             showToast(getErrorMessage(err), 'error');
@@ -71,15 +74,15 @@ function Beneficiaries() {
     return (
         <div className="flex flex-col gap-6">
             <Card
-                title="Mes bénéficiaires"
+                title={t('pageTitle')}
                 actions={
                     <Button size="sm" icon={<Plus size={16} />} onClick={openCreateForm}>
-                        Ajouter
+                        {t('addButton')}
                     </Button>
                 }
             >
                 {isLoading ? (
-                    <Spinner label="Chargement des bénéficiaires..." />
+                    <Spinner label={tCommon('states.loading')} />
                 ) : (
                     <BeneficiaryList
                         beneficiaries={beneficiaries}
@@ -93,7 +96,7 @@ function Beneficiaries() {
             <Modal
                 isOpen={formOpen}
                 onClose={() => setFormOpen(false)}
-                title={editing ? 'Modifier le bénéficiaire' : 'Ajouter un bénéficiaire'}
+                title={editing ? t('modals.editTitle') : t('modals.createTitle')}
                 size="lg"
             >
                 <BeneficiaryForm
@@ -107,24 +110,22 @@ function Beneficiaries() {
             <Modal
                 isOpen={!!deleting}
                 onClose={() => setDeleting(null)}
-                title="Supprimer ce bénéficiaire ?"
+                title={t('modals.deleteTitle')}
                 footer={
                     <>
                         <Button variant="outline" onClick={() => setDeleting(null)}>
-                            Annuler
+                            {tCommon('actions.cancel')}
                         </Button>
                         <Button variant="danger" loading={isDeleting} onClick={confirmDelete}>
-                            Supprimer
+                            {tCommon('actions.delete')}
                         </Button>
                     </>
                 }
             >
                 <p className="text-sm text-gray-600">
-                    Êtes-vous sûr de vouloir supprimer{' '}
-                    <strong>
-                        {deleting?.firstName} {deleting?.lastName}
-                    </strong>{' '}
-                    de votre carnet de bénéficiaires ? Cette action est irréversible.
+                    {t('modals.deleteMessage', {
+                        name: deleting ? `${deleting.firstName} ${deleting.lastName}` : '',
+                    })}
                 </p>
             </Modal>
         </div>

@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { CHANNEL_LABELS, CHANNEL_ICONS } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import type { ChannelType } from '@/types';
 
 const CHANNELS: ChannelType[] = [
@@ -18,12 +19,17 @@ export interface ChannelSelectorProps {
 
 /**
  * Grille de sélection visuelle des canaux de réception.
- * Affiche les 6 canaux sous forme de cartes cliquables avec icône.
+ *
+ * Migration i18n (Phase 7) : libellés via getChannelLabel(channel, t)
+ * (namespace "common"), label du champ via "beneficiaries.form.channelLabel".
  */
 function ChannelSelector({ value, onChange }: ChannelSelectorProps) {
+    const { t: tCommon } = useTranslation('common');
+    const { t } = useTranslation('beneficiaries');
+
     return (
         <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Canal de réception</label>
+            <label className="text-sm font-medium text-gray-700">{t('form.channelLabel')}</label>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {CHANNELS.map((channel) => (
                     <button
@@ -37,9 +43,9 @@ function ChannelSelector({ value, onChange }: ChannelSelectorProps) {
                                 : 'border-gray-200 bg-white hover:border-gray-300'
                         )}
                     >
-                        <span className="text-2xl">{CHANNEL_ICONS[channel]}</span>
+                        <span className="text-2xl">{getChannelIcon(channel)}</span>
                         <span className="text-[11px] font-medium leading-tight text-gray-700">
-              {CHANNEL_LABELS[channel]}
+              {getChannelLabel(channel, tCommon)}
             </span>
                     </button>
                 ))}

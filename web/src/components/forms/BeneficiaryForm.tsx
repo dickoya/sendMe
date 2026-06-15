@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { User } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
@@ -8,7 +9,6 @@ import { getErrorMessage } from '@/lib/utils';
 import type { Beneficiary, BeneficiaryFormData, BankDetails, MobileMoneyDetails, ChannelType } from '@/types';
 
 export interface BeneficiaryFormProps {
-    /** Bénéficiaire à éditer — si absent, le formulaire est en mode création */
     initialData?: Beneficiary;
     onSubmit: (payload: BeneficiaryFormData) => Promise<unknown>;
     onCancel: () => void;
@@ -20,10 +20,13 @@ const EMPTY_MOBILE: MobileMoneyDetails = { phoneNumber: '' };
 /**
  * Formulaire de création/édition d'un bénéficiaire.
  *
- * Affiche dynamiquement les champs bancaires ou Mobile Money
- * selon le canal sélectionné (RG-02).
+ * Migration i18n (Phase 7) : namespace "beneficiaries" (clés form.*),
+ * "common" pour les boutons Annuler/Continuer génériques.
  */
 function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormProps) {
+    const { t } = useTranslation('beneficiaries');
+    const { t: tCommon } = useTranslation('common');
+
     const [firstName, setFirstName] = useState(initialData?.firstName ?? '');
     const [lastName, setLastName] = useState(initialData?.lastName ?? '');
     const [channel, setChannel] = useState<ChannelType>(initialData?.channel ?? 'ORANGE_MONEY');
@@ -63,16 +66,16 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
                 <Input
-                    label="Prénom"
-                    placeholder="Mamadou"
+                    label={t('form.firstName')}
+                    placeholder={t('form.firstNamePlaceholder')}
                     icon={<User size={16} />}
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
                 />
                 <Input
-                    label="Nom"
-                    placeholder="Diallo"
+                    label={t('form.lastName')}
+                    placeholder={t('form.lastNamePlaceholder')}
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
@@ -97,10 +100,10 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
 
             <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={onCancel}>
-                    Annuler
+                    {tCommon('actions.cancel')}
                 </Button>
                 <Button type="submit" loading={isSubmitting}>
-                    {initialData ? 'Enregistrer les modifications' : 'Ajouter le bénéficiaire'}
+                    {initialData ? t('form.submitEdit') : t('form.submitCreate')}
                 </Button>
             </div>
         </form>
