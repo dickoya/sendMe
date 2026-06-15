@@ -3,13 +3,12 @@ package ibrahima.dickoya.sendme.service;
 import ibrahima.dickoya.sendme.dto.request.SimulateRequest;
 import ibrahima.dickoya.sendme.dto.response.SimulateResponse;
 import ibrahima.dickoya.sendme.enums.ChannelType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Service gérant la simulation des frais et du taux de change.
@@ -17,15 +16,18 @@ import java.util.Map;
  * Permet à l'utilisateur de voir le récapitulatif complet AVANT
  * de confirmer et débiter sa carte bancaire.
  *
- * En production, les taux de change seraient récupérés en temps réel
- * via une API externe comme ExchangeRate-API ou Frankfurter.
- * Ici, ils sont simulés avec des valeurs fixes réalistes.
+ * Les taux de change sont récupérés en temps réel depuis
+ * l'API OpenExchangeRates via {@link ExchangeRateService},
+ * avec un cache de 30 minutes et une marge interne de 2%.
  *
  * Taux de commission : 1.5% (paramétrable via application.properties)
  */
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class SimulatorService {
+
+        private final ExchangeRateService exchangeRateService;
 
         /**
          * Taux de commission de la plateforme : 1.5%.
@@ -35,45 +37,13 @@ public class SimulatorService {
         private static final BigDecimal FEE_RATE = new BigDecimal("0.015");
 
         /**
-         * Table des taux de change simulés.
-         * Clé : "EUR_XOF" (devise source + devise destination)
-         * Valeur : taux de change
-         *
-         * En production, ces taux seraient mis à jour en temps réel
-         * depuis une API externe (ExchangeRate-API, Open Exchange Rates, etc.)
-         */
-        private static final Map<String, BigDecimal> EXCHANGE_RATES = new HashMap<>();
-
-        static {
-                // Initialisation des taux de change simulés
-                // EUR vers devises africaines
-                EXCHANGE_RATES.put("EUR_XOF", new BigDecimal("655.957")); // Franc CFA (UEMOA)
-                EXCHANGE_RATES.put("EUR_XAF", new BigDecimal("655.957")); // Franc CFA (CEMAC)
-                EXCHANGE_RATES.put("EUR_GNF", new BigDecimal("9500.00")); // Franc Guinéen
-                EXCHANGE_RATES.put("EUR_MAD", new BigDecimal("10.85")); // Dirham Marocain
-                EXCHANGE_RATES.put("EUR_TND", new BigDecimal("3.35")); // Dinar Tunisien
-                EXCHANGE_RATES.put("EUR_DZD", new BigDecimal("146.00")); // Dinar Algérien
-                EXCHANGE_RATES.put("EUR_USD", new BigDecimal("1.08")); // Dollar US
-                EXCHANGE_RATES.put("EUR_GBP", new BigDecimal("0.86")); // Livre Sterling
-
-                // USD vers devises africaines
-                EXCHANGE_RATES.put("USD_XOF", new BigDecimal("607.37"));
-                EXCHANGE_RATES.put("USD_GNF", new BigDecimal("8796.30"));
-
-                // Taux identique (même devise)
-                EXCHANGE_RATES.put("EUR_EUR", BigDecimal.ONE);
-                EXCHANGE_RATES.put("USD_USD", BigDecimal.ONE);
-                EXCHANGE_RATES.put("XOF_XOF", BigDecimal.ONE);
-                EXCHANGE_RATES.put("GNF_GNF", BigDecimal.ONE);
-        }
-
-        /**
          * Calcule la simulation complète d'un transfert.
          *
          * Formule :
          * - frais = montant × 1.5%
          * - total débité = montant + frais
-         * - montant reçu = montant × taux de change
+         * - montant reçu = montant × taux de change (via API OpenExchangeRates + marge
+         * 2%)
          *
          * @param request contient le montant, les devises et le canal
          * @return SimulateResponse avec tous les détails calculés
@@ -92,10 +62,9 @@ public class SimulatorService {
                 BigDecimal totalDebited = amount.add(fees)
                                 .setScale(2, RoundingMode.HALF_UP);
 
-                // 3. Récupérer le taux de change
-                String rateKey = currencyFrom + "_" + currencyTo;
-                BigDecimal exchangeRate = EXCHANGE_RATES.getOrDefault(
-                                rateKey, BigDecimal.ONE); // taux 1:1 par défaut si non trouvé
+                // 3. Récupérer le taux de change depuis l'API OpenExchangeRates
+                // (avec cache 30 min et marge interne de 2%)
+                BigDecimal exchangeRate = exchangeRateService.getRate(currencyFrom, currencyTo);
 
                 // 4. Calculer le montant reçu par le bénéficiaire
                 BigDecimal amountReceived = amount.multiply(exchangeRate)
