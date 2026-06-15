@@ -62,7 +62,9 @@ export function getChannelLabel(channel: ChannelType, t: TFunction): string {
  * Détermine la devise de réception selon le canal.
  */
 export function getCurrencyForChannel(channel: ChannelType): string {
-    return channel === 'BANK_TRANSFER' ? 'EUR' : 'XOF';
+    if (channel === 'BANK_TRANSFER') return 'EUR';
+    if (channel === 'ORANGE_MONEY' || channel === 'MTN_MOBILE_MONEY') return 'GNF';
+    return 'XOF';
 }
 
 /**

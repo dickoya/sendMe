@@ -33,11 +33,13 @@ function Home() {
 
     // ── Simulateur ──────────────────────────────────────────────────────
     const [amount, setAmount] = useState<number>(100);
+    const [currencyFrom, setCurrencyFrom] = useState<string>('EUR');
+    const [currencyTo, setCurrencyTo] = useState<string>('XOF');
     const [simulation, setSimulation] = useState<SimulateResponse | null>(null);
     const [simulating, setSimulating] = useState(false);
     const [simError, setSimError] = useState<string | null>(null);
 
-    const simulate = useCallback(async (value: number) => {
+    const simulate = useCallback(async (value: number, fromCurrency: string, toCurrency: string) => {
         if (value <= 0) {
             setSimulation(null);
             return;
@@ -47,8 +49,8 @@ function Home() {
         try {
             const result = await transferService.simulate({
                 amount: value,
-                currencyFrom: 'EUR',
-                currencyTo: 'XOF',
+                currencyFrom: fromCurrency,
+                currencyTo: toCurrency,
                 channel: 'ORANGE_MONEY' as ChannelType,
             });
             setSimulation(result);
@@ -61,10 +63,10 @@ function Home() {
 
     useEffect(() => {
         const debounce = setTimeout(() => {
-            simulate(amount);
+            simulate(amount, currencyFrom, currencyTo);
         }, 500);
         return () => clearTimeout(debounce);
-    }, [amount, simulate]);
+    }, [amount, currencyFrom, currencyTo, simulate]);
 
     const handleGetStarted = () => {
         if (isAuthenticated) {
@@ -228,9 +230,30 @@ function Home() {
                                             {t('simulator.youSend')}
                                         </label>
                                         <div className="flex items-center gap-2">
-                                            <span className="flex h-10 items-center rounded-lg bg-white/10 px-3 text-sm font-medium text-white">
-                                                EUR
-                                            </span>
+                                            <div className="flex shrink-0 gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrencyFrom('EUR')}
+                                                    className={`rounded-lg px-2.5 py-2 text-sm font-medium transition-all ${
+                                                        currencyFrom === 'EUR'
+                                                            ? 'bg-white text-brand-700 shadow-lg'
+                                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                                    }`}
+                                                >
+                                                    EUR
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrencyFrom('USD')}
+                                                    className={`rounded-lg px-2.5 py-2 text-sm font-medium transition-all ${
+                                                        currencyFrom === 'USD'
+                                                            ? 'bg-white text-brand-700 shadow-lg'
+                                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                                    }`}
+                                                >
+                                                    USD
+                                                </button>
+                                            </div>
                                             <input
                                                 type="number"
                                                 min="1"
@@ -239,6 +262,37 @@ function Home() {
                                                 className="h-10 flex-1 rounded-lg bg-white/10 px-3 text-right text-lg font-semibold text-white placeholder-white/40 outline-none ring-1 ring-white/20 focus:ring-2 focus:ring-white/50 transition-all"
                                                 placeholder="100"
                                             />
+                                        </div>
+                                    </div>
+
+                                    {/* Devise de destination */}
+                                    <div>
+                                        <label className="mb-1.5 block text-sm font-medium text-white/80">
+                                            {t('simulator.theyReceive')}
+                                        </label>
+                                        <div className="flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrencyTo('XOF')}
+                                                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                    currencyTo === 'XOF'
+                                                        ? 'bg-white text-brand-700 shadow-lg'
+                                                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                                }`}
+                                            >
+                                                XOF (CFA)
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrencyTo('GNF')}
+                                                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                                                    currencyTo === 'GNF'
+                                                        ? 'bg-white text-brand-700 shadow-lg'
+                                                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                                                }`}
+                                            >
+                                                GNF (Guinée)
+                                            </button>
                                         </div>
                                     </div>
 
@@ -254,19 +308,19 @@ function Home() {
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-white/70">{t('simulator.exchangeRate')}</span>
                                                 <span className="font-medium text-white">
-                                                    1 EUR = {simulation.exchangeRate.toLocaleString('fr-FR')} XOF
+                                                    1 {currencyFrom} = {simulation.exchangeRate.toLocaleString('fr-FR')} {currencyTo}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-white/70">{t('simulator.fees')}</span>
                                                 <span className="font-medium text-white">
-                                                    {formatCurrency(simulation.fees, 'EUR')}
+                                                    {formatCurrency(simulation.fees, currencyFrom)}
                                                 </span>
                                             </div>
                                             <div className="flex items-center justify-between text-sm">
                                                 <span className="text-white/70">{t('simulator.totalDebited')}</span>
                                                 <span className="font-medium text-white">
-                                                    {formatCurrency(simulation.totalDebited, 'EUR')}
+                                                    {formatCurrency(simulation.totalDebited, currencyFrom)}
                                                 </span>
                                             </div>
                                             <div className="border-t border-white/10 pt-3">
@@ -275,7 +329,7 @@ function Home() {
                                                         {t('simulator.theyReceive')}
                                                     </span>
                                                     <span className="text-xl font-bold text-accent-300">
-                                                        {formatCurrency(simulation.amountReceived, 'XOF')}
+                                                        {formatCurrency(simulation.amountReceived, currencyTo)}
                                                     </span>
                                                 </div>
                                             </div>
