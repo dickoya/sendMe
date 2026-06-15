@@ -6,7 +6,7 @@ import StatusFilter from '@/components/transfer/StatusFilter';
 import TransactionStatusBadge from '@/components/transfer/TransactionStatusBadge';
 import Modal from '@/components/ui/Modal';
 import { useAdminTransactions } from '@/hooks/useAdminTransactions';
-import { getChannelLabel, getStatusLabel } from '@/utils/constants';
+import { CHANNEL_ICONS, getChannelLabel } from '@/utils/constants';
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
@@ -15,13 +15,9 @@ import type { Transaction } from '@/types';
 
 /**
  * Page admin — toutes les transactions de la plateforme.
- *
- * Différences avec History.tsx (utilisateur) :
- * - Filtre par statut envoyé au backend (paramètre `status`)
- * - Affiche l'expéditeur (non disponible côté utilisateur, inutile pour lui)
- * - Pas de téléchargement de reçu (action réservée au propriétaire de la transaction)
  */
 function AdminTransactions() {
+    const { t } = useTranslation('common'); // ◄── Initialisation du hook i18n
     const {
         transactions,
         totalPages,
@@ -69,7 +65,8 @@ function AdminTransactions() {
                                 >
                                     <td className="py-3 font-medium text-gray-900">{tx.reference}</td>
                                     <td className="py-3 text-gray-700">
-                                        {CHANNEL_ICONS[tx.channel]} {CHANNEL_LABELS[tx.channel]}
+                                        {/* ◄── Traduction dynamique du canal dans le tableau */}
+                                        {CHANNEL_ICONS[tx.channel]} {getChannelLabel(tx.channel, t)}
                                     </td>
                                     <td className="py-3 text-right text-gray-900">
                                         {formatCurrency(tx.amountSent, tx.currencySent)}
@@ -98,7 +95,8 @@ function AdminTransactions() {
                 {selected && (
                     <div className="flex flex-col gap-3 text-sm">
                         <Row label="Référence" value={selected.reference} />
-                        <Row label="Canal" value={`${CHANNEL_ICONS[selected.channel]} ${CHANNEL_LABELS[selected.channel]}`} />
+                        {/* ◄── Traduction dynamique du canal dans la modale */}
+                        <Row label="Canal" value={`${CHANNEL_ICONS[selected.channel]} ${getChannelLabel(selected.channel, t)}`} />
                         <Row label="Montant envoyé" value={formatCurrency(selected.amountSent, selected.currencySent)} />
                         <Row label="Frais" value={formatCurrency(selected.fees, selected.currencySent)} />
                         <Row label="Taux de change" value={`1 ${selected.currencySent} = ${selected.exchangeRate} ${selected.currencyReceived}`} />

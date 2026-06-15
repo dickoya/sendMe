@@ -1,6 +1,7 @@
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { formatDate } from '@/utils/formatDate';
-import { NOTIFICATION_DISPLAY } from '@/utils/notificationDisplay';
+import { NOTIFICATION_DISPLAY, getNotificationMessage } from '@/utils/notificationDisplay';
 import type { Notification } from '@/types';
 
 export interface NotificationItemProps {
@@ -9,10 +10,14 @@ export interface NotificationItemProps {
 }
 
 /**
- * Ligne de notification individuelle — icône colorée selon le type,
- * message, date relative, et pastille bleue si non lue.
+ * Ligne de notification individuelle.
+ *
+ * Migration i18n (Phase 10) : le message affiché provient de
+ * getNotificationMessage() (reconstruction frontend — Option A),
+ * et non plus de notification.message (FR backend brut).
  */
 function NotificationItem({ notification, onClick }: NotificationItemProps) {
+    const { t } = useTranslation('notifications');
     const { icon: Icon, className } = NOTIFICATION_DISPLAY[notification.type];
 
     return (
@@ -29,7 +34,7 @@ function NotificationItem({ notification, onClick }: NotificationItemProps) {
 
             <div className="min-w-0 flex-1">
                 <p className={cn('text-sm', notification.isRead ? 'text-gray-700' : 'font-medium text-gray-900')}>
-                    {notification.message}
+                    {getNotificationMessage(notification, t)}
                 </p>
                 <p className="mt-0.5 text-xs text-gray-400">{formatDate(notification.createdAt)}</p>
             </div>

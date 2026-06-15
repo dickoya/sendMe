@@ -1,5 +1,6 @@
 {
   "title": "Notification center",
+  "viewAll": "View all notifications",
   "markAllRead": "Mark all as read",
   "markAllReadWithCount": "Mark all as read ({{count}})",
   "empty": {

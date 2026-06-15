@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Bell } from 'lucide-react';
 import NotificationItem from './NotificationItem';
 import type { Notification } from '@/types';
@@ -9,18 +10,20 @@ export interface NotificationListProps {
 
 /**
  * Liste de notifications avec état vide illustré.
+ *
+ * Migration i18n (Phase 10) : namespace "notifications" (clés empty.*).
  */
 function NotificationList({ notifications, onItemClick }: NotificationListProps) {
+    const { t } = useTranslation('notifications');
+
     if (notifications.length === 0) {
         return (
             <div className="flex flex-col items-center gap-2 py-10 text-center">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
                     <Bell size={20} />
                 </div>
-                <p className="font-medium text-gray-900">Aucune notification</p>
-                <p className="text-sm text-gray-500">
-                    Vous serez notifié ici de l'activité de votre compte.
-                </p>
+                <p className="font-medium text-gray-900">{t('empty.title')}</p>
+                <p className="text-sm text-gray-500">{t('empty.message')}</p>
             </div>
         );
     }

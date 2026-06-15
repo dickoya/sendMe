@@ -4,6 +4,8 @@ import { notificationService } from '@/services/notificationService';
 import { useSSE } from '@/hooks/useSSE';
 import { useAuth } from '@/store/auth/authContext';
 import { useToast } from './toastContext';
+import { getNotificationMessage } from '@/utils/notificationDisplay';
+import i18n from '@/i18n/index';
 
 interface NotificationContextValue {
   notifications: Notification[];
@@ -63,8 +65,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setNotifications((prev) => [notification, ...prev]);
       setUnreadCount((prev) => prev + 1);
 
-      // Toast immédiat avec le type approprié
-      showToast(notification.message, toastTypeForNotification(notification.type));
+      // 1. Générer la fonction 't' liée au namespace 'notifications'
+      const t = i18n.getFixedT(null, 'notifications');
+
+// 2. Reconstruire le message traduit
+      const message = getNotificationMessage(notification, t);
+
+// 3. Afficher le toast avec le bon message
+      showToast(message, toastTypeForNotification(notification.type));
+
     },
     isAuthenticated
   );

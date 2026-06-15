@@ -1,5 +1,6 @@
 {
   "title": "Centre de notifications",
+  "viewAll": "Voir toutes les notifications",
   "markAllRead": "Tout marquer comme lu",
   "markAllReadWithCount": "Tout marquer comme lu ({{count}})",
   "empty": {
@@ -24,4 +25,5 @@
     "MAINTENANCE": "Maintenance programmée le {{date}}",
     "FEE_UPDATE": "Le taux de commission a été mis à jour"
   }
+
 }
