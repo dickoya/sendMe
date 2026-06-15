@@ -15,6 +15,8 @@ import {
     Star,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import CurrencySelect from '@/components/ui/CurrencySelect';
+import type { CurrencyOption } from '@/components/ui/CurrencySelect';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import { useAuth } from '@/store/auth/authContext';
 import { transferService } from '@/services/transferService';
@@ -30,6 +32,17 @@ function Home() {
     const { t } = useTranslation('home');
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+
+    // ── Options de devises ──────────────────────────────────────────────
+    const currencyFromOptions: CurrencyOption[] = [
+        { code: 'EUR', label: 'Euro', flag: 'eu' },
+        { code: 'USD', label: 'US Dollar', flag: 'us' },
+    ];
+
+    const currencyToOptions: CurrencyOption[] = [
+        { code: 'XOF', label: 'Franc CFA (UEMOA)', flag: 'xof' },
+        { code: 'GNF', label: 'Franc Guinéen', flag: 'gn' },
+    ];
 
     // ── Simulateur ──────────────────────────────────────────────────────
     const [amount, setAmount] = useState<number>(100);
@@ -230,29 +243,13 @@ function Home() {
                                             {t('simulator.youSend')}
                                         </label>
                                         <div className="flex items-center gap-2">
-                                            <div className="flex shrink-0 gap-1">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrencyFrom('EUR')}
-                                                    className={`rounded-lg px-2.5 py-2 text-sm font-medium transition-all ${
-                                                        currencyFrom === 'EUR'
-                                                            ? 'bg-white text-brand-700 shadow-lg'
-                                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
-                                                    }`}
-                                                >
-                                                    EUR
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrencyFrom('USD')}
-                                                    className={`rounded-lg px-2.5 py-2 text-sm font-medium transition-all ${
-                                                        currencyFrom === 'USD'
-                                                            ? 'bg-white text-brand-700 shadow-lg'
-                                                            : 'bg-white/10 text-white/70 hover:bg-white/20'
-                                                    }`}
-                                                >
-                                                    USD
-                                                </button>
+                                            <div className="w-28 shrink-0">
+                                                <CurrencySelect
+                                                    options={currencyFromOptions}
+                                                    value={currencyFrom}
+                                                    onChange={setCurrencyFrom}
+                                                    label=""
+                                                />
                                             </div>
                                             <input
                                                 type="number"
@@ -266,35 +263,12 @@ function Home() {
                                     </div>
 
                                     {/* Devise de destination */}
-                                    <div>
-                                        <label className="mb-1.5 block text-sm font-medium text-white/80">
-                                            {t('simulator.theyReceive')}
-                                        </label>
-                                        <div className="flex gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setCurrencyTo('XOF')}
-                                                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                                    currencyTo === 'XOF'
-                                                        ? 'bg-white text-brand-700 shadow-lg'
-                                                        : 'bg-white/10 text-white/70 hover:bg-white/20'
-                                                }`}
-                                            >
-                                                XOF (CFA)
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setCurrencyTo('GNF')}
-                                                className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                                                    currencyTo === 'GNF'
-                                                        ? 'bg-white text-brand-700 shadow-lg'
-                                                        : 'bg-white/10 text-white/70 hover:bg-white/20'
-                                                }`}
-                                            >
-                                                GNF (Guinée)
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <CurrencySelect
+                                        options={currencyToOptions}
+                                        value={currencyTo}
+                                        onChange={setCurrencyTo}
+                                        label={t('simulator.theyReceive')}
+                                    />
 
                                     {/* Résultat de la simulation */}
                                     {simulating && (
