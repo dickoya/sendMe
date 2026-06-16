@@ -40,3 +40,6 @@ build/
 # Fichiers de configuration locaux sensibles
 
 **/application-local.properties
+
+#documentations
+docs/
