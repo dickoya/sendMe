@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import Spinner from '@/components/ui/Spinner';
+import Pagination from '@/components/ui/Pagination';
 import BeneficiaryList from '@/components/beneficiary/BeneficiaryList';
 import BeneficiaryForm from '@/components/forms/BeneficiaryForm';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
@@ -13,7 +14,7 @@ import { getErrorMessage } from '@/lib/utils';
 import type { Beneficiary, BeneficiaryFormData } from '@/types';
 
 /**
- * Page de gestion du carnet de bénéficiaires (CRUD complet).
+ * Page de gestion du carnet de bénéficiaires (CRUD complet avec pagination).
  *
  * Migration i18n (Phase 7) : namespace "beneficiaries" pour le contenu
  * propre à la page, "common" pour les actions/boutons génériques.
@@ -25,6 +26,9 @@ function Beneficiaries() {
     const {
         beneficiaries,
         isLoading,
+        page,
+        totalPages,
+        setPage,
         createBeneficiary,
         updateBeneficiary,
         removeBeneficiary,
@@ -84,11 +88,18 @@ function Beneficiaries() {
                 {isLoading ? (
                     <Spinner label={tCommon('states.loading')} />
                 ) : (
-                    <BeneficiaryList
-                        beneficiaries={beneficiaries}
-                        onEdit={openEditForm}
-                        onDelete={setDeleting}
-                    />
+                    <>
+                        <BeneficiaryList
+                            beneficiaries={beneficiaries}
+                            onEdit={openEditForm}
+                            onDelete={setDeleting}
+                        />
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                            onPageChange={setPage}
+                        />
+                    </>
                 )}
             </Card>
 

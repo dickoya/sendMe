@@ -1,16 +1,18 @@
 import api from './api';
-import type { ApiResponse, Beneficiary, BeneficiaryFormData } from '@/types';
+import type { ApiResponse, Beneficiary, BeneficiaryFormData, Page } from '@/types';
 
 /**
  * Service bénéficiaires — appels vers /api/beneficiaries/*
  */
 export const beneficiaryService = {
     /**
-     * Récupère tous les bénéficiaires de l'utilisateur connecté.
-     * GET /api/beneficiaries
+     * Récupère les bénéficiaires de l'utilisateur connecté avec pagination.
+     * GET /api/beneficiaries?page=0&size=20
      */
-    async getAll(): Promise<Beneficiary[]> {
-        const { data } = await api.get<ApiResponse<Beneficiary[]>>('/beneficiaries');
+    async getAll(page = 0, size = 20): Promise<Page<Beneficiary>> {
+        const { data } = await api.get<ApiResponse<Page<Beneficiary>>>('/beneficiaries', {
+            params: { page, size },
+        });
         return data.data;
     },
 

@@ -1,36 +1,38 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { Beneficiary, BeneficiaryFormData } from '@/types';
-//import { beneficiaryService } from '@/services/beneficiaryService';
 import { beneficiaryService } from '@/services/beneficiaryService'
 import { getErrorMessage } from '@/lib/utils';
 
 /**
- * Hook gérant le CRUD complet des bénéficiaires.
+ * Hook gérant le CRUD complet des bénéficiaires avec pagination côté serveur.
  *
  * @example
- * const { beneficiaries, isLoading, createBeneficiary, removeBeneficiary } = useBeneficiary();
+ * const { beneficiaries, isLoading, page, totalPages, setPage, createBeneficiary, removeBeneficiary } = useBeneficiary();
  */
-export function useBeneficiary() {
+export function useBeneficiary(size = 20) {
     const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchAll = useCallback(async () => {
+    const fetchPage = useCallback(async (pageNumber: number) => {
         setIsLoading(true);
         setError(null);
         try {
-            const data = await beneficiaryService.getAll();
-            setBeneficiaries(data);
+            const result = await beneficiaryService.getAll(pageNumber, size);
+            setBeneficiaries(result.content);
+            setTotalPages(result.totalPages);
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [size]);
 
     useEffect(() => {
-        fetchAll();
-    }, [fetchAll]);
+        fetchPage(page);
+    }, [page, fetchPage]);
 
     /**
      * Crée un bénéficiaire et l'ajoute à la liste locale.
@@ -61,9 +63,12 @@ export function useBeneficiary() {
 
     return {
         beneficiaries,
+        page,
+        totalPages,
+        setPage,
         isLoading,
         error,
-        refetch: fetchAll,
+        refetch: () => fetchPage(page),
         createBeneficiary,
         updateBeneficiary,
         removeBeneficiary,

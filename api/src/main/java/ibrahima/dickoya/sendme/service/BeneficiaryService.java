@@ -12,6 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +24,7 @@ import java.util.stream.Collectors;
  *
  * Règle métier RG-02 appliquée ici :
  * - Si channel = BANK_TRANSFER → bankDetails obligatoire (IBAN + BIC)
- * - Si channel = Mobile Money  → mobileDetails obligatoire (téléphone)
+ * - Si channel = Mobile Money → mobileDetails obligatoire (téléphone)
  *
  * Un bénéficiaire appartient toujours à un utilisateur précis.
  * Un utilisateur ne peut pas accéder aux bénéficiaires d'un autre utilisateur.
@@ -96,23 +100,24 @@ public class BeneficiaryService {
     }
 
     /**
-     * Récupère tous les bénéficiaires de l'utilisateur connecté.
+     * Récupère les bénéficiaires de l'utilisateur connecté avec pagination.
      *
      * @param userEmail l'email de l'utilisateur connecté
-     * @return liste des bénéficiaires formatés en DTO
+     * @param page      numéro de page (commence à 0)
+     * @param size      nombre d'éléments par page
+     * @return page des bénéficiaires formatés en DTO
      */
-    public List<BeneficiaryResponse> findAllByUser(String userEmail) {
+    public Page<BeneficiaryResponse> findAllByUser(String userEmail, int page, int size) {
 
         // Récupérer l'utilisateur
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Utilisateur non trouve : " + userEmail));
 
-        // Récupérer tous ses bénéficiaires et les convertir en DTO
-        return beneficiaryRepository.findByUserId(user.getId())
-                .stream()
-                .map(this::toResponse) // convertir chaque entité en DTO
-                .collect(Collectors.toList());
+        // Paginer les bénéficiaires triés par date de création décroissante
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return beneficiaryRepository.findByUserId(user.getId(), pageable)
+                .map(this::toResponse);
     }
 
     /**
@@ -223,8 +228,8 @@ public class BeneficiaryService {
     /**
      * Valide les champs spécifiques au canal choisi (Règle métier RG-02).
      *
-     * - BANK_TRANSFER  → bankDetails ne doit pas être null
-     * - Mobile Money   → mobileDetails ne doit pas être null
+     * - BANK_TRANSFER → bankDetails ne doit pas être null
+     * - Mobile Money → mobileDetails ne doit pas être null
      *
      * @param request la requête à valider
      * @throws TransferException si les champs requis sont manquants
