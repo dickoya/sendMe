@@ -35,4 +35,15 @@ export const authService = {
         const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/login', payload);
         return data.data;
     },
+
+    /**
+     * Rafraîchit les tokens JWT à partir d'un refresh token valide.
+     * POST /api/auth/refresh
+     */
+    async refresh(refreshToken: string): Promise<AuthResponse> {
+        const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/refresh', { refreshToken });
+        return data.data;
+    },
 };
+
+

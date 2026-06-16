@@ -24,146 +24,142 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(
-        name = "Authentification",
-        description = "Endpoints publics pour l'inscription et la connexion. " +
-                "Aucun token JWT requis pour ces routes."
-)
+@Tag(name = "Authentification", description = "Endpoints publics pour l'inscription et la connexion. " +
+                "Aucun token JWT requis pour ces routes.")
 public class AuthController {
 
-    private final AuthService authService;
-    private final EmailService emailService;
+        private final AuthService authService;
+        private final EmailService emailService;
 
-    /**
-     * Inscription d'un nouvel utilisateur.
-     */
-    @PostMapping("/register")
-    @Operation(
-            summary = "Inscription d'un nouvel utilisateur",
-            description = """
-            Crée un nouveau compte utilisateur sur la plateforme SendMe.
-            
-            **Processus :**
-            1. Validation des données (format email, longueur mot de passe)
-            2. Vérification de l'unicité de l'email
-            3. Hachage du mot de passe avec BCrypt
-            4. Création du compte
-            5. Retour des tokens JWT (access + refresh)
-            
-            **Règles de validation :**
-            - Email : format valide et unique
-            - Mot de passe : minimum 8 caractères
-            """,
-            security = @SecurityRequirement(name = "")
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Compte créé avec succès — tokens JWT retournés",
-                    content = @Content(schema = @Schema(implementation = AuthResponse.class))
-            ),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Email déjà utilisé par un autre compte"
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Données invalides (format email, mot de passe trop court)"
-            )
-    })
-    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>>
-    register(@Valid @RequestBody RegisterRequest request) {
-        var response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
-                        .success("Compte cree avec succes", response));
-    }
+        /**
+         * Inscription d'un nouvel utilisateur.
+         */
+        @PostMapping("/register")
+        @Operation(summary = "Inscription d'un nouvel utilisateur", description = """
+                        Crée un nouveau compte utilisateur sur la plateforme SendMe.
 
-    /**
-     * Connexion d'un utilisateur existant.
-     */
-    @PostMapping("/login")
-    @Operation(
-            summary = "Connexion utilisateur",
-            description = """
-            Authentifie un utilisateur et retourne les tokens JWT.
-            
-            **Processus :**
-            1. Vérification des identifiants (email + mot de passe)
-            2. Vérification que le compte est actif
-            3. Génération d'un access token (24h) et d'un refresh token (7j)
-            
-            **Cartes de test Stripe (sandbox) :**
-            -  Succès : `4242 4242 4242 4242`
-            -  Refusée : `4000 0000 0000 0002`
-            """,
-            security = @SecurityRequirement(name = "")
-    )
-    @ApiResponses({
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Connexion réussie — tokens JWT retournés",
-                    content = @Content(
-                            schema = @Schema(implementation = AuthResponse.class),
-                            examples = @ExampleObject(
-                                    name = "Exemple de réponse",
-                                    value = """
-                        {
-                            "success": true,
-                            "message": "Connexion reussie",
-                            "data": {
-                                "accessToken": "eyJhbGci...",
-                                "refreshToken": "eyJhbGci...",
-                                "tokenType": "Bearer",
-                                "expiresIn": 86400000,
-                                "email": "ibrahima@sendme.com",
-                                "role": "ROLE_USER"
-                            }
-                        }
-                        """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Email ou mot de passe incorrect"
-            ),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Compte désactivé par l'administrateur"
-            )
-    })
-    /**
-     * Connexion utilisateur avec génération des tokens JWT.
-     * La HttpServletRequest est injectée automatiquement par Spring
-     * pour récupérer l'adresse IP de la connexion.
-     */
+                        **Processus :**
+                        1. Validation des données (format email, longueur mot de passe)
+                        2. Vérification de l'unicité de l'email
+                        3. Hachage du mot de passe avec BCrypt
+                        4. Création du compte
+                        5. Retour des tokens JWT (access + refresh)
 
-    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>>
-    login(
-            @Valid @RequestBody LoginRequest request,
-            jakarta.servlet.http.HttpServletRequest httpRequest) {
+                        **Règles de validation :**
+                        - Email : format valide et unique
+                        - Mot de passe : minimum 8 caractères
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "201", description = "Compte créé avec succès — tokens JWT retournés", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                        @ApiResponse(responseCode = "409", description = "Email déjà utilisé par un autre compte"),
+                        @ApiResponse(responseCode = "400", description = "Données invalides (format email, mot de passe trop court)")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>> register(
+                        @Valid @RequestBody RegisterRequest request) {
+                var response = authService.register(request);
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Compte cree avec succes", response));
+        }
 
-        var response = authService.login(request, httpRequest);
-        return ResponseEntity.ok(
-                ibrahima.dickoya.sendme.dto.response.ApiResponse
-                        .success("Connexion reussie", response));
-    }
-    /**
-     * Endpoint temporaire pour tester la configuration email.
-     * Envoie un email de test vers l'adresse spécifiée.
-     *
-     * À SUPPRIMER après validation de la configuration email.
-     *
-     * Test : POST http://localhost:8080/api/auth/test-email?to=ton@email.com
-     */
-    @PostMapping("/test-email")
-    public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>>
-    testEmail(@RequestParam String to) {
-        emailService.sendTestEmail(to);
-        return ResponseEntity.ok(
-                ibrahima.dickoya.sendme.dto.response.ApiResponse
-                        .success("Email de test envoyé vers : " + to, null));
-    }
+        /**
+         * Connexion d'un utilisateur existant.
+         */
+        @PostMapping("/login")
+        @Operation(summary = "Connexion utilisateur", description = """
+                        Authentifie un utilisateur et retourne les tokens JWT.
+
+                        **Processus :**
+                        1. Vérification des identifiants (email + mot de passe)
+                        2. Vérification que le compte est actif
+                        3. Génération d'un access token (24h) et d'un refresh token (7j)
+
+                        **Cartes de test Stripe (sandbox) :**
+                        -  Succès : `4242 4242 4242 4242`
+                        -  Refusée : `4000 0000 0000 0002`
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Connexion réussie — tokens JWT retournés", content = @Content(schema = @Schema(implementation = AuthResponse.class), examples = @ExampleObject(name = "Exemple de réponse", value = """
+                                        {
+                                            "success": true,
+                                            "message": "Connexion reussie",
+                                            "data": {
+                                                "accessToken": "eyJhbGci...",
+                                                "refreshToken": "eyJhbGci...",
+                                                "tokenType": "Bearer",
+                                                "expiresIn": 86400000,
+                                                "email": "ibrahima@sendme.com",
+                                                "role": "ROLE_USER"
+                                            }
+                                        }
+                                        """))),
+                        @ApiResponse(responseCode = "401", description = "Email ou mot de passe incorrect"),
+                        @ApiResponse(responseCode = "403", description = "Compte désactivé par l'administrateur")
+        })
+        /**
+         * Connexion utilisateur avec génération des tokens JWT.
+         * La HttpServletRequest est injectée automatiquement par Spring
+         * pour récupérer l'adresse IP de la connexion.
+         */
+
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>> login(
+                        @Valid @RequestBody LoginRequest request,
+                        jakarta.servlet.http.HttpServletRequest httpRequest) {
+
+                var response = authService.login(request, httpRequest);
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Connexion reussie", response));
+        }
+
+        /**
+         * Rafraîchit les tokens JWT (access + refresh) à partir d'un refresh token
+         * valide.
+         * 
+         * Utilisé par le frontend quand l'access token expire pour éviter
+         * de déconnecter l'utilisateur.
+         * 
+         * Test : POST http://localhost:8080/api/auth/refresh
+         * Body : { "refreshToken": "eyJhbGci..." }
+         */
+        @PostMapping("/refresh")
+        @Operation(summary = "Rafraîchir les tokens JWT", description = """
+                        Valide le refresh token et génère un nouveau jeu de tokens.
+                        Utilisé par le frontend pour le refresh automatique sans déconnexion.
+
+                        **Processus :**
+                        1. Extraction de l'email depuis le refresh token
+                        2. Validation du refresh token (non expiré, signature valide)
+                        3. Vérification que le compte est toujours actif
+                        4. Génération d'un nouvel access token (24h) et refresh token (7j)
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Tokens rafraîchis avec succès", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                        @ApiResponse(responseCode = "400", description = "Refresh token invalide ou expiré")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>> refresh(
+                        @Valid @RequestBody RefreshTokenRequest request) {
+                var response = authService.refresh(request.getRefreshToken());
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Tokens rafraichis avec succes", response));
+        }
+
+        /**
+         * Endpoint temporaire pour tester la configuration email.
+         * Envoie un email de test vers l'adresse spécifiée.
+         *
+         * À SUPPRIMER après validation de la configuration email.
+         *
+         * Test : POST http://localhost:8080/api/auth/test-email?to=ton@email.com
+         */
+        @PostMapping("/test-email")
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>> testEmail(
+                        @RequestParam String to) {
+                emailService.sendTestEmail(to);
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Email de test envoyé vers : " + to, null));
+        }
 
 }
