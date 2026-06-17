@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Notification, NotificationType } from '@/types';
 
 type SSEEventHandler = (notification: Notification) => void;

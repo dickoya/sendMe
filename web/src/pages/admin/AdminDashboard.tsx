@@ -6,7 +6,6 @@ import StatCard from '@/components/admin/StatCard';
 import ChannelChart from '@/components/admin/ChannelChart';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
 import { formatCurrency } from '@/utils/formatCurrency';
-import type { ExchangeRateDebugEntry } from '@/types';
 
 /**
  * Tableau de bord administrateur.

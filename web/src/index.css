@@ -4,6 +4,9 @@
 /**
  * Design tokens SendMe — Thème fintech moderne
  * Inspiré de Wise/Revolut.
+ *
+ * Mode sombre : activé via la classe "dark" sur <html>.
+ * Les couleurs sont redéfinies dans @variant dark pour chaque palette.
  */
 @theme {
   /* Couleur de marque (bleu profond) */
@@ -38,6 +41,14 @@
   --color-purple-500: #8E44AD;
   --color-purple-600: #6C3483;
 
+  /* Couleurs de surface (mode clair) */
+  --color-surface: #FFFFFF;
+  --color-surface-secondary: #F9FAFB;
+  --color-border: #E5E7EB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-text-tertiary: #9CA3AF;
+
   /* Police */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
@@ -46,9 +57,59 @@
   --radius-2xl: 1.25rem;
 }
 
+/**
+ * Mode sombre — redéfinition des couleurs de surface et textes.
+ * Toutes les classes utilitaires dark:* fonctionnent automatiquement
+ * grâce à la stratégie "class" de Tailwind.
+ */
+.dark {
+  --color-brand-50: #1A2D4A;
+  --color-brand-100: #1E3A5F;
+  --color-brand-200: #2A4F7A;
+  --color-brand-300: #3A6A9E;
+  --color-brand-400: #4A85C2;
+  --color-brand-500: #5A9FE0;
+  --color-brand-600: #7AB8F0;
+  --color-brand-700: #9ACDF5;
+  --color-brand-800: #B5D4F4;
+  --color-brand-900: #D0E3F8;
+
+  --color-accent-50: #0F2D24;
+  --color-accent-100: #1A4A3A;
+  --color-accent-400: #2ECC71;
+  --color-accent-500: #27AE60;
+  --color-accent-600: #1D9E75;
+
+  --color-danger-50: #2D1515;
+  --color-danger-500: #E74C3C;
+  --color-danger-600: #EC7063;
+
+  --color-warning-50: #2D2410;
+  --color-warning-500: #F1C40F;
+  --color-warning-600: #F39C12;
+
+  --color-purple-50: #1D1530;
+  --color-purple-500: #A569BD;
+  --color-purple-600: #BB8FCE;
+
+  --color-surface: #1A1D23;
+  --color-surface-secondary: #22262E;
+  --color-border: #2D3139;
+  --color-text
+    --color-text-primary: #F3F4F6;
+    --color-text-secondary: #9CA3AF;
+    --color-text-tertiary: #6B7280;
+  }
+}
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 font-sans antialiased;
+  }
+
+  .dark body,
+  body.dark {
+    @apply bg-gray-950 text-gray-100;
   }
 
   /* Scrollbar discrète */
@@ -61,5 +122,12 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-400;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-gray-600;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
   }
 }
