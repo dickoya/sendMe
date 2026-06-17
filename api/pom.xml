@@ -160,6 +160,13 @@
 			<artifactId>caffeine</artifactId>
 		</dependency>
 
+		<!-- Bucket4j — token bucket rate limiting -->
+		<dependency>
+			<groupId>com.bucket4j</groupId>
+			<artifactId>bucket4j-core</artifactId>
+			<version>8.7.0</version>
+		</dependency>
+
 		<!-- Spring Mail — envoi d'emails via SMTP -->
 		<!-- Fournit JavaMailSender pour envoyer des emails -->
 		<dependency>

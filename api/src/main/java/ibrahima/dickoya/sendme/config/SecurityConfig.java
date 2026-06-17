@@ -1,6 +1,7 @@
 package ibrahima.dickoya.sendme.config;
 
 import ibrahima.dickoya.sendme.security.JwtAuthenticationFilter;
+import ibrahima.dickoya.sendme.security.RateLimitingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -71,6 +71,16 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage()));
         }
 
+        // Rate limit depasse — 429
+        @ExceptionHandler(RateLimitExceededException.class)
+        public ResponseEntity<ApiResponse<Void>> handleRateLimitExceeded(
+                        RateLimitExceededException ex) {
+                log.warn("Rate limit depasse : {}", ex.getMessage());
+                return ResponseEntity.status(429)
+                                .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
+                                .body(ApiResponse.error(ex.getMessage()));
+        }
+
         // Erreur generique — 500
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
