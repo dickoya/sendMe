@@ -45,7 +45,7 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
             {/* Overlay mobile */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 z-40 bg-black/30 md:hidden"
+                    className="fixed inset-0 z-40 bg-black/30 md:hidden dark:bg-black/50"
                     onClick={onClose}
                     aria-hidden="true"
                 />
@@ -53,16 +53,16 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
 
             <aside
                 className={cn(
-                    'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-100 bg-white transition-transform md:relative md:translate-x-0',
+                    'fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-100 bg-white transition-transform md:relative md:translate-x-0 dark:border-gray-800 dark:bg-gray-900',
                     isOpen ? 'translate-x-0' : '-translate-x-full'
                 )}
             >
                 {/* Logo */}
-                <div className="flex h-16 items-center gap-2 border-b border-gray-100 px-6">
+                <div className="flex h-16 items-center gap-2 border-b border-gray-100 px-6 dark:border-gray-800">
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
                         S
                     </div>
-                    <span className="text-lg font-bold text-gray-900">{t('app.name')}</span>
+                    <span className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('app.name')}</span>
                 </div>
 
                 {/* Navigation */}
@@ -76,8 +76,8 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
                                 cn(
                                     'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
                                     isActive
-                                        ? 'bg-brand-50 text-brand-700'
-                                        : 'text-gray-600 hover:bg-gray-50'
+                                        ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300'
+                                        : 'text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800'
                                 )
                             }
                         >
@@ -89,10 +89,10 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
 
                 {/* Retour au site (admin uniquement) */}
                 {variant === 'admin' && (
-                    <div className="border-t border-gray-100 p-3">
+                    <div className="border-t border-gray-100 p-3 dark:border-gray-800">
                         <NavLink
                             to="/dashboard"
-                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                            className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-800"
                         >
                             <ArrowLeft size={18} />
                             {t('nav.backToSite')}

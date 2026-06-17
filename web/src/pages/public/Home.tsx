@@ -18,6 +18,7 @@ import Button from '@/components/ui/Button';
 import CurrencySelect from '@/components/ui/CurrencySelect';
 import type { CurrencyOption } from '@/components/ui/CurrencySelect';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 import { useAuth } from '@/store/auth/authContext';
 import { transferService } from '@/services/transferService';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -103,25 +104,25 @@ function Home() {
             icon: Zap,
             title: t('features.speed.title'),
             description: t('features.speed.description'),
-            color: 'text-yellow-500 bg-yellow-50',
+            color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30',
         },
         {
             icon: Shield,
             title: t('features.security.title'),
             description: t('features.security.description'),
-            color: 'text-green-500 bg-green-50',
+            color: 'text-green-500 bg-green-50 dark:bg-green-900/30',
         },
         {
             icon: TrendingDown,
             title: t('features.rates.title'),
             description: t('features.rates.description'),
-            color: 'text-blue-500 bg-blue-50',
+            color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/30',
         },
         {
             icon: Smartphone,
             title: t('features.channels.title'),
             description: t('features.channels.description'),
-            color: 'text-purple-500 bg-purple-50',
+            color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/30',
         },
     ];
 
@@ -150,25 +151,26 @@ function Home() {
     return (
         <div className="flex min-h-screen flex-col">
             {/* ── Navigation ──────────────────────────────────────────────── */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg">
+            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-gray-900/80 dark:border-gray-800/50">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                     <Link to="/" className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
                             S
                         </div>
-                        <span className="text-lg font-bold text-gray-900">SendMe</span>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">SendMe</span>
                     </Link>
 
                     {/* Navigation desktop */}
                     <div className="hidden items-center gap-6 md:flex">
-                        <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
+                        <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
                             {t('nav.features')}
                         </a>
-                        <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
+                        <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
                             {t('nav.howItWorks')}
                         </a>
+                        <ThemeToggle />
                         <LanguageSwitcher />
-                        <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors">
+                        <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
                             {t('nav.login')}
                         </Link>
                         <Link to="/register">
@@ -178,6 +180,7 @@ function Home() {
 
                     {/* Menu mobile */}
                     <div className="flex items-center gap-2 md:hidden">
+                        <ThemeToggle />
                         <LanguageSwitcher />
                         <Link to="/login">
                             <Button variant="ghost" size="sm">{t('nav.login')}</Button>
@@ -329,17 +332,17 @@ function Home() {
                 </div>
 
                 {/* Vague décorative en bas */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-950" />
             </section>
 
             {/* ── Section Fonctionnalités ─────────────────────────────────── */}
-            <section id="features" className="bg-gray-50 py-20 sm:py-28">
+            <section id="features" className="bg-gray-50 py-20 sm:py-28 dark:bg-gray-950">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                             {t('features.title')}
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
                             {t('features.subtitle')}
                         </p>
                     </div>
@@ -348,15 +351,15 @@ function Home() {
                         {features.map((feature) => (
                             <div
                                 key={feature.title}
-                                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1"
+                                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900"
                             >
                                 <div className={`inline-flex rounded-xl p-3 ${feature.color}`}>
                                     <feature.icon size={24} />
                                 </div>
-                                <h3 className="mt-4 text-lg font-semibold text-gray-900">
+                                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
                                     {feature.title}
                                 </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                                     {feature.description}
                                 </p>
                             </div>
@@ -366,13 +369,13 @@ function Home() {
             </section>
 
             {/* ── Section Comment ça marche ───────────────────────────────── */}
-            <section id="how-it-works" className="bg-white py-20 sm:py-28">
+            <section id="how-it-works" className="bg-white py-20 sm:py-28 dark:bg-gray-900">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
-                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                             {t('howItWorks.title')}
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
                             {t('howItWorks.subtitle')}
                         </p>
                     </div>
@@ -382,18 +385,18 @@ function Home() {
                             <div key={step.number} className="relative text-center">
                                 {/* Ligne de connexion */}
                                 {index < steps.length - 1 && (
-                                    <div className="absolute top-12 left-[60%] hidden h-0.5 w-[80%] bg-brand-200 md:block" />
+                                    <div className="absolute top-12 left-[60%] hidden h-0.5 w-[80%] bg-brand-200 md:block dark:bg-brand-800" />
                                 )}
-                                <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-brand-50">
-                                    <step.icon size={36} className="text-brand-600" />
+                                <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900/30">
+                                    <step.icon size={36} className="text-brand-600 dark:text-brand-400" />
                                     <span className="absolute -top-2 -right-2 flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
                                         {step.number}
                                     </span>
                                 </div>
-                                <h3 className="mt-6 text-xl font-semibold text-gray-900">
+                                <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
                                     {step.title}
                                 </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                                     {step.description}
                                 </p>
                             </div>
@@ -423,12 +426,12 @@ function Home() {
             </section>
 
             {/* ── Section CTA finale ──────────────────────────────────────── */}
-            <section className="bg-gray-50 py-20 sm:py-28">
+            <section className="bg-gray-50 py-20 sm:py-28 dark:bg-gray-950">
                 <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
-                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                    <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                         {t('cta.title')}
                     </h2>
-                    <p className="mt-4 text-lg text-gray-600">
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
                         {t('cta.subtitle')}
                     </p>
                     <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -449,7 +452,7 @@ function Home() {
             </section>
 
             {/* ── Footer ──────────────────────────────────────────────────── */}
-            <footer className="border-t border-gray-100 bg-white py-12">
+            <footer className="border-t border-gray-100 bg-white py-12 dark:border-gray-800 dark:bg-gray-900">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
@@ -457,36 +460,36 @@ function Home() {
                                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
                                     S
                                 </div>
-                                <span className="text-lg font-bold text-gray-900">SendMe</span>
+                                <span className="text-lg font-bold text-gray-900 dark:text-gray-100">SendMe</span>
                             </div>
-                            <p className="mt-3 text-sm leading-relaxed text-gray-600">
+                            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                                 {t('footer.description')}
                             </p>
                         </div>
                         <div>
-                            <h4 className="text-sm font-semibold text-gray-900">{t('footer.product')}</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.product')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#features" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.features')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.security')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.support')}</a></li>
+                                <li><a href="#features" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.features')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.support')}</a></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-sm font-semibold text-gray-900">{t('footer.company')}</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.company')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.about')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.contact')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">{t('footer.legal')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.about')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.legal')}</a></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 className="text-sm font-semibold text-gray-900">Support</h4>
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Support</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-600 hover:text-brand-600 transition-colors">support@sendme.com</a></li>
+                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">support@sendme.com</a></li>
                             </ul>
                         </div>
                     </div>
-                    <div className="mt-10 border-t border-gray-100 pt-6 text-center text-sm text-gray-500">
+                    <div className="mt-10 border-t border-gray-100 pt-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
                         {t('footer.copyright', { year: new Date().getFullYear() })}
                     </div>
                 </div>

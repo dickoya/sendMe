@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/store/auth/authContext';
 import NotificationBell from '@/components/notification/NotificationBell';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 
 export interface HeaderProps {
     title?: string;
@@ -31,25 +32,26 @@ function Header({ title, onMenuClick }: HeaderProps) {
     };
 
     return (
-        <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-4 md:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 md:px-6">
             <div className="flex items-center gap-3">
                 <button
                     onClick={onMenuClick}
-                    className="rounded-md p-2 text-gray-500 hover:bg-gray-100 md:hidden"
+                    className="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
                     aria-label={t('actions.openMenu')}
                 >
                     <Menu size={20} />
                 </button>
-                {title && <h1 className="text-lg font-semibold text-gray-900">{title}</h1>}
+                {title && <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h1>}
             </div>
 
             <div className="flex items-center gap-2">
+                <ThemeToggle />
                 <LanguageSwitcher />
                 <NotificationBell />
 
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 >
                     <LogOut size={16} />
                     <span className="hidden sm:inline">{t('nav.logout')}</span>

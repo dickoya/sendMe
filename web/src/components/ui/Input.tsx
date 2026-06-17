@@ -26,7 +26,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         return (
             <div className="flex w-full flex-col gap-1.5">
                 {label && (
-                    <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+                    <label htmlFor={inputId} className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         {label}
                         {required && <span className="ml-0.5 text-danger-500">*</span>}
                     </label>
@@ -34,18 +34,18 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
                 <div
                     className={cn(
-                        'flex items-center rounded-lg border border-gray-300 bg-white transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100',
-                        error && 'border-danger-500 focus-within:border-danger-500 focus-within:ring-danger-100'
+                        'flex items-center rounded-lg border border-gray-300 bg-white transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 dark:border-gray-600 dark:bg-gray-900 dark:focus-within:border-brand-400 dark:focus-within:ring-brand-900/30',
+                        error && 'border-danger-500 focus-within:border-danger-500 focus-within:ring-danger-100 dark:border-danger-500 dark:focus-within:ring-danger-900/30'
                     )}
                 >
-                    {icon && <span className="pl-3 text-gray-400">{icon}</span>}
+                    {icon && <span className="pl-3 text-gray-400 dark:text-gray-500">{icon}</span>}
 
                     <input
                         ref={ref}
                         id={inputId}
                         type={inputType}
                         className={cn(
-                            'w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400',
+                            'w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500',
                             icon && 'pl-2',
                             className
                         )}
@@ -56,7 +56,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="px-3 text-gray-400 hover:text-gray-600"
+                            className="px-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                             aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                         >
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -65,7 +65,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                 </div>
 
                 {error && <span className="text-xs text-danger-500">{error}</span>}
-                {hint && !error && <span className="text-xs text-gray-400">{hint}</span>}
+                {hint && !error && <span className="text-xs text-gray-400 dark:text-gray-500">{hint}</span>}
             </div>
         );
     }

@@ -5,6 +5,7 @@ import { Mail, Lock, ArrowRight, Zap, Shield, TrendingDown } from 'lucide-react'
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import ThemeToggle from '@/components/layout/ThemeToggle';
 import { useAuth } from '@/store/auth/authContext';
 import { getErrorMessage } from '@/lib/utils';
 
@@ -46,21 +47,22 @@ function Login() {
     return (
         <div className="flex min-h-screen flex-col">
             {/* ── Barre de navigation (full width) ─────────────────────────── */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg">
+            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-gray-900/80 dark:border-gray-800/50">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                     <Link to="/" className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
                             S
                         </div>
-                        <span className="text-lg font-bold text-gray-900">SendMe</span>
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">SendMe</span>
                     </Link>
                     <div className="flex items-center gap-6">
-                        <Link to="/" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors sm:block">
+                        <Link to="/" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400 sm:block">
                             Accueil
                         </Link>
-                        <Link to="/#features" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors sm:block">
+                        <Link to="/#features" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400 sm:block">
                             Fonctionnalités
                         </Link>
+                        <ThemeToggle />
                         <LanguageSwitcher />
                         <Link to="/register">
                             <Button size="sm">{t('register.title')}</Button>
@@ -125,12 +127,12 @@ function Login() {
                 </div>
 
                 {/* Panneau droit : Formulaire */}
-                <div className="flex flex-1 flex-col bg-white">
+                <div className="flex flex-1 flex-col bg-white dark:bg-gray-900">
                     <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-10">
                         <div className="w-full max-w-sm">
                             <div className="mb-8">
-                                <h1 className="text-3xl font-bold text-gray-900">{t('login.title')}</h1>
-                                <p className="mt-2 text-gray-500">{t('login.subtitle')}</p>
+                                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('login.title')}</h1>
+                                <p className="mt-2 text-gray-500 dark:text-gray-400">{t('login.subtitle')}</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -156,7 +158,7 @@ function Login() {
                                 />
 
                                 {error && (
-                                    <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100">
+                                    <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
                                         {error}
                                     </div>
                                 )}
@@ -167,9 +169,9 @@ function Login() {
                                 </Button>
                             </form>
 
-                            <p className="mt-8 text-center text-sm text-gray-500">
+                            <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
                                 {t('login.noAccount')}{' '}
-                                <Link to="/register" className="font-semibold text-brand-600 hover:text-brand-700">
+                                <Link to="/register" className="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
                                     {t('login.registerLink')}
                                 </Link>
                             </p>
@@ -179,15 +181,15 @@ function Login() {
             </div>
 
             {/* ── Footer (full width) ──────────────────────────────────────── */}
-            <footer className="border-t border-gray-100 bg-white px-6 py-6 sm:px-10">
+            <footer className="border-t border-gray-100 bg-white px-6 py-6 sm:px-10 dark:border-gray-800 dark:bg-gray-900">
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                         © {new Date().getFullYear()} SendMe. Tous droits réservés.
                     </p>
                     <div className="flex items-center gap-6">
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors">Confidentialité</a>
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors">CGU</a>
-                        <a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-600 transition-colors">Aide</a>
+                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">Confidentialité</a>
+                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">CGU</a>
+                        <a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">Aide</a>
                     </div>
                 </div>
             </footer>

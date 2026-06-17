@@ -52,20 +52,20 @@ function LanguageSwitcher() {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                className="flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
                 aria-label={t('common:languageSwitcher.label')}
                 aria-haspopup="listbox"
                 aria-expanded={isOpen}
             >
                 <span className="flex items-center">{flagComponents[currentLanguage.flag]}</span>
                 <span className="hidden sm:inline">{currentLanguage.code.toUpperCase()}</span>
-                <ChevronDown size={14} className={cn('text-gray-400 transition-transform', isOpen && 'rotate-180')} />
+                <ChevronDown size={14} className={cn('text-gray-400 transition-transform dark:text-gray-500', isOpen && 'rotate-180')} />
             </button>
 
             {isOpen && (
                 <div
                     role="listbox"
-                    className="absolute right-0 z-50 mt-2 w-44 rounded-2xl border border-gray-100 bg-white p-1.5 shadow-lg"
+                    className="absolute right-0 z-50 mt-2 w-44 rounded-2xl border border-gray-100 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900"
                 >
                     {LANGUAGES.map((lang) => (
                         <button
@@ -76,8 +76,8 @@ function LanguageSwitcher() {
                             className={cn(
                                 'flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors',
                                 lang.code === i18n.language
-                                    ? 'bg-brand-50 text-brand-700'
-                                    : 'text-gray-700 hover:bg-gray-50'
+                                    ? 'bg-brand-50 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300'
+                                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
                             )}
                         >
               <span className="flex items-center gap-2">

@@ -13,17 +13,17 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 primary:
-                    'bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:ring-brand-500 active:scale-[0.98]',
+                    'bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:ring-brand-500 active:scale-[0.98] dark:bg-brand-500 dark:hover:bg-brand-400',
                 secondary:
-                    'bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-300',
+                    'bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700',
                 outline:
-                    'border border-gray-300 bg-white text-gray-700 hover:border-brand-500 hover:text-brand-600 focus-visible:ring-brand-300',
+                    'border border-gray-300 bg-white text-gray-700 hover:border-brand-500 hover:text-brand-600 focus-visible:ring-brand-300 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:border-brand-400 dark:hover:text-brand-400',
                 danger:
-                    'bg-danger-500 text-white shadow-sm hover:bg-danger-600 focus-visible:ring-danger-500 active:scale-[0.98]',
+                    'bg-danger-500 text-white shadow-sm hover:bg-danger-600 focus-visible:ring-danger-500 active:scale-[0.98] dark:bg-danger-600 dark:hover:bg-danger-500',
                 success:
-                    'bg-accent-500 text-white shadow-sm hover:bg-accent-600 focus-visible:ring-accent-400 active:scale-[0.98]',
+                    'bg-accent-500 text-white shadow-sm hover:bg-accent-600 focus-visible:ring-accent-400 active:scale-[0.98] dark:bg-accent-600 dark:hover:bg-accent-500',
                 ghost:
-                    'text-brand-600 hover:bg-brand-50 focus-visible:ring-brand-300',
+                    'text-brand-600 hover:bg-brand-50 focus-visible:ring-brand-300 dark:text-brand-400 dark:hover:bg-brand-900/30',
             },
             size: {
                 sm: 'h-8 px-3 text-xs',

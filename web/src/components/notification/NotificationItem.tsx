@@ -24,8 +24,8 @@ function NotificationItem({ notification, onClick }: NotificationItemProps) {
         <button
             onClick={onClick}
             className={cn(
-                'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50',
-                !notification.isRead && 'bg-brand-50/50'
+                'flex w-full items-start gap-3 rounded-xl p-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-800',
+                !notification.isRead && 'bg-brand-50/50 dark:bg-brand-900/20'
             )}
         >
             <div className={cn('flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full', className)}>
@@ -33,14 +33,14 @@ function NotificationItem({ notification, onClick }: NotificationItemProps) {
             </div>
 
             <div className="min-w-0 flex-1">
-                <p className={cn('text-sm', notification.isRead ? 'text-gray-700' : 'font-medium text-gray-900')}>
+                <p className={cn('text-sm', notification.isRead ? 'text-gray-700 dark:text-gray-300' : 'font-medium text-gray-900 dark:text-gray-100')}>
                     {getNotificationMessage(notification, t)}
                 </p>
-                <p className="mt-0.5 text-xs text-gray-400">{formatDate(notification.createdAt)}</p>
+                <p className="mt-0.5 text-xs text-gray-400 dark:text-gray-500">{formatDate(notification.createdAt)}</p>
             </div>
 
             {!notification.isRead && (
-                <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-brand-500" />
+                <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-brand-500 dark:bg-brand-400" />
             )}
         </button>
     );

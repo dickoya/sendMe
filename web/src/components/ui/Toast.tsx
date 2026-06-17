@@ -17,10 +17,10 @@ const ICONS: Record<ToastType, React.ReactNode> = {
 };
 
 const STYLES: Record<ToastType, string> = {
-    success: 'bg-accent-50 text-accent-600 border-accent-400',
-    error: 'bg-danger-50 text-danger-600 border-danger-500',
-    warning: 'bg-warning-50 text-warning-600 border-warning-500',
-    info: 'bg-brand-50 text-brand-600 border-brand-400',
+    success: 'bg-accent-50 text-accent-600 border-accent-400 dark:bg-accent-900/30 dark:text-accent-400 dark:border-accent-600',
+    error: 'bg-danger-50 text-danger-600 border-danger-500 dark:bg-danger-900/30 dark:text-danger-400 dark:border-danger-600',
+    warning: 'bg-warning-50 text-warning-600 border-warning-500 dark:bg-warning-900/30 dark:text-warning-400 dark:border-warning-600',
+    info: 'bg-brand-50 text-brand-600 border-brand-400 dark:bg-brand-900/30 dark:text-brand-400 dark:border-brand-600',
 };
 
 /**
