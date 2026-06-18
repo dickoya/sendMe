@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-    LayoutDashboard, Users, Send, History, Bell,
+    LayoutDashboard, Users, Send, History, Bell, User,
     LayoutGrid, UserCog, ArrowRightLeft, Settings, ArrowLeft,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,7 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
         { to: '/transfer', label: t('nav.transfer'), icon: Send },
         { to: '/history', label: t('nav.history'), icon: History },
         { to: '/notifications', label: t('nav.notifications'), icon: Bell },
+        { to: '/profile', label: t('nav.profile'), icon: User },
     ];
 
     const adminLinks = [

@@ -1,0 +1,82 @@
+{
+  "title": "Mon profil",
+  "sections": {
+    "personalInfo": "Informations personnelles",
+    "security": "Sécurité",
+    "preferences": "Préférences",
+    "loginHistory": "Historique de connexion",
+    "dangerZone": "Zone dangereuse"
+  },
+  "fields": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phoneNumber": "Numéro de téléphone",
+    "currentPassword": "Mot de passe actuel",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "language": "Langue",
+    "theme": "Thème"
+  },
+  "placeholders": {
+    "firstName": "Votre prénom",
+    "lastName": "Votre nom",
+    "email": "votre@email.com",
+    "phoneNumber": "+224 6XX XXX XXX",
+    "currentPassword": "Entrez votre mot de passe actuel",
+    "newPassword": "Entrez votre nouveau mot de passe",
+    "confirmPassword": "Confirmez votre nouveau mot de passe"
+  },
+  "password": {
+    "title": "Changer le mot de passe",
+    "success": "Mot de passe changé avec succès",
+    "mismatch": "Les nouveaux mots de passe ne correspondent pas",
+    "samePassword": "Le nouveau mot de passe doit être différent de l'ancien",
+    "requirements": "Minimum 8 caractères"
+  },
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "label": "Thème de l'application"
+  },
+  "language": {
+    "label": "Langue de l'interface"
+  },
+  "deleteAccount": {
+    "title": "Supprimer mon compte",
+    "description": "Cette action est irréversible. Votre compte sera désactivé et vous ne pourrez plus vous connecter.",
+    "confirmLabel": "Entrez votre mot de passe pour confirmer",
+    "button": "Supprimer mon compte",
+    "confirmTitle": "Confirmer la suppression",
+    "confirmMessage": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+    "success": "Votre compte a été supprimé avec succès"
+  },
+  "loginHistory": {
+    "title": "Dernières connexions",
+    "ipAddress": "Adresse IP",
+    "device": "Appareil",
+    "date": "Date",
+    "status": "Statut",
+    "success": "Succès",
+    "failed": "Échec",
+    "empty": "Aucun historique de connexion disponible"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "cancel": "Annuler",
+    "changePassword": "Changer le mot de passe",
+    "changingPassword": "Changement en cours..."
+  },
+  "success": {
+    "profileUpdated": "Profil mis à jour avec succès",
+    "passwordChanged": "Mot de passe changé avec succès"
+  },
+  "errors": {
+    "loadProfile": "Erreur lors du chargement du profil",
+    "updateProfile": "Erreur lors de la mise à jour du profil",
+    "changePassword": "Erreur lors du changement de mot de passe",
+    "deleteAccount": "Erreur lors de la suppression du compte",
+    "loadHistory": "Erreur lors du chargement de l'historique"
+  }
+}

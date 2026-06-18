@@ -2,13 +2,16 @@ package ibrahima.dickoya.sendme.service;
 
 import ibrahima.dickoya.sendme.dto.request.*;
 import ibrahima.dickoya.sendme.dto.response.AuthResponse;
+import ibrahima.dickoya.sendme.entity.LoginHistory;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.exception.EmailAlreadyExistsException;
 import ibrahima.dickoya.sendme.exception.RateLimitExceededException;
+import ibrahima.dickoya.sendme.repository.LoginHistoryRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
 import ibrahima.dickoya.sendme.security.JwtService;
 import ibrahima.dickoya.sendme.security.RateLimitingFilter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.*;
@@ -33,6 +36,7 @@ public class AuthService {
     private final UserDetailsService userDetailsService;
     private final EmailService emailService;
     private final RateLimitingFilter rateLimitingFilter;
+    private final LoginHistoryRepository loginHistoryRepository;
 
     // ── Compteurs de tentatives (email) ──────────────────────────────────────
     private static final int MAX_LOGIN_ATTEMPTS = 5;
@@ -124,7 +128,21 @@ public class AuthService {
 
             log.info("Connexion reussie pour : {} depuis IP : {}", user.getEmail(), ipAddress);
 
-            // 5. Envoi sécurisé de l'alerte e-mail
+            // 5. Enregistrer l'historique de connexion
+            try {
+                String userAgent = httpRequest.getHeader("User-Agent");
+                LoginHistory loginHistory = LoginHistory.builder()
+                        .user(user)
+                        .ipAddress(ipAddress)
+                        .userAgent(userAgent)
+                        .success(true)
+                        .build();
+                loginHistoryRepository.save(loginHistory);
+            } catch (Exception e) {
+                log.error("[AUTH] Échec de l'enregistrement de l'historique de connexion : {}", e.getMessage());
+            }
+
+            // 6. Envoi sécurisé de l'alerte e-mail
             try {
                 final String finalIpAddress = ipAddress;
                 emailService.sendLoginAlertEmail(user, finalIpAddress);

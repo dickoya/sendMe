@@ -20,3 +20,13 @@ export function formatDate(isoDate: string): string {
 export function formatDateShort(isoDate: string): string {
     return format(new Date(isoDate), 'dd/MM/yyyy', { locale: fr });
 }
+
+/**
+ * Formate une date ISO en format date + heure complète.
+ *
+ * @example
+ * formatDateTime('2025-06-09T14:32:00') // "09/06/2025 14:32"
+ */
+export function formatDateTime(isoDate: string): string {
+    return format(new Date(isoDate), 'dd/MM/yyyy HH:mm', { locale: fr });
+}

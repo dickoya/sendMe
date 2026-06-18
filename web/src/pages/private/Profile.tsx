@@ -1,10 +1,577 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from 'i18next';
+import { useNavigate } from 'react-router-dom';
+import {
+    User,
+    Mail,
+    Phone,
+    Lock,
+    Shield,
+    Globe,
+    Moon,
+    Sun,
+    Trash2,
+    Clock,
+    CheckCircle,
+    XCircle,
+    Monitor,
+    AlertTriangle,
+} from 'lucide-react';
 import Card from '@/components/ui/Card';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import Spinner from '@/components/ui/Spinner';
+import Modal from '@/components/ui/Modal';
+import { useAuth } from '@/store/auth/authContext';
+import { useTheme } from '@/store/theme/themeContext';
+import { useToast } from '@/store/notification/toastContext';
+import { profileService, type ProfileData, type LoginHistoryEntry } from '@/services/profileService';
+import { getErrorMessage } from '@/lib/utils';
+import { LANGUAGES } from '@/utils/constants';
+import { formatDateTime } from '@/utils/formatDate';
 
+/**
+ * Page de profil utilisateur complète.
+ *
+ * Sections :
+ * 1. Informations personnelles (nom, email, téléphone)
+ * 2. Changement de mot de passe
+ * 3. Préférences (langue, thème)
+ * 4. Historique de connexion
+ * 5. Suppression de compte
+ */
 function Profile() {
+    const { t } = useTranslation('profile');
+    const { t: tCommon } = useTranslation('common');
+    const { logout } = useAuth();
+    const { theme, setTheme } = useTheme();
+    const { showToast } = useToast();
+    const navigate = useNavigate();
+
+    // ── État du profil ──────────────────────────────────────────────────────
+    const [profile, setProfile] = useState<ProfileData | null>(null);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    const [profileError, setProfileError] = useState<string | null>(null);
+
+    // ── Formulaire d'informations personnelles ──────────────────────────────
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+    });
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+    // ── Formulaire de changement de mot de passe ────────────────────────────
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+    });
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+    // ── État des préférences ────────────────────────────────────────────────
+    const [selectedLanguage, setSelectedLanguage] = useState(() => {
+        return localStorage.getItem('sendme_language') || 'fr';
+    });
+
+    // ── Historique de connexion ─────────────────────────────────────────────
+    const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+    // ── Suppression de compte ───────────────────────────────────────────────
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deletePassword, setDeletePassword] = useState('');
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // ── Chargement du profil ────────────────────────────────────────────────
+    // Chargé une seule fois au montage du composant
+    useEffect(() => {
+        let cancelled = false;
+        const loadProfile = async () => {
+            setIsLoadingProfile(true);
+            setProfileError(null);
+            try {
+                const data = await profileService.getProfile();
+                if (!cancelled) {
+                    setProfile(data);
+                    setFormData({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        phoneNumber: data.phoneNumber ?? '',
+                    });
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    setProfileError(getErrorMessage(err));
+                    showToast(t('errors.loadProfile'), 'error');
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoadingProfile(false);
+                }
+            }
+        };
+        loadProfile();
+        return () => { cancelled = true; };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Chargement de l'historique de connexion ─────────────────────────────
+    // Chargé une seule fois au montage du composant
+    useEffect(() => {
+        let cancelled = false;
+        const loadLoginHistory = async () => {
+            setIsLoadingHistory(true);
+            try {
+                const history = await profileService.getLoginHistory();
+                if (!cancelled) {
+                    setLoginHistory(history);
+                }
+            } catch (err) {
+                if (!cancelled) {
+                    showToast(t('errors.loadHistory'), 'error');
+                }
+            } finally {
+                if (!cancelled) {
+                    setIsLoadingHistory(false);
+                }
+            }
+        };
+        loadLoginHistory();
+        return () => { cancelled = true; };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Fonction de rechargement pour le bouton "Réessayer"
+    const retryLoadProfile = useCallback(async () => {
+        setIsLoadingProfile(true);
+        setProfileError(null);
+        try {
+            const data = await profileService.getProfile();
+            setProfile(data);
+            setFormData({
+                firstName: data.firstName,
+                lastName: data.lastName,
+                email: data.email,
+                phoneNumber: data.phoneNumber ?? '',
+            });
+        } catch (err) {
+            setProfileError(getErrorMessage(err));
+            showToast(t('errors.loadProfile'), 'error');
+        } finally {
+            setIsLoadingProfile(false);
+        }
+    }, [t, showToast]);
+
+    // ── Gestionnaires de formulaire ─────────────────────────────────────────
+    const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setPasswordData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    // ── Mise à jour du profil ───────────────────────────────────────────────
+    const handleSaveProfile = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSavingProfile(true);
+        try {
+            const updated = await profileService.updateProfile({
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                phoneNumber: formData.phoneNumber || undefined,
+            });
+            setProfile(updated);
+            showToast(t('success.profileUpdated'), 'success');
+        } catch (err) {
+            showToast(getErrorMessage(err), 'error');
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
+
+    // ── Changement de mot de passe ──────────────────────────────────────────
+    const handleChangePassword = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            showToast(t('password.mismatch'), 'error');
+            return;
+        }
+
+        if (passwordData.currentPassword === passwordData.newPassword) {
+            showToast(t('password.samePassword'), 'error');
+            return;
+        }
+
+        setIsChangingPassword(true);
+        try {
+            await profileService.changePassword({
+                currentPassword: passwordData.currentPassword,
+                newPassword: passwordData.newPassword,
+                confirmPassword: passwordData.confirmPassword,
+            });
+            showToast(t('password.success'), 'success');
+            setPasswordData({
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: '',
+            });
+        } catch (err) {
+            showToast(getErrorMessage(err), 'error');
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+
+    // ── Changement de langue ────────────────────────────────────────────────
+    const handleLanguageChange = (langCode: string) => {
+        i18n.changeLanguage(langCode);
+        setSelectedLanguage(langCode);
+    };
+
+    // ── Suppression de compte ───────────────────────────────────────────────
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true);
+        try {
+            await profileService.deleteAccount({ password: deletePassword });
+            showToast(t('deleteAccount.success'), 'success');
+            setShowDeleteModal(false);
+            setTimeout(() => {
+                logout();
+                navigate('/login');
+            }, 1500);
+        } catch (err) {
+            showToast(getErrorMessage(err), 'error');
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // ── Affichage du chargement ─────────────────────────────────────────────
+    if (isLoadingProfile) {
+        return <Spinner fullPage label={tCommon('states.loading')} />;
+    }
+
+    // ── Affichage d'erreur ──────────────────────────────────────────────────
+    if (profileError && !profile) {
+        return (
+            <div className="flex min-h-[60vh] items-center justify-center">
+                <div className="text-center">
+                    <AlertTriangle size={48} className="mx-auto text-danger-500" />
+                    <p className="mt-4 text-gray-600 dark:text-gray-400">{profileError}</p>
+                    <Button variant="primary" className="mt-4" onClick={retryLoadProfile}>
+                        {tCommon('actions.retry')}
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <Card title="Mon profil">
-            <p className="text-sm text-gray-600">Page complétée ultérieurement.</p>
-        </Card>
+        <div className="flex flex-col gap-6">
+            {/* En-tête du profil */}
+            <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
+                <div className="flex items-center gap-4">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-bold">
+                        {profile?.firstName?.[0]}{profile?.lastName?.[0]}
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-bold">
+                            {profile?.firstName} {profile?.lastName}
+                        </h2>
+                        <p className="mt-1 text-sm text-brand-50 dark:text-brand-200">{profile?.email}</p>
+                        <p className="text-xs text-brand-100 dark:text-brand-300">
+                            {tCommon('nav.dashboard')} — {t('title')}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+                {/* ── Section 1 : Informations personnelles ─────────────────── */}
+                <Card title={t('sections.personalInfo')} className="lg:col-span-2">
+                    <form onSubmit={handleSaveProfile} className="grid gap-4 sm:grid-cols-2">
+                        <Input
+                            label={t('fields.firstName')}
+                            name="firstName"
+                            value={formData.firstName}
+                            onChange={handleProfileChange}
+                            placeholder={t('placeholders.firstName')}
+                            icon={<User size={16} />}
+                            required
+                        />
+                        <Input
+                            label={t('fields.lastName')}
+                            name="lastName"
+                            value={formData.lastName}
+                            onChange={handleProfileChange}
+                            placeholder={t('placeholders.lastName')}
+                            icon={<User size={16} />}
+                            required
+                        />
+                        <Input
+                            label={t('fields.email')}
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleProfileChange}
+                            placeholder={t('placeholders.email')}
+                            icon={<Mail size={16} />}
+                            required
+                        />
+                        <Input
+                            label={t('fields.phoneNumber')}
+                            name="phoneNumber"
+                            value={formData.phoneNumber}
+                            onChange={handleProfileChange}
+                            placeholder={t('placeholders.phoneNumber')}
+                            icon={<Phone size={16} />}
+                        />
+                        <div className="sm:col-span-2 flex justify-end">
+                            <Button type="submit" variant="primary" loading={isSavingProfile}>
+                                {isSavingProfile ? t('actions.saving') : tCommon('actions.save')}
+                            </Button>
+                        </div>
+                    </form>
+                </Card>
+
+                {/* ── Section 2 : Changement de mot de passe ────────────────── */}
+                <Card title={t('password.title')}>
+                    <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
+                        <Input
+                            label={t('fields.currentPassword')}
+                            name="currentPassword"
+                            type="password"
+                            value={passwordData.currentPassword}
+                            onChange={handlePasswordChange}
+                            placeholder={t('placeholders.currentPassword')}
+                            icon={<Lock size={16} />}
+                            required
+                        />
+                        <Input
+                            label={t('fields.newPassword')}
+                            name="newPassword"
+                            type="password"
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordChange}
+                            placeholder={t('placeholders.newPassword')}
+                            icon={<Shield size={16} />}
+                            hint={t('password.requirements')}
+                            required
+                        />
+                        <Input
+                            label={t('fields.confirmPassword')}
+                            name="confirmPassword"
+                            type="password"
+                            value={passwordData.confirmPassword}
+                            onChange={handlePasswordChange}
+                            placeholder={t('placeholders.confirmPassword')}
+                            icon={<Shield size={16} />}
+                            required
+                        />
+                        <Button type="submit" variant="primary" loading={isChangingPassword} className="mt-2">
+                            {isChangingPassword ? t('actions.changingPassword') : t('actions.changePassword')}
+                        </Button>
+                    </form>
+                </Card>
+
+                {/* ── Section 3 : Préférences ───────────────────────────────── */}
+                <Card title={t('sections.preferences')}>
+                    <div className="flex flex-col gap-6">
+                        {/* Langue */}
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                <Globe size={16} className="mr-1.5 inline" />
+                                {t('language.label')}
+                            </label>
+                            <div className="flex gap-2">
+                                {LANGUAGES.map((lang) => (
+                                    <button
+                                        key={lang.code}
+                                        type="button"
+                                        onClick={() => handleLanguageChange(lang.code)}
+                                        className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                            selectedLanguage === lang.code
+                                                ? 'border-brand-500 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-500/10 dark:text-brand-400'
+                                                : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-[#333333] dark:bg-transparent dark:text-[#8B8FA3] dark:hover:border-[#555555]'
+                                        }`}
+                                    >
+                                        <span className="text-lg">
+                                            {lang.code === 'fr' ? '🇫🇷' : '🇬🇧'}
+                                        </span>
+                                        <span>{lang.label}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Thème */}
+                        <div>
+                            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {theme === 'dark' ? <Moon size={16} className="mr-1.5 inline" /> : <Sun size={16} className="mr-1.5 inline" />}
+                                {t('theme.label')}
+                            </label>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setTheme('light')}
+                                    className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                        theme === 'light'
+                                            ? 'border-brand-500 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-500/10 dark:text-brand-400'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-[#333333] dark:bg-transparent dark:text-[#8B8FA3] dark:hover:border-[#555555]'
+                                    }`}
+                                >
+                                    <Sun size={16} />
+                                    <span>{t('theme.light')}</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTheme('dark')}
+                                    className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
+                                        theme === 'dark'
+                                            ? 'border-brand-500 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-500/10 dark:text-brand-400'
+                                            : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-[#333333] dark:bg-transparent dark:text-[#8B8FA3] dark:hover:border-[#555555]'
+                                    }`}
+                                >
+                                    <Moon size={16} />
+                                    <span>{t('theme.dark')}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* ── Section 4 : Historique de connexion ────────────────────── */}
+                <Card title={t('loginHistory.title')} className="lg:col-span-2">
+                    {isLoadingHistory ? (
+                        <Spinner size="sm" />
+                    ) : loginHistory.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 py-6 text-center">
+                            <Clock size={24} className="text-gray-400" />
+                            <p className="text-sm text-gray-500">{t('loginHistory.empty')}</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead>
+                                    <tr className="border-b border-gray-100 dark:border-[#222222]">
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.date')}</th>
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.ipAddress')}</th>
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.device')}</th>
+                                        <th className="pb-3 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.status')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {loginHistory.map((entry) => (
+                                        <tr key={entry.id} className="border-b border-gray-50 dark:border-[#1a1a1a] last:border-0">
+                                            <td className="py-3 pr-4 text-gray-900 dark:text-[#EDEEF0]">
+                                                {formatDateTime(entry.loginTime)}
+                                            </td>
+                                            <td className="py-3 pr-4 font-mono text-xs text-gray-600 dark:text-gray-400">
+                                                {entry.ipAddress}
+                                            </td>
+                                            <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Monitor size={14} className="flex-shrink-0" />
+                                                    <span className="truncate max-w-[200px]" title={entry.userAgent}>
+                                                        {entry.userAgent ? entry.userAgent.split(' ')[0] : '—'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3">
+                                                {entry.success ? (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-accent-50 px-2.5 py-0.5 text-xs font-medium text-accent-600 dark:bg-accent-900/30 dark:text-accent-400">
+                                                        <CheckCircle size={12} />
+                                                        {t('loginHistory.success')}
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 rounded-full bg-danger-50 px-2.5 py-0.5 text-xs font-medium text-danger-600 dark:bg-danger-900/30 dark:text-danger-400">
+                                                        <XCircle size={12} />
+                                                        {t('loginHistory.failed')}
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </Card>
+
+                {/* ── Section 5 : Zone dangereuse — Suppression de compte ───── */}
+                <Card title={t('sections.dangerZone')} className="lg:col-span-2 border-danger-200 dark:border-danger-800">
+                    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h4 className="font-medium text-gray-900 dark:text-[#EDEEF0]">{t('deleteAccount.title')}</h4>
+                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                {t('deleteAccount.description')}
+                            </p>
+                        </div>
+                        <Button
+                            variant="danger"
+                            onClick={() => setShowDeleteModal(true)}
+                            icon={<Trash2 size={16} />}
+                        >
+                            {t('deleteAccount.button')}
+                        </Button>
+                    </div>
+                </Card>
+            </div>
+
+            {/* ── Modal de confirmation de suppression ──────────────────────── */}
+            <Modal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDeletePassword('');
+                }}
+                title={t('deleteAccount.confirmTitle')}
+                size="sm"
+                footer={
+                    <div className="flex gap-2">
+                        <Button
+                            variant="secondary"
+                            onClick={() => {
+                                setShowDeleteModal(false);
+                                setDeletePassword('');
+                            }}
+                        >
+                            {tCommon('actions.cancel')}
+                        </Button>
+                        <Button
+                            variant="danger"
+                            loading={isDeleting}
+                            onClick={handleDeleteAccount}
+                        >
+                            {tCommon('actions.confirm')}
+                        </Button>
+                    </div>
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-sm text-danger-600 dark:bg-danger-900/20 dark:text-danger-400">
+                        <AlertTriangle size={16} className="flex-shrink-0" />
+                        <p>{t('deleteAccount.confirmMessage')}</p>
+                    </div>
+                    <Input
+                        label={t('deleteAccount.confirmLabel')}
+                        type="password"
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        placeholder="••••••••"
+                        icon={<Lock size={16} />}
+                        required
+                    />
+                </div>
+            </Modal>
+        </div>
     );
 }
 

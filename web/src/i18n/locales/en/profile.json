@@ -1,0 +1,82 @@
+{
+  "title": "My Profile",
+  "sections": {
+    "personalInfo": "Personal Information",
+    "security": "Security",
+    "preferences": "Preferences",
+    "loginHistory": "Login History",
+    "dangerZone": "Danger Zone"
+  },
+  "fields": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "placeholders": {
+    "firstName": "Your first name",
+    "lastName": "Your last name",
+    "email": "your@email.com",
+    "phoneNumber": "+224 6XX XXX XXX",
+    "currentPassword": "Enter your current password",
+    "newPassword": "Enter your new password",
+    "confirmPassword": "Confirm your new password"
+  },
+  "password": {
+    "title": "Change Password",
+    "success": "Password changed successfully",
+    "mismatch": "New passwords do not match",
+    "samePassword": "New password must be different from current password",
+    "requirements": "Minimum 8 characters"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "label": "Application Theme"
+  },
+  "language": {
+    "label": "Interface Language"
+  },
+  "deleteAccount": {
+    "title": "Delete My Account",
+    "description": "This action is irreversible. Your account will be disabled and you will no longer be able to log in.",
+    "confirmLabel": "Enter your password to confirm",
+    "button": "Delete My Account",
+    "confirmTitle": "Confirm Deletion",
+    "confirmMessage": "Are you sure you want to delete your account? This action is irreversible.",
+    "success": "Your account has been successfully deleted"
+  },
+  "loginHistory": {
+    "title": "Recent Logins",
+    "ipAddress": "IP Address",
+    "device": "Device",
+    "date": "Date",
+    "status": "Status",
+    "success": "Success",
+    "failed": "Failed",
+    "empty": "No login history available"
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "changePassword": "Change Password",
+    "changingPassword": "Changing Password..."
+  },
+  "success": {
+    "profileUpdated": "Profile updated successfully",
+    "passwordChanged": "Password changed successfully"
+  },
+  "errors": {
+    "loadProfile": "Error loading profile",
+    "updateProfile": "Error updating profile",
+    "changePassword": "Error changing password",
+    "deleteAccount": "Error deleting account",
+    "loadHistory": "Error loading login history"
+  }
+}
