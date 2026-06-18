@@ -20,6 +20,7 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -68,6 +69,22 @@ public class TransferService {
 
         /** Compteur atomique pour générer les références uniques (RG-05). */
         private final AtomicInteger counter = new AtomicInteger(1);
+
+        /**
+         * Initialise le compteur de références à partir de la base de données.
+         * Évite les conflits de duplication après un redémarrage du serveur.
+         * Exécuté automatiquement après l'injection des dépendances.
+         */
+        @PostConstruct
+        public void initCounter() {
+                Long maxSeq = transactionRepository.findMaxReferenceSequence();
+                if (maxSeq != null) {
+                        counter.set(maxSeq.intValue() + 1);
+                        log.info("Compteur de references initialise a {}", counter.get());
+                } else {
+                        log.info("Aucune transaction existante, compteur demarre a 1");
+                }
+        }
 
         /**
          * Service email pour notifier l'utilisateur
