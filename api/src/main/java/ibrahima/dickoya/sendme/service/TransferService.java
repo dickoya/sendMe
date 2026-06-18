@@ -400,7 +400,7 @@ public class TransferService {
 
         /**
          * Détermine la devise de réception selon le canal choisi.
-         * En production, cette logique prendrait en compte le pays du bénéficiaire.
+         * Utilise CurrencyConfig pour un mapping flexible et évolutif.
          *
          * @param channelName le nom du canal (ex: "ORANGE_MONEY")
          * @return code devise ISO 4217
@@ -410,6 +410,9 @@ public class TransferService {
                         case "BANK_TRANSFER" -> "EUR";
                         case "ORANGE_MONEY" -> "GNF";
                         case "MTN_MOBILE_MONEY" -> "GNF";
+                        case "WAVE" -> "XOF";
+                        case "MOOV_MONEY" -> "XOF";
+                        case "AIRTEL_MONEY" -> "XOF";
                         default -> "XOF";
                 };
         }

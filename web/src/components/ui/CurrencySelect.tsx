@@ -3,7 +3,10 @@ import { ChevronDown } from 'lucide-react';
 
 /**
  * Drapeaux SVG inline pour les devises.
+ * Chaque drapeau est un composant React qui accepte className.
  */
+
+// ── Union Européenne ──────────────────────────────────────────────
 function FlagEu({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -21,6 +24,7 @@ function FlagEu({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
+// ── États-Unis ────────────────────────────────────────────────────
 function FlagUs({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -40,6 +44,45 @@ function FlagUs({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
+// ── Royaume-Uni ───────────────────────────────────────────────────
+function FlagGb({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#012169" />
+            <path d="M0 0l3 2M3 0L0 2" stroke="#FFF" strokeWidth="0.6" />
+            <path d="M0 0l3 2M3 0L0 2" stroke="#C8102E" strokeWidth="0.25" />
+            <rect x="1.2" width="0.6" height="2" fill="#FFF" />
+            <rect y="0.7" width="3" height="0.6" fill="#FFF" />
+            <rect x="1.3" width="0.4" height="2" fill="#C8102E" />
+            <rect y="0.8" width="3" height="0.4" fill="#C8102E" />
+        </svg>
+    );
+}
+
+// ── Canada ────────────────────────────────────────────────────────
+function FlagCa({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#FFF" />
+            <rect width="0.8" height="2" fill="#D52B1E" />
+            <rect x="2.2" width="0.8" height="2" fill="#D52B1E" />
+            <path d="M1.5 0.3l-0.2 0.4 0.2 0.1-0.1 0.3 0.3-0.1 0.1 0.3 0.1-0.3 0.3 0.1-0.1-0.3 0.2-0.1z" fill="#D52B1E" />
+        </svg>
+    );
+}
+
+// ── Suisse ────────────────────────────────────────────────────────
+function FlagCh({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#D52B1E" />
+            <rect x="1.1" y="0.6" width="0.8" height="0.8" fill="#FFF" />
+            <rect x="0.9" y="0.85" width="1.2" height="0.3" fill="#FFF" />
+        </svg>
+    );
+}
+
+// ── UEMOA (Bénin, Burkina, Côte d'Ivoire...) ──────────────────────
 function FlagXof({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -50,6 +93,18 @@ function FlagXof({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
+// ── CEMAC (Cameroun, Congo, Gabon...) ─────────────────────────────
+function FlagXaf({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#007A5E" />
+            <rect width="2" height="2" fill="#FCD116" />
+            <rect width="1" height="2" fill="#CE1126" />
+        </svg>
+    );
+}
+
+// ── Guinée ────────────────────────────────────────────────────────
 function FlagGn({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -60,17 +115,89 @@ function FlagGn({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
+// ── Nigeria ───────────────────────────────────────────────────────
+function FlagNg({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#FFF" />
+            <rect width="1" height="2" fill="#008751" />
+            <rect x="2" width="1" height="2" fill="#008751" />
+        </svg>
+    );
+}
+
+// ── Ghana ─────────────────────────────────────────────────────────
+function FlagGh({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#CE1126" />
+            <rect y="0.666" width="3" height="0.667" fill="#FCD116" />
+            <rect y="1.333" width="3" height="0.667" fill="#006B3F" />
+            <circle cx="1.5" cy="1" r="0.25" fill="#000" />
+        </svg>
+    );
+}
+
+// ── Afrique du Sud ────────────────────────────────────────────────
+function FlagZa({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#DE3831" />
+            <rect y="0.5" width="3" height="1" fill="#FFF" />
+            <rect y="0.75" width="3" height="0.5" fill="#003DA5" />
+            <polygon points="0,0 1.2,1 0,2" fill="#FFB612" />
+            <polygon points="0,0 0.8,1 0,2" fill="#000" />
+            <polygon points="0,0.3 0.5,1 0,1.7" fill="#007A4D" />
+        </svg>
+    );
+}
+
+// ── Maroc ─────────────────────────────────────────────────────────
+function FlagMa({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#C1272D" />
+            <polygon points="1.5,0.4 1.7,0.9 2.2,0.9 1.8,1.2 1.9,1.7 1.5,1.4 1.1,1.7 1.2,1.2 0.8,0.9 1.3,0.9" fill="#006233" />
+        </svg>
+    );
+}
+
+// ── Tunisie ───────────────────────────────────────────────────────
+function FlagTn({ className = 'h-4 w-5' }: { className?: string }) {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
+            <rect width="3" height="2" fill="#D52B1E" />
+            <circle cx="1.5" cy="1" r="0.5" fill="#FFF" />
+            <circle cx="1.5" cy="1" r="0.35" fill="#D52B1E" />
+            <polygon points="1.5,0.7 1.6,0.9 1.8,0.9 1.65,1.0 1.7,1.2 1.5,1.1 1.3,1.2 1.35,1.0 1.2,0.9 1.4,0.9" fill="#FFF" />
+        </svg>
+    );
+}
+
+export type CurrencyFlag =
+    | 'eu' | 'us' | 'gb' | 'ca' | 'ch'
+    | 'xof' | 'xaf' | 'gn' | 'ng' | 'gh' | 'za' | 'ma' | 'tn';
+
 export interface CurrencyOption {
     code: string;
     label: string;
-    flag: 'eu' | 'us' | 'xof' | 'gn';
+    flag: CurrencyFlag;
 }
 
 const FLAG_MAP: Record<string, React.FC<{ className?: string }>> = {
     eu: FlagEu,
     us: FlagUs,
+    gb: FlagGb,
+    ca: FlagCa,
+    ch: FlagCh,
     xof: FlagXof,
+    xaf: FlagXaf,
     gn: FlagGn,
+    ng: FlagNg,
+    gh: FlagGh,
+    za: FlagZa,
+    ma: FlagMa,
+    tn: FlagTn,
 };
 
 interface CurrencySelectProps {

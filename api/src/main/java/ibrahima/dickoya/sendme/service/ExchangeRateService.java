@@ -2,6 +2,7 @@ package ibrahima.dickoya.sendme.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import ibrahima.dickoya.sendme.config.CurrencyConfig;
 import ibrahima.dickoya.sendme.entity.ExchangeRate;
 import ibrahima.dickoya.sendme.repository.ExchangeRateRepository;
 import jakarta.annotation.PostConstruct;
@@ -314,7 +315,7 @@ public class ExchangeRateService {
      *         from, to, rawRate, marginRate, cacheTimestamp
      */
     public java.util.List<java.util.Map<String, Object>> getAllDebugRates() {
-        String[] currencies = { "EUR", "USD", "XOF", "GNF" };
+        String[] currencies = CurrencyConfig.getAllCurrencyCodes();
         java.util.List<java.util.Map<String, Object>> results = new java.util.ArrayList<>();
 
         for (String from : currencies) {
@@ -334,4 +335,5 @@ public class ExchangeRateService {
 
         return results;
     }
+
 }

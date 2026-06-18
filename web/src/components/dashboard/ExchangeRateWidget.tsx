@@ -14,13 +14,39 @@ interface ExchangeRateWidgetProps {
 }
 
 const PAIRS = [
+    // EUR → toutes
     { from: 'EUR', to: 'XOF', label: 'EUR → XOF' },
+    { from: 'EUR', to: 'XAF', label: 'EUR → XAF' },
     { from: 'EUR', to: 'GNF', label: 'EUR → GNF' },
+    { from: 'EUR', to: 'NGN', label: 'EUR → NGN' },
+    { from: 'EUR', to: 'GHS', label: 'EUR → GHS' },
+    { from: 'EUR', to: 'ZAR', label: 'EUR → ZAR' },
+    { from: 'EUR', to: 'MAD', label: 'EUR → MAD' },
+    { from: 'EUR', to: 'TND', label: 'EUR → TND' },
     { from: 'EUR', to: 'USD', label: 'EUR → USD' },
+    { from: 'EUR', to: 'GBP', label: 'EUR → GBP' },
+    // USD → africaines
     { from: 'USD', to: 'XOF', label: 'USD → XOF' },
     { from: 'USD', to: 'GNF', label: 'USD → GNF' },
+    { from: 'USD', to: 'NGN', label: 'USD → NGN' },
+    { from: 'USD', to: 'GHS', label: 'USD → GHS' },
+    { from: 'USD', to: 'ZAR', label: 'USD → ZAR' },
     { from: 'USD', to: 'EUR', label: 'USD → EUR' },
+    // GBP → africaines
+    { from: 'GBP', to: 'XOF', label: 'GBP → XOF' },
+    { from: 'GBP', to: 'GNF', label: 'GBP → GNF' },
+    { from: 'GBP', to: 'NGN', label: 'GBP → NGN' },
+    { from: 'GBP', to: 'EUR', label: 'GBP → EUR' },
+    // CAD → africaines
+    { from: 'CAD', to: 'XOF', label: 'CAD → XOF' },
+    { from: 'CAD', to: 'GNF', label: 'CAD → GNF' },
+    { from: 'CAD', to: 'EUR', label: 'CAD → EUR' },
+    // CHF → africaines
+    { from: 'CHF', to: 'XOF', label: 'CHF → XOF' },
+    { from: 'CHF', to: 'GNF', label: 'CHF → GNF' },
+    { from: 'CHF', to: 'EUR', label: 'CHF → EUR' },
 ];
+
 
 /**
  * Widget affichant les taux de change en direct avec un graphique d'évolution.

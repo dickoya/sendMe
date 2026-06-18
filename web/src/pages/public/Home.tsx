@@ -37,15 +37,27 @@ function Home() {
     const navigate = useNavigate();
 
     // ── Options de devises ──────────────────────────────────────────────
+    // Devises d'envoi (pays développés)
     const currencyFromOptions: CurrencyOption[] = [
         { code: 'EUR', label: 'Euro', flag: 'eu' },
         { code: 'USD', label: 'US Dollar', flag: 'us' },
+        { code: 'GBP', label: 'Livre Sterling', flag: 'gb' },
+        { code: 'CAD', label: 'Dollar Canadien', flag: 'ca' },
+        { code: 'CHF', label: 'Franc Suisse', flag: 'ch' },
     ];
 
+    // Devises de réception (Afrique)
     const currencyToOptions: CurrencyOption[] = [
         { code: 'XOF', label: 'Franc CFA (UEMOA)', flag: 'xof' },
+        { code: 'XAF', label: 'Franc CFA (CEMAC)', flag: 'xaf' },
         { code: 'GNF', label: 'Franc Guinéen', flag: 'gn' },
+        { code: 'NGN', label: 'Naira Nigérian', flag: 'ng' },
+        { code: 'GHS', label: 'Cedi Ghanéen', flag: 'gh' },
+        { code: 'ZAR', label: 'Rand Sud-Africain', flag: 'za' },
+        { code: 'MAD', label: 'Dirham Marocain', flag: 'ma' },
+        { code: 'TND', label: 'Dinar Tunisien', flag: 'tn' },
     ];
+
 
     // ── Simulateur ──────────────────────────────────────────────────────
     const [amount, setAmount] = useState<number>(100);

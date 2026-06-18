@@ -3,14 +3,15 @@ package ibrahima.dickoya.sendme.service;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
-import com.stripe.param.PaymentIntentConfirmParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
+import ibrahima.dickoya.sendme.config.CurrencyConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Service gérant toutes les interactions avec l'API Stripe.
@@ -31,112 +32,137 @@ import java.math.BigDecimal;
 @Slf4j
 public class StripePaymentService {
 
-    /**
-     * Devise par défaut pour les paiements Stripe.
-     * Injectée depuis application.properties.
-     */
-    @Value("${stripe.currency}")
-    private String defaultCurrency;
+        /**
+         * Devise par défaut pour les paiements Stripe.
+         * Injectée depuis application.properties.
+         */
+        @Value("${stripe.currency}")
+        private String defaultCurrency;
 
-    /**
-     * Crée et confirme un PaymentIntent Stripe en une seule étape.
-     *
-     * Un PaymentIntent représente une tentative de collecte de paiement.
-     * Il trace le cycle de vie complet : création → confirmation → succès/échec.
-     *
-     * Le montant total débité = montant envoyé + frais de la plateforme.
-     *
-     * @param amount          montant total à débiter (en EUR)
-     * @param paymentMethodId identifiant du moyen de paiement (généré par Stripe.js)
-     * @param idempotencyKey  clé unique pour éviter les doubles débits
-     * @return PaymentIntent l'objet Stripe avec l'ID et le statut
-     * @throws StripeException si le paiement est refusé ou invalide
-     */
-    public PaymentIntent createAndConfirmPayment(
-            BigDecimal amount,
-            String paymentMethodId,
-            String idempotencyKey) throws StripeException {
+        /**
+         * Crée et confirme un PaymentIntent Stripe en une seule étape.
+         *
+         * Un PaymentIntent représente une tentative de collecte de paiement.
+         * Il trace le cycle de vie complet : création → confirmation → succès/échec.
+         *
+         * Le montant total débité = montant envoyé + frais de la plateforme.
+         *
+         * @param amount          montant total à débiter
+         * @param paymentMethodId identifiant du moyen de paiement (généré par
+         *                        Stripe.js)
+         * @param idempotencyKey  clé unique pour éviter les doubles débits
+         * @return PaymentIntent l'objet Stripe avec l'ID et le statut
+         * @throws StripeException si le paiement est refusé ou invalide
+         */
+        public PaymentIntent createAndConfirmPayment(
+                        BigDecimal amount,
+                        String paymentMethodId,
+                        String idempotencyKey) throws StripeException {
+                return createAndConfirmPayment(amount, paymentMethodId, idempotencyKey, defaultCurrency);
+        }
 
-        // Stripe travaille en centimes — convertir EUR en centimes
-        // Exemple : 203.00 EUR → 20300 centimes
-        long amountInCents = amount.multiply(new BigDecimal("100"))
-                .longValue();
+        /**
+         * Crée et confirme un PaymentIntent Stripe en une seule étape,
+         * avec une devise spécifiée dynamiquement.
+         *
+         * @param amount          montant total à débiter
+         * @param paymentMethodId identifiant du moyen de paiement (généré par
+         *                        Stripe.js)
+         * @param idempotencyKey  clé unique pour éviter les doubles débits
+         * @param currency        code devise ISO 4217 (ex: EUR, USD, GBP)
+         * @return PaymentIntent l'objet Stripe avec l'ID et le statut
+         * @throws StripeException si le paiement est refusé ou invalide
+         */
+        public PaymentIntent createAndConfirmPayment(
+                        BigDecimal amount,
+                        String paymentMethodId,
+                        String idempotencyKey,
+                        String currency) throws StripeException {
 
-        log.info("[STRIPE] Creation du PaymentIntent : {} centimes, methode : {}",
-                amountInCents, paymentMethodId);
+                // Stripe travaille en centimes — convertir selon le nombre de décimales de la
+                // devise
+                // Exemple : 203.00 EUR → 20300 centimes (2 décimales)
+                // Exemple : 1000 JPY → 1000 centimes (0 décimale)
+                int decimals = CurrencyConfig.getDecimals(currency);
+                BigDecimal multiplier = BigDecimal.TEN.pow(decimals);
+                long amountInCents = amount.multiply(multiplier)
+                                .setScale(0, RoundingMode.HALF_UP)
+                                .longValue();
 
-        // Construire les paramètres du PaymentIntent
-        PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
-                // Montant en centimes
-                .setAmount(amountInCents)
-                // Devise (EUR par défaut)
-                .setCurrency(defaultCurrency)
-                // Moyen de paiement tokenisé par Stripe.js
-                .setPaymentMethod(paymentMethodId)
-                // Confirmer immédiatement sans étape supplémentaire
-                .setConfirm(true)
-                // Description visible dans le dashboard Stripe
-                .setDescription("SendMe - Transfert d'argent international")
-                // Désactiver la redirection (pas de 3D Secure pour simplifier)
-                .setReturnUrl("http://localhost:3000/payment/callback")
-                // Metadata utiles pour le support client
-                .putMetadata("idempotency_key", idempotencyKey)
-                .putMetadata("platform", "sendme")
-                .build();
+                log.info("[STRIPE] Creation du PaymentIntent : {} {} ({} centimes), methode : {}",
+                                amount, currency, amountInCents, paymentMethodId);
 
-        // Appel à l'API Stripe avec clé d'idempotence pour éviter les doublons
-        PaymentIntent paymentIntent = PaymentIntent.create(
-                createParams,
-                com.stripe.net.RequestOptions.builder()
-                        .setIdempotencyKey(idempotencyKey)
-                        .build()
-        );
+                // Construire les paramètres du PaymentIntent
+                PaymentIntentCreateParams createParams = PaymentIntentCreateParams.builder()
+                                // Montant en centimes
+                                .setAmount(amountInCents)
+                                // Devise (dynamique selon la sélection utilisateur)
+                                .setCurrency(currency.toLowerCase())
+                                // Moyen de paiement tokenisé par Stripe.js
+                                .setPaymentMethod(paymentMethodId)
+                                // Confirmer immédiatement sans étape supplémentaire
+                                .setConfirm(true)
+                                // Description visible dans le dashboard Stripe
+                                .setDescription("SendMe - Transfert d'argent international")
+                                // Désactiver la redirection (pas de 3D Secure pour simplifier)
+                                .setReturnUrl("http://localhost:3000/payment/callback")
+                                // Metadata utiles pour le support client
+                                .putMetadata("idempotency_key", idempotencyKey)
+                                .putMetadata("platform", "sendme")
+                                .build();
 
-        log.info("[STRIPE] PaymentIntent cree : id={}, statut={}",
-                paymentIntent.getId(), paymentIntent.getStatus());
+                // Appel à l'API Stripe avec clé d'idempotence pour éviter les doublons
+                PaymentIntent paymentIntent = PaymentIntent.create(
+                                createParams,
+                                com.stripe.net.RequestOptions.builder()
+                                                .setIdempotencyKey(idempotencyKey)
+                                                .build());
 
-        return paymentIntent;
-    }
+                log.info("[STRIPE] PaymentIntent cree : id={}, statut={}, devise={}",
+                                paymentIntent.getId(), paymentIntent.getStatus(), currency);
 
-    /**
-     * Rembourse un paiement Stripe en cas d'échec du transfert (RG-04).
-     *
-     * Appelé automatiquement par le TransferService si la stratégie
-     * de transfert (Orange Money, banque, etc.) échoue après que
-     * la carte a été débitée.
-     *
-     * En mode sandbox, le remboursement est instantané.
-     * En production, il peut prendre 5 à 10 jours ouvrés.
-     *
-     * @param paymentIntentId l'ID du PaymentIntent à rembourser
-     * @return Refund l'objet remboursement Stripe
-     * @throws StripeException si le remboursement échoue
-     */
-    public Refund refundPayment(String paymentIntentId) throws StripeException {
+                return paymentIntent;
+        }
 
-        log.info("[STRIPE] Remboursement du PaymentIntent : {}", paymentIntentId);
+        /**
+         * Rembourse un paiement Stripe en cas d'échec du transfert (RG-04).
+         *
+         * Appelé automatiquement par le TransferService si la stratégie
+         * de transfert (Orange Money, banque, etc.) échoue après que
+         * la carte a été débitée.
+         *
+         * En mode sandbox, le remboursement est instantané.
+         * En production, il peut prendre 5 à 10 jours ouvrés.
+         *
+         * @param paymentIntentId l'ID du PaymentIntent à rembourser
+         * @return Refund l'objet remboursement Stripe
+         * @throws StripeException si le remboursement échoue
+         */
+        public Refund refundPayment(String paymentIntentId) throws StripeException {
 
-        // Construire la demande de remboursement
-        RefundCreateParams refundParams = RefundCreateParams.builder()
-                .setPaymentIntent(paymentIntentId)  // référence le paiement original
-                .setReason(RefundCreateParams.Reason.FRAUDULENT) // raison du remboursement
-                .build();
+                log.info("[STRIPE] Remboursement du PaymentIntent : {}", paymentIntentId);
 
-        Refund refund = Refund.create(refundParams);
+                // Construire la demande de remboursement
+                RefundCreateParams refundParams = RefundCreateParams.builder()
+                                .setPaymentIntent(paymentIntentId) // référence le paiement original
+                                .setReason(RefundCreateParams.Reason.FRAUDULENT) // raison du remboursement
+                                .build();
 
-        log.info("[STRIPE] Remboursement effectue : id={}, statut={}",
-                refund.getId(), refund.getStatus());
+                Refund refund = Refund.create(refundParams);
 
-        return refund;
-    }
+                log.info("[STRIPE] Remboursement effectue : id={}, statut={}",
+                                refund.getId(), refund.getStatus());
 
-    /**
-     * Vérifie si un PaymentIntent Stripe a bien réussi.
-     *
-     * @param paymentIntent le PaymentIntent à vérifier
-     * @return true si le statut est "succeeded"
-     */
-    public boolean isPaymentSucceeded(PaymentIntent paymentIntent) {
-        return "succeeded".equals(paymentIntent.getStatus());
-    }
+                return refund;
+        }
+
+        /**
+         * Vérifie si un PaymentIntent Stripe a bien réussi.
+         *
+         * @param paymentIntent le PaymentIntent à vérifier
+         * @return true si le statut est "succeeded"
+         */
+        public boolean isPaymentSucceeded(PaymentIntent paymentIntent) {
+                return "succeeded".equals(paymentIntent.getStatus());
+        }
 }

@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.service;
 
+import ibrahima.dickoya.sendme.config.CurrencyConfig;
 import ibrahima.dickoya.sendme.dto.response.LiveExchangeRateResponse;
 import ibrahima.dickoya.sendme.dto.response.TransferEvolutionResponse;
 import ibrahima.dickoya.sendme.dto.response.UserDashboardStatsResponse;
@@ -148,13 +149,11 @@ public class DashboardService {
         }
 
         /**
-         * Récupère les taux de change en direct pour les paires supportées.
+         * Récupère les taux de change en direct pour toutes les paires supportées.
+         * Les paires sont définies dans CurrencyConfig.getExchangeRatePairs().
          */
         public List<LiveExchangeRateResponse> getLiveExchangeRates() {
-                String[][] pairs = {
-                                { "EUR", "XOF" }, { "EUR", "GNF" }, { "EUR", "USD" },
-                                { "USD", "XOF" }, { "USD", "GNF" }, { "USD", "EUR" }
-                };
+                List<String[]> pairs = CurrencyConfig.getExchangeRatePairs();
 
                 List<LiveExchangeRateResponse> rates = new ArrayList<>();
                 for (String[] pair : pairs) {
