@@ -35,7 +35,7 @@ function NotificationBell() {
         <div className="relative" ref={ref}>
             <button
                 onClick={() => setIsOpen((prev) => !prev)}
-                className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                className="relative rounded-full p-2 text-gray-500 hover:bg-gray-100 dark:text-[#8B8FA3] dark:hover:bg-[#222222] transition-all duration-200 dark:hover:text-brand-400 dark:hover:shadow-[0_0_12px_rgba(90,159,224,0.15)]"
                 aria-label={tCommon('nav.notifications')}
             >
                 <Bell size={20} />
@@ -47,10 +47,10 @@ function NotificationBell() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-80 rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-900">
+                <div className="absolute right-0 z-50 mt-2 w-80 rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-[#333333] dark:bg-[#141414]">
                     {/* En-tête */}
-                    <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('title')}</h3>
+                    <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-[#222222]">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-[#EDEEF0]">{t('title')}</h3>
                         {unreadCount > 0 && (
                             <button
                                 onClick={() => markAllAsRead()}
@@ -70,17 +70,18 @@ function NotificationBell() {
                     </div>
 
                     {/* Pied — lien vers le centre complet */}
-                    <div className="border-t border-gray-100 p-2 dark:border-gray-800">
+                    <div className="border-t border-gray-100 p-2 dark:border-[#222222]">
                         <Link
                             to="/notifications"
                             onClick={() => setIsOpen(false)}
-                            className="block rounded-lg py-2 text-center text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-gray-800"
+                            className="block rounded-lg py-2 text-center text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-[#222222]"
                         >
                             {t('viewAll')}
                         </Link>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

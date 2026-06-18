@@ -34,18 +34,18 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
 
                 <div
                     className={cn(
-                        'flex items-center rounded-lg border border-gray-300 bg-white transition-colors focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 dark:border-gray-600 dark:bg-gray-900 dark:focus-within:border-brand-400 dark:focus-within:ring-brand-900/30',
-                        error && 'border-danger-500 focus-within:border-danger-500 focus-within:ring-danger-100 dark:border-danger-500 dark:focus-within:ring-danger-900/30'
+                        'flex items-center rounded-lg border border-gray-300 bg-white transition-all duration-200 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100 dark:border-[#333333] dark:bg-[#141414] dark:focus-within:border-brand-400 dark:focus-within:ring-brand-500/20',
+                        error && 'border-danger-500 focus-within:border-danger-500 focus-within:ring-danger-100 dark:border-danger-500 dark:focus-within:ring-danger-500/20'
                     )}
                 >
-                    {icon && <span className="pl-3 text-gray-400 dark:text-gray-500">{icon}</span>}
+                    {icon && <span className="pl-3 text-gray-400 dark:text-[#5A5E72]">{icon}</span>}
 
                     <input
                         ref={ref}
                         id={inputId}
                         type={inputType}
                         className={cn(
-                            'w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100 dark:placeholder:text-gray-500',
+                            'w-full bg-transparent px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-[#EDEEF0] dark:placeholder:text-[#5A5E72]',
                             icon && 'pl-2',
                             className
                         )}
@@ -56,13 +56,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="px-3 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+                            className="px-3 text-gray-400 hover:text-gray-600 dark:text-[#5A5E72] dark:hover:text-[#8B8FA3]"
                             aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
                         >
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                     )}
                 </div>
+
 
                 {error && <span className="text-xs text-danger-500">{error}</span>}
                 {hint && !error && <span className="text-xs text-gray-400 dark:text-gray-500">{hint}</span>}

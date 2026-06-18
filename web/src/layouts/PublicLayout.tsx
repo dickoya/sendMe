@@ -4,7 +4,8 @@ import ThemeToggle from '@/components/layout/ThemeToggle';
 
 function PublicLayout() {
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-gray-950">
+        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-[#0D0D0D]">
+
             <header className="flex h-14 items-center justify-end gap-2 px-4 md:px-6">
                 <ThemeToggle />
                 <LanguageSwitcher />

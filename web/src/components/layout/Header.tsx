@@ -32,7 +32,8 @@ function Header({ title, onMenuClick }: HeaderProps) {
     };
 
     return (
-        <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-4 dark:border-gray-800 dark:bg-gray-900 md:px-6">
+        <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 backdrop-blur-md px-4 dark:border-[#222222] dark:bg-[#0D0D0D]/80 dark:backdrop-blur-md md:px-6">
+
             <div className="flex items-center gap-3">
                 <button
                     onClick={onMenuClick}

@@ -34,6 +34,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final UserDetailsService userDetailsService;
 
     private static final String[] PUBLIC_ROUTES = {
@@ -87,9 +88,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
-                // On garde le filtre mais les routes publiques déclarées ci-dessus
-                // n'exigeront aucun Context valide pour continuer
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // Filtre JWT : intercepte toutes les requêtes pour extraire le token
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                // Filtre Rate Limiting : protège les endpoints d'auth contre le brute-force
+                .addFilterBefore(rateLimitingFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

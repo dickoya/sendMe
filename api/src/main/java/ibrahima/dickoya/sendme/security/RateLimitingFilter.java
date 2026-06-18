@@ -70,7 +70,6 @@ public class RateLimitingFilter implements Filter {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
 
@@ -80,7 +79,8 @@ public class RateLimitingFilter implements Filter {
         String path = request.getRequestURI();
 
         // Appliquer le filtre uniquement aux endpoints d'authentification
-        if (!path.startsWith("/api/auth/")) {
+        // Ne pas filtrer la page d'erreur, les ressources statiques, ni l'actuator
+        if (!path.startsWith("/api/auth/") || path.equals("/error")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -122,6 +122,8 @@ public class RateLimitingFilter implements Filter {
     /**
      * Vérifie si une IP est bloquée en base de données.
      * Utilise un cache court (30s) pour éviter de trop solliciter la DB.
+     * Si la table n'existe pas encore (Flyway pas encore appliquée), retourne
+     * false.
      */
     private boolean isIpBlocked(String ipAddress) {
         Boolean cached = ipNotBlockedCache.getIfPresent(ipAddress);
@@ -129,9 +131,14 @@ public class RateLimitingFilter implements Filter {
             return false; // Cache dit que l'IP n'est pas bloquée
         }
 
-        var activeBlock = blockedIpRepository.findActiveBlockByIp(ipAddress, LocalDateTime.now());
-        if (activeBlock.isPresent()) {
-            return true; // IP bloquée
+        try {
+            var activeBlock = blockedIpRepository.findActiveBlockByIp(ipAddress, LocalDateTime.now());
+            if (activeBlock.isPresent()) {
+                return true; // IP bloquée
+            }
+        } catch (Exception e) {
+            log.debug("[RATE-LIMIT] Impossible de vérifier le blocage IP (table pas encore créée ?) : {}",
+                    e.getMessage());
         }
 
         // Mettre en cache que l'IP n'est pas bloquée (pour 30s)
@@ -188,11 +195,16 @@ public class RateLimitingFilter implements Filter {
     /**
      * Nettoie les blocages expirés et les compteurs.
      * Appelé périodiquement.
+     * Résilient : si la table n'existe pas encore, l'erreur est simplement loguée.
      */
     @Transactional
     public void cleanup() {
-        blockedIpRepository.deleteExpiredBlocks(LocalDateTime.now());
-        log.debug("[RATE-LIMIT] Nettoyage des blocages expirés effectué");
+        try {
+            blockedIpRepository.deleteExpiredBlocks(LocalDateTime.now());
+            log.debug("[RATE-LIMIT] Nettoyage des blocages expirés effectué");
+        } catch (Exception e) {
+            log.warn("[RATE-LIMIT] Nettoyage impossible (table pas encore créée ?) : {}", e.getMessage());
+        }
     }
 
     /**

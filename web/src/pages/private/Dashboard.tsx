@@ -29,14 +29,14 @@ function Dashboard() {
     return (
         <div className="flex flex-col gap-6">
             {/* Bannière de bienvenue */}
-            <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-md">
+            <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
                 <h2 className="text-xl font-bold">
                     {t('welcome', { firstName: user?.firstName ?? '' })}
                 </h2>
-                <p className="mt-1 text-sm text-brand-50">{t('tagline')}</p>
+                <p className="mt-1 text-sm text-brand-50 dark:text-brand-200">{t('tagline')}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                     <Link to="/transfer">
-                        <Button variant="secondary" size="sm" icon={<Send size={16} />} className="bg-white text-brand-700 hover:bg-brand-50">
+                        <Button variant="secondary" size="sm" icon={<Send size={16} />} className="bg-white text-brand-700 hover:bg-brand-50 dark:bg-[#222222] dark:text-brand-300 dark:hover:bg-[#2A2A2A] dark:border dark:border-[#333333]">
                             {t('newTransfer')}
                         </Button>
                     </Link>
@@ -44,13 +44,14 @@ function Dashboard() {
                         <Button
                             size="sm"
                             icon={<Users size={16} />}
-                            className="bg-brand-700/40 text-white hover:bg-brand-700/60"
+                            className="bg-brand-700/40 text-white hover:bg-brand-700/60 dark:bg-white/10 dark:hover:bg-white/20"
                         >
                             {t('manageBeneficiaries')}
                         </Button>
                     </Link>
                 </div>
             </div>
+
 
             <div className="grid gap-6 lg:grid-cols-3">
                 {/* Bénéficiaires */}

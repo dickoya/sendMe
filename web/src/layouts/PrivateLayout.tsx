@@ -19,7 +19,8 @@ function PrivateLayout() {
     const pageTitle = getPageTitle(location.pathname, t);
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="flex min-h-screen bg-gray-50 dark:bg-[#0D0D0D]">
+
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} variant="user" />
 
             <div className="flex flex-1 flex-col">

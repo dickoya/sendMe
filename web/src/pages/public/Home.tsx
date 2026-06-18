@@ -151,7 +151,8 @@ function Home() {
     return (
         <div className="flex min-h-screen flex-col">
             {/* ── Navigation ──────────────────────────────────────────────── */}
-            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-gray-900/80 dark:border-gray-800/50">
+            <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-[#0D0D0D]/80 dark:border-[#222222]/50">
+
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                     <Link to="/" className="flex items-center gap-2">
                         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
@@ -332,11 +333,13 @@ function Home() {
                 </div>
 
                 {/* Vague décorative en bas */}
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent dark:from-gray-950" />
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-50 to-transparent dark:from-[#0D0D0D]" />
+
             </section>
 
             {/* ── Section Fonctionnalités ─────────────────────────────────── */}
-            <section id="features" className="bg-gray-50 py-20 sm:py-28 dark:bg-gray-950">
+            <section id="features" className="bg-gray-50 py-20 sm:py-28 dark:bg-[#0D0D0D]">
+
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
@@ -351,7 +354,8 @@ function Home() {
                         {features.map((feature) => (
                             <div
                                 key={feature.title}
-                                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900"
+                                className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 dark:border-[#222222] dark:bg-[#141414]"
+
                             >
                                 <div className={`inline-flex rounded-xl p-3 ${feature.color}`}>
                                     <feature.icon size={24} />
@@ -369,7 +373,8 @@ function Home() {
             </section>
 
             {/* ── Section Comment ça marche ───────────────────────────────── */}
-            <section id="how-it-works" className="bg-white py-20 sm:py-28 dark:bg-gray-900">
+            <section id="how-it-works" className="bg-white py-20 sm:py-28 dark:bg-[#141414]">
+
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center">
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
@@ -426,7 +431,8 @@ function Home() {
             </section>
 
             {/* ── Section CTA finale ──────────────────────────────────────── */}
-            <section className="bg-gray-50 py-20 sm:py-28 dark:bg-gray-950">
+            <section className="bg-gray-50 py-20 sm:py-28 dark:bg-[#0D0D0D]">
+
                 <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
                     <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                         {t('cta.title')}
@@ -452,7 +458,8 @@ function Home() {
             </section>
 
             {/* ── Footer ──────────────────────────────────────────────────── */}
-            <footer className="border-t border-gray-100 bg-white py-12 dark:border-gray-800 dark:bg-gray-900">
+            <footer className="border-t border-gray-100 bg-white py-12 dark:border-[#222222] dark:bg-[#0D0D0D]">
+
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
@@ -489,7 +496,8 @@ function Home() {
                             </ul>
                         </div>
                     </div>
-                    <div className="mt-10 border-t border-gray-100 pt-6 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
+                    <div className="mt-10 border-t border-gray-100 pt-6 text-center text-sm text-gray-500 dark:border-[#222222] dark:text-[#5A5E72]">
+
                         {t('footer.copyright', { year: new Date().getFullYear() })}
                     </div>
                 </div>
