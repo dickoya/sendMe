@@ -3,6 +3,34 @@
   "tagline": "Envoyez de l'argent instantanément vers 6 canaux différents.",
   "newTransfer": "Nouveau transfert",
   "manageBeneficiaries": "Gérer mes bénéficiaires",
+  "stats": {
+    "totalSent": "Total envoyé",
+    "totalReceived": "Total reçu",
+    "totalFees": "Frais payés",
+    "savings": "Économies réalisées",
+    "transactions": "transactions",
+    "completed": "complétées",
+    "comparedToTraditional": "vs transferts traditionnels",
+    "estimatedSavings": "Économies estimées"
+  },
+  "charts": {
+    "transferEvolution": "Évolution des transferts",
+    "exchangeRates": "Taux de change en direct",
+    "monthly": "Mensuel",
+    "yearly": "Annuel",
+    "amount": "Montant",
+    "count": "Transactions",
+    "currentRate": "Taux actuel",
+    "rawRate": "Taux brut"
+  },
+  "quickActions": {
+    "title": "Actions rapides",
+    "newTransfer": "Nouveau transfert",
+    "manageBeneficiaries": "Gérer les bénéficiaires",
+    "viewHistory": "Voir l'historique",
+    "favoriteBeneficiary": "Bénéficiaire favori",
+    "transactions": "transactions"
+  },
   "cards": {
     "myBeneficiaries": "Mes bénéficiaires",
     "recentTransactions": "Transactions récentes"
@@ -10,6 +38,8 @@
   "empty": {
     "noBeneficiaries": "Aucun bénéficiaire enregistré",
     "noTransactions": "Aucune transaction pour le moment",
+    "noData": "Aucune donnée disponible",
+    "noRateData": "Aucune donnée de taux disponible",
     "addBeneficiary": "Ajouter un bénéficiaire",
     "makeTransfer": "Effectuer un transfert"
   }

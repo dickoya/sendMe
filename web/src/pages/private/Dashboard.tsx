@@ -1,13 +1,18 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Send, Users, ArrowRight, Wallet } from 'lucide-react';
+import { Send, Users, ArrowRight, Wallet, TrendingUp, PiggyBank, DollarSign } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
 import TransactionStatusBadge from '@/components/transfer/TransactionStatusBadge';
+import StatsCard from '@/components/dashboard/StatsCard';
+import TransferEvolutionChart from '@/components/dashboard/TransferEvolutionChart';
+import ExchangeRateWidget from '@/components/dashboard/ExchangeRateWidget';
+import QuickActions from '@/components/dashboard/QuickActions';
 import { useAuth } from '@/store/auth/authContext';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useTransferHistory } from '@/hooks/useTransfer';
+import { useDashboard } from '@/hooks/useDashboard';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDateShort } from '@/utils/formatDate';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
@@ -18,6 +23,12 @@ import { getChannelLabel, getChannelIcon } from '@/utils/constants';
  * Migration i18n (Phase 6) : namespace "dashboard" pour le contenu
  * propre à la page, "common" pour les libellés de canaux (réutilisés
  * via getChannelLabel — voir 6.2) et de statuts.
+ *
+ * Améliorations :
+ * - Graphique d'évolution des transferts (mensuel/annuel)
+ * - Solde/statistiques personnelles (total envoyé, économies réalisées)
+ * - Transferts favoris / quick actions
+ * - Taux de change en direct avec graphique d'évolution
  */
 function Dashboard() {
     const { t } = useTranslation('dashboard');
@@ -25,6 +36,15 @@ function Dashboard() {
     const { user } = useAuth();
     const { beneficiaries, isLoading: beneficiariesLoading } = useBeneficiary();
     const { transactions, isLoading: transactionsLoading } = useTransferHistory(5);
+    const {
+        stats,
+        evolution,
+        exchangeRates,
+        rateHistory,
+        selectedRatePair,
+        setSelectedRatePair,
+        isLoading: dashboardLoading,
+    } = useDashboard();
 
     return (
         <div className="flex flex-col gap-6">
@@ -52,7 +72,59 @@ function Dashboard() {
                 </div>
             </div>
 
+            {/* Statistiques personnelles */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <StatsCard
+                    title={t('stats.totalSent')}
+                    value={stats ? formatCurrency(stats.totalSent, 'EUR') : '—'}
+                    subtitle={stats ? `${stats.totalTransactions} ${t('stats.transactions')}` : undefined}
+                    icon={<TrendingUp size={20} />}
+                    isLoading={dashboardLoading}
+                />
+                <StatsCard
+                    title={t('stats.totalReceived')}
+                    value={stats ? formatCurrency(stats.totalReceived, 'EUR') : '—'}
+                    subtitle={stats ? `${stats.completedTransactions} ${t('stats.completed')}` : undefined}
+                    icon={<DollarSign size={20} />}
+                    isLoading={dashboardLoading}
+                />
+                <StatsCard
+                    title={t('stats.totalFees')}
+                    value={stats ? formatCurrency(stats.totalFees, 'EUR') : '—'}
+                    icon={<Wallet size={20} />}
+                    isLoading={dashboardLoading}
+                />
+                <StatsCard
+                    title={t('stats.savings')}
+                    value={stats ? formatCurrency(stats.savings, 'EUR') : '—'}
+                    subtitle={t('stats.comparedToTraditional')}
+                    icon={<PiggyBank size={20} />}
+                    trend={{ direction: 'up', label: t('stats.estimatedSavings') }}
+                    isLoading={dashboardLoading}
+                />
+            </div>
 
+            {/* Graphique d'évolution des transferts */}
+            <div className="grid gap-6 lg:grid-cols-3">
+                <TransferEvolutionChart
+                    evolution={evolution}
+                    isLoading={dashboardLoading}
+                />
+
+                {/* Actions rapides */}
+                <QuickActions stats={stats} />
+            </div>
+
+            {/* Taux de change en direct */}
+            <ExchangeRateWidget
+                exchangeRates={exchangeRates}
+                rateHistory={rateHistory}
+                selectedPair={selectedRatePair}
+                onSelectPair={setSelectedRatePair}
+                isLoading={dashboardLoading}
+            />
+
+            {/* Bénéficiaires et Transactions récentes */}
             <div className="grid gap-6 lg:grid-cols-3">
                 {/* Bénéficiaires */}
                 <Card

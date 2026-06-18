@@ -3,6 +3,34 @@
   "tagline": "Send money instantly to 6 different channels.",
   "newTransfer": "New transfer",
   "manageBeneficiaries": "Manage my beneficiaries",
+  "stats": {
+    "totalSent": "Total sent",
+    "totalReceived": "Total received",
+    "totalFees": "Fees paid",
+    "savings": "Savings",
+    "transactions": "transactions",
+    "completed": "completed",
+    "comparedToTraditional": "vs traditional transfers",
+    "estimatedSavings": "Estimated savings"
+  },
+  "charts": {
+    "transferEvolution": "Transfer evolution",
+    "exchangeRates": "Live exchange rates",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "amount": "Amount",
+    "count": "Transactions",
+    "currentRate": "Current rate",
+    "rawRate": "Raw rate"
+  },
+  "quickActions": {
+    "title": "Quick actions",
+    "newTransfer": "New transfer",
+    "manageBeneficiaries": "Manage beneficiaries",
+    "viewHistory": "View history",
+    "favoriteBeneficiary": "Favorite beneficiary",
+    "transactions": "transactions"
+  },
   "cards": {
     "myBeneficiaries": "My beneficiaries",
     "recentTransactions": "Recent transactions"
@@ -10,6 +38,8 @@
   "empty": {
     "noBeneficiaries": "No beneficiary registered",
     "noTransactions": "No transactions yet",
+    "noData": "No data available",
+    "noRateData": "No rate data available",
     "addBeneficiary": "Add a beneficiary",
     "makeTransfer": "Make a transfer"
   }
