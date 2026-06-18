@@ -8,6 +8,7 @@ export interface AuthUser {
     firstName: string;
     lastName: string;
     role: Role;
+    referralCode?: string;
 }
 
 interface AuthContextValue {
@@ -34,6 +35,7 @@ function persistSession(response: AuthResponse): AuthUser {
         firstName: response.firstName,
         lastName: response.lastName,
         role: response.role,
+        referralCode: response.referralCode,
     };
 
     localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Send, Users, ArrowRight, Wallet, TrendingUp, PiggyBank, DollarSign } from 'lucide-react';
+import { Send, Users, ArrowRight, Wallet, TrendingUp, PiggyBank, DollarSign, Gift, Copy, Check } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -9,6 +9,7 @@ import StatsCard from '@/components/dashboard/StatsCard';
 import TransferEvolutionChart from '@/components/dashboard/TransferEvolutionChart';
 import ExchangeRateWidget from '@/components/dashboard/ExchangeRateWidget';
 import QuickActions from '@/components/dashboard/QuickActions';
+import { useState } from 'react';
 import { useAuth } from '@/store/auth/authContext';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useTransferHistory } from '@/hooks/useTransfer';
@@ -34,6 +35,7 @@ function Dashboard() {
     const { t } = useTranslation('dashboard');
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
+    const [copied, setCopied] = useState(false);
     const { beneficiaries, isLoading: beneficiariesLoading } = useBeneficiary();
     const { transactions, isLoading: transactionsLoading } = useTransferHistory(5);
     const {
@@ -50,10 +52,43 @@ function Dashboard() {
         <div className="flex flex-col gap-6">
             {/* Bannière de bienvenue */}
             <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
-                <h2 className="text-xl font-bold">
-                    {t('welcome', { firstName: user?.firstName ?? '' })}
-                </h2>
-                <p className="mt-1 text-sm text-brand-50 dark:text-brand-200">{t('tagline')}</p>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold">
+                            {t('welcome', { firstName: user?.firstName ?? '' })}
+                        </h2>
+                        <p className="mt-1 text-sm text-brand-50 dark:text-brand-200">{t('tagline')}</p>
+                    </div>
+
+                    {/* Code de parrainage */}
+                    {user?.referralCode && (
+                        <div className="flex-shrink-0 rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                            <p className="mb-1 text-xs font-medium text-brand-200">
+                                <Gift size={12} className="mr-1 inline" />
+                                {t('referralCode')}
+                            </p>
+                            <div className="flex items-center gap-2">
+                                <code className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-bold tracking-wider text-white">
+                                    {user.referralCode}
+                                </code>
+                                <button
+                                    onClick={() => {
+                                        if (user?.referralCode) {
+                                            navigator.clipboard.writeText(user.referralCode);
+                                            setCopied(true);
+                                            setTimeout(() => setCopied(false), 2000);
+                                        }
+                                    }}
+                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white transition-all hover:bg-white/25"
+                                    title="Copier le code"
+                                >
+                                    {copied ? <Check size={16} /> : <Copy size={16} />}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="mt-4 flex flex-wrap gap-2">
                     <Link to="/transfer">
                         <Button variant="secondary" size="sm" icon={<Send size={16} />} className="bg-white text-brand-700 hover:bg-brand-50 dark:bg-[#222222] dark:text-brand-300 dark:hover:bg-[#2A2A2A] dark:border dark:border-[#333333]">

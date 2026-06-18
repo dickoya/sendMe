@@ -51,6 +51,7 @@ export interface AuthResponse {
     firstName: string;
     lastName: string;
     role: Role;
+    referralCode?: string;
 }
 
 export interface User {
@@ -206,6 +207,28 @@ export interface ExchangeRateDebugEntry {
     marginRate: number | null;
     cacheTimestamp: string;
 }
+// ── Parrainage ─────────────────────────────────────────────────────────
+export interface ReferralCodeResponse {
+    referralCode: string;
+    shareLink: string;
+    totalReferred: number;
+    totalCouponsEarned: number;
+    availableCoupons: number;
+}
+
+export interface ReferralCouponResponse {
+    id: number;
+    couponType: 'SPONSOR' | 'REFERRED';
+    discountAmount: number;
+    currency: string;
+    isUsed: boolean;
+    expiresAt: string;
+    usedAt: string | null;
+    referredUserName: string;
+    transactionId: number | null;
+    createdAt: string;
+}
+
 // ── Erreurs API ────────────────────────────────────────────────────────
 /**
  * Format d'erreur retourné par GlobalExceptionHandler du backend.

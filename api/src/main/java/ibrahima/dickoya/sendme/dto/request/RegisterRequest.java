@@ -3,7 +3,11 @@ package ibrahima.dickoya.sendme.dto.request;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class RegisterRequest {
 
     @NotBlank(message = "Le prenom est obligatoire")
@@ -21,4 +25,6 @@ public class RegisterRequest {
     private String password;
 
     private String phoneNumber;
+
+    private String referralCode;
 }

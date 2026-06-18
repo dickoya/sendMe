@@ -56,6 +56,18 @@
       "description": "Pay by card and track your transfer in real time."
     }
   },
+  "referral": {
+    "title": "Refer your friends and earn 5€",
+    "subtitle": "Invite your friends and family to join SendMe. You'll each get 5€ off your next transfer.",
+    "benefit1": "5€ for you",
+    "benefit1Desc": "Get a 5€ coupon when your referral makes their first transfer",
+    "benefit2": "5€ for them",
+    "benefit2Desc": "Your referral also gets 5€ off their first transfer",
+    "benefit3": "No limits",
+    "benefit3Desc": "Refer as many people as you want, stack your discounts",
+    "cta": "Create your referral code",
+    "ctaSub": "Sign up for free and get your unique code to share"
+  },
   "stats": {
     "title": "SendMe by the numbers",
     "transactions": "Transactions processed",

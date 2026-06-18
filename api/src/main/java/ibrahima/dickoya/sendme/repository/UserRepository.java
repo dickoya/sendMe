@@ -10,7 +10,13 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
+
     Boolean existsByEmail(String email);
+
+    Optional<User> findByReferralCode(String referralCode);
+
+    Boolean existsByReferralCode(String referralCode);
+
     /**
      * Compte les utilisateurs dont le compte est actif.
      * Utilisé pour les statistiques du tableau de bord admin.

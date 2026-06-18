@@ -8,12 +8,23 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "referral_code", nullable = false, unique = true, length = 20)
+    private String referralCode;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referred_by_id")
+    private User referredBy;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;

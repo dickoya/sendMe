@@ -7,6 +7,7 @@ export interface RegisterPayload {
     email: string;
     password: string;
     phoneNumber?: string;
+    referralCode?: string;
 }
 
 export interface LoginPayload {

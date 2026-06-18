@@ -76,6 +76,12 @@ public class TransferService {
         private final EmailService emailService;
 
         /**
+         * Service de parrainage pour générer les coupons de réduction
+         * lors du premier transfert d'un filleul.
+         */
+        private final ReferralService referralService;
+
+        /**
          * Orchestre le transfert complet avec paiement Stripe et notifications.
          *
          * @Transactional garantit l'atomicité des opérations en base.
@@ -247,6 +253,15 @@ public class TransferService {
                                         transaction);
                         // Email de confirmation de complétion en arrière-plan
                         emailService.sendTransferCompletedEmail(user, transaction);
+
+                        // ── PARRAINAGE : Récompenser le premier transfert du filleul ──
+                        // Si l'utilisateur a été parrainé, des coupons de réduction
+                        // sont générés pour lui et son parrain
+                        try {
+                                referralService.rewardFirstTransfer(user, transaction);
+                        } catch (Exception e) {
+                                log.error("[PARRAINAGE] Erreur lors de la récompense : {}", e.getMessage());
+                        }
 
                 } else {
 

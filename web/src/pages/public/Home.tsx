@@ -13,6 +13,8 @@ import {
     Send,
     CheckCircle,
     Star,
+    Gift,
+    Euro,
 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import CurrencySelect from '@/components/ui/CurrencySelect';
@@ -406,6 +408,89 @@ function Home() {
                                 </p>
                             </div>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Section Parrainage ──────────────────────────────────────── */}
+            <section className="relative overflow-hidden bg-white py-20 sm:py-28 dark:bg-[#141414]">
+
+                {/* Formes décoratives */}
+                <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-accent-400/5 blur-3xl" />
+                <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-brand-500/5 blur-3xl" />
+
+                <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div className="mx-auto max-w-2xl text-center">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-400 to-accent-600 shadow-lg shadow-accent-500/20">
+                            <Gift size={28} className="text-white" />
+                        </div>
+                        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
+                            {t('referral.title')}
+                        </h2>
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                            {t('referral.subtitle')}
+                        </p>
+                    </div>
+
+                    <div className="mt-16 grid gap-8 md:grid-cols-3">
+                        {/* Avantage 1 */}
+                        <div className="group relative rounded-2xl border border-gray-100 bg-gray-50 p-8 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 dark:border-[#222222] dark:bg-[#0D0D0D]">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                                <Euro size={24} />
+                            </div>
+                            <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                {t('referral.benefit1')}
+                            </h3>
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                {t('referral.benefit1Desc')}
+                            </p>
+                        </div>
+
+                        {/* Avantage 2 */}
+                        <div className="group relative rounded-2xl border-2 border-accent-200 bg-gradient-to-b from-accent-50 to-white p-8 text-center shadow-lg shadow-accent-500/10 transition-all duration-200 hover:shadow-xl hover:-translate-y-1 dark:border-accent-800 dark:from-accent-900/20 dark:to-[#141414]">
+                            {/* Badge "Populaire" */}
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent-500 to-accent-600 px-4 py-1 text-xs font-semibold text-white shadow-lg">
+                                    <Gift size={12} />
+                                    {t('referral.benefit2')}
+                                </span>
+                            </div>
+                            <div className="mx-auto mt-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                                <Users size={24} />
+                            </div>
+                            <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                {t('referral.benefit2')}
+                            </h3>
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                {t('referral.benefit2Desc')}
+                            </p>
+                        </div>
+
+                        {/* Avantage 3 */}
+                        <div className="group relative rounded-2xl border border-gray-100 bg-gray-50 p-8 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 dark:border-[#222222] dark:bg-[#0D0D0D]">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                                <Star size={24} />
+                            </div>
+                            <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
+                                {t('referral.benefit3')}
+                            </h3>
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                {t('referral.benefit3Desc')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* CTA */}
+                    <div className="mt-12 text-center">
+                        <Link to="/register">
+                            <Button size="lg" className="bg-gradient-to-r from-accent-500 to-accent-600 text-white shadow-lg shadow-accent-500/20 hover:from-accent-600 hover:to-accent-700">
+                                {t('referral.cta')}
+                                <ArrowRight size={18} />
+                            </Button>
+                        </Link>
+                        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                            {t('referral.ctaSub')}
+                        </p>
                     </div>
                 </div>
             </section>

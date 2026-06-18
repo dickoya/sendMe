@@ -56,6 +56,18 @@
       "description": "Payez par carte et suivez votre transfert en temps réel."
     }
   },
+  "referral": {
+    "title": "Parrainez vos proches et gagnez 5€",
+    "subtitle": "Invitez vos amis et votre famille à rejoindre SendMe. Vous recevrez chacun 5€ de réduction sur votre prochain transfert.",
+    "benefit1": "5€ offerts pour vous",
+    "benefit1Desc": "Recevez un coupon de 5€ dès le premier transfert de votre filleul",
+    "benefit2": "5€ offerts pour eux",
+    "benefit2Desc": "Votre filleul reçoit aussi 5€ de réduction sur son premier transfert",
+    "benefit3": "Sans limite",
+    "benefit3Desc": "Parrainez autant de personnes que vous le souhaitez, cumulez les réductions",
+    "cta": "Créez votre code de parrainage",
+    "ctaSub": "Inscrivez-vous gratuitement et obtenez votre code unique à partager"
+  },
   "stats": {
     "title": "SendMe en chiffres",
     "transactions": "Transactions traitées",

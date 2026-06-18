@@ -47,6 +47,9 @@ public class SecurityConfig {
             // ── Simulation de transfert (page d'accueil publique) ────────────
             "/api/transfers/simulate",
 
+            // ── Vérification publique d'un code de parrainage ────────────────
+            "/api/referral/verify",
+
             // ── Notifications & SSE (Ajusté selon tes logs d'arborescence) ────
             "/api/notifications/**",
 

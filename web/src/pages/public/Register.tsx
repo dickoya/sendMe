@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, Lock, User, Phone, ArrowRight, Zap, Shield, TrendingDown } from 'lucide-react';
+import { Mail, Lock, User, Phone, Gift, ArrowRight, Zap, Shield, TrendingDown } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
@@ -23,6 +23,7 @@ function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [referralCode, setReferralCode] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,7 +38,7 @@ function Register() {
 
         setIsSubmitting(true);
         try {
-            await register({ firstName, lastName, email, password, phoneNumber });
+            await register({ firstName, lastName, email, password, phoneNumber, referralCode: referralCode || undefined });
             navigate('/dashboard');
         } catch (err) {
             setError(mapRegisterError(err, t));
@@ -196,6 +197,16 @@ function Register() {
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
                                     autoComplete="tel"
+                                />
+
+                                <Input
+                                    label={t('referral:registerReferralLabel')}
+                                    placeholder={t('referral:registerReferralPlaceholder')}
+                                    icon={<Gift size={16} />}
+                                    value={referralCode}
+                                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                                    hint={t('referral:registerReferralHelp')}
+                                    autoComplete="off"
                                 />
 
                                 {error && (

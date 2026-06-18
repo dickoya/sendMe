@@ -37,6 +37,7 @@ public class AuthService {
     private final EmailService emailService;
     private final RateLimitingFilter rateLimitingFilter;
     private final LoginHistoryRepository loginHistoryRepository;
+    private final ReferralService referralService;
 
     // ── Compteurs de tentatives (email) ──────────────────────────────────────
     private static final int MAX_LOGIN_ATTEMPTS = 5;
@@ -59,7 +60,11 @@ public class AuthService {
                     "Un compte existe deja avec l'email : " + request.getEmail());
         }
 
+        // Générer un code de parrainage unique
+        String referralCode = referralService.generateReferralCode();
+
         var user = User.builder()
+                .referralCode(referralCode)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
@@ -70,7 +75,13 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-        log.info("Nouvel utilisateur enregistre : {}", user.getEmail());
+
+        // Appliquer le code de parrainage si fourni
+        if (request.getReferralCode() != null && !request.getReferralCode().isBlank()) {
+            referralService.applyReferralCode(user, request.getReferralCode());
+        }
+
+        log.info("Nouvel utilisateur enregistre : {} (code parrainage: {})", user.getEmail(), referralCode);
 
         try {
             emailService.sendWelcomeEmail(user);
@@ -91,6 +102,7 @@ public class AuthService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole().name())
+                .referralCode(user.getReferralCode())
                 .build();
     }
 
@@ -159,6 +171,7 @@ public class AuthService {
                     .firstName(user.getFirstName())
                     .lastName(user.getLastName())
                     .role(user.getRole().name())
+                    .referralCode(user.getReferralCode())
                     .build();
 
         } catch (BadCredentialsException e) {
@@ -232,6 +245,7 @@ public class AuthService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .role(user.getRole().name())
+                .referralCode(user.getReferralCode())
                 .build();
     }
 

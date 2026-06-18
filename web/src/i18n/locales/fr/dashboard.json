@@ -1,6 +1,7 @@
 {
   "welcome": "Bonjour, {{firstName}} 👋",
   "tagline": "Envoyez de l'argent instantanément vers 6 canaux différents.",
+  "referralCode": "Mon code de parrainage",
   "newTransfer": "Nouveau transfert",
   "manageBeneficiaries": "Gérer mes bénéficiaires",
   "stats": {
