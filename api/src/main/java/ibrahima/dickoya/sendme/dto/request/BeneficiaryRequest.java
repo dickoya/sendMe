@@ -1,16 +1,22 @@
 package ibrahima.dickoya.sendme.dto.request;
 
 import ibrahima.dickoya.sendme.enums.ChannelType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 /**
- * DTO (Data Transfer Object) pour la création et modification d'un bénéficiaire.
+ * DTO (Data Transfer Object) pour la création et modification d'un
+ * bénéficiaire.
  * Contient toutes les informations envoyées par le frontend lors de la création
  * d'un bénéficiaire. Les champs bankDetails et mobileDetails sont optionnels
  * car ils dépendent du canal choisi (RG-02).
  */
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BeneficiaryRequest {
 
     /**
@@ -37,11 +43,13 @@ public class BeneficiaryRequest {
      * Détails bancaires — requis uniquement si channel = BANK_TRANSFER.
      * Contient le nom de la banque, l'IBAN et le BIC.
      */
+    @Valid
     private BankDetailsRequest bankDetails;
 
     /**
      * Détails Mobile Money — requis si channel != BANK_TRANSFER.
      * Contient uniquement le numéro de téléphone.
      */
+    @Valid
     private MobileMoneyDetailsRequest mobileDetails;
 }

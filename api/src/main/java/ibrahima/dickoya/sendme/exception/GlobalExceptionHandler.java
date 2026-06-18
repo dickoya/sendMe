@@ -1,15 +1,20 @@
 package ibrahima.dickoya.sendme.exception;
 
 import ibrahima.dickoya.sendme.dto.response.ApiResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 @Slf4j
@@ -48,7 +53,11 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage()));
         }
 
-        // Erreurs de validation (@NotBlank, @Email...) — 400
+        /**
+         * Erreurs de validation des @RequestBody (DTOs) — 400
+         * Déclenchée par @Valid sur les paramètres @RequestBody des contrôleurs.
+         * Retourne la liste des champs invalides avec leurs messages d'erreur.
+         */
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
                         MethodArgumentNotValidException ex) {
@@ -58,8 +67,55 @@ public class GlobalExceptionHandler {
                         String message = error.getDefaultMessage();
                         errors.put(fieldName, message);
                 });
+                log.warn("Erreurs de validation DTO : {}", errors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(new ApiResponse<>(false, "Erreurs de validation", errors));
+        }
+
+        /**
+         * Erreurs de validation des @RequestParam et @PathVariable — 400
+         * Déclenchée par les annotations de validation (ex: @NotBlank String date)
+         * sur les paramètres de requête ou les variables de chemin.
+         */
+        @ExceptionHandler(ConstraintViolationException.class)
+        public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(
+                        ConstraintViolationException ex) {
+                Map<String, String> errors = ex.getConstraintViolations().stream()
+                                .collect(Collectors.toMap(
+                                                cv -> cv.getPropertyPath().toString(),
+                                                ConstraintViolation::getMessage,
+                                                (msg1, msg2) -> msg1));
+                log.warn("Erreurs de validation parametres : {}", errors);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(new ApiResponse<>(false, "Erreurs de validation des parametres", errors));
+        }
+
+        /**
+         * JSON malformé ou type de données incorrect — 400
+         * Exemple : envoyer une chaîne là où un nombre est attendu,
+         * ou un JSON syntaxiquement invalide.
+         */
+        @ExceptionHandler(HttpMessageNotReadableException.class)
+        public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
+                        HttpMessageNotReadableException ex) {
+                log.warn("JSON malforme : {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error("Format de requete invalide. Verifiez le JSON envoye."));
+        }
+
+        /**
+         * Type de paramètre incompatible — 400
+         * Exemple : envoyer une chaîne pour un @PathVariable Long
+         */
+        @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+        public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatch(
+                        MethodArgumentTypeMismatchException ex) {
+                String message = "Le parametre '" + ex.getName() + "' est invalide. " +
+                                "Valeur attendue : "
+                                + (ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "inconnue");
+                log.warn("Type de parametre invalide : {}", message);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(ApiResponse.error(message));
         }
 
         // Refresh token invalide ou expiré — 400
