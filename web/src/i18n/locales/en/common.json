@@ -74,5 +74,14 @@
   },
   "languageSwitcher": {
     "label": "Language"
+  },
+  "timeline": {
+    "title": "Transfer tracking",
+    "initiated": "Transfer initiated",
+    "pendingOperator": "Awaiting operator processing",
+    "processing": "Processing in progress",
+    "completed": "Delivered to beneficiary",
+    "failed": "Transfer failed",
+    "refunded": "Refund issued"
   }
 }

@@ -3,6 +3,7 @@ import { Download, Eye, Loader2 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import Button from '@/components/ui/Button';
 import TransactionStatusBadge from './TransactionStatusBadge';
+import TransferTimeline from './TransferTimeline';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
@@ -52,6 +53,9 @@ function TransactionDetailModal({
                     </div>
                     <TransactionStatusBadge status={transaction.status} />
                 </div>
+
+                {/* Timeline de suivi du transfert */}
+                <TransferTimeline transaction={transaction} />
 
                 {/* Montants */}
                 <div className="flex flex-col gap-2 rounded-xl bg-gray-50 p-4 text-sm">

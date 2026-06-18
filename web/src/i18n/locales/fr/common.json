@@ -74,5 +74,14 @@
   },
   "languageSwitcher": {
     "label": "Langue"
+  },
+  "timeline": {
+    "title": "Suivi du transfert",
+    "initiated": "Virement initié",
+    "pendingOperator": "En attente de traitement par l'opérateur",
+    "processing": "En cours de traitement",
+    "completed": "Distribué au bénéficiaire",
+    "failed": "Échec du transfert",
+    "refunded": "Remboursement effectué"
   }
 }
