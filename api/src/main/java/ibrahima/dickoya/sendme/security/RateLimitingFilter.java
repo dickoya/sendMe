@@ -8,8 +8,6 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -24,8 +22,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Utilise un token bucket (Caffeine) par IP pour limiter le débit,
  * et vérifie également les blocages persistants en base de données.
  */
-@Component
-@Order(1)
 @Slf4j
 public class RateLimitingFilter implements Filter {
 

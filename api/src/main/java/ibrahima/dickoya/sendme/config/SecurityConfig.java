@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.config;
 
+import ibrahima.dickoya.sendme.repository.BlockedIpRepository;
 import ibrahima.dickoya.sendme.security.JwtAuthenticationFilter;
 import ibrahima.dickoya.sendme.security.RateLimitingFilter;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final RateLimitingFilter rateLimitingFilter;
+    private final BlockedIpRepository blockedIpRepository;
     private final UserDetailsService userDetailsService;
 
     @Value("${app.cors.allowed-origins:http://localhost:5173}")
@@ -72,7 +73,13 @@ public class SecurityConfig {
     };
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public RateLimitingFilter rateLimitingFilter() {
+        return new RateLimitingFilter(blockedIpRepository);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, RateLimitingFilter rateLimitingFilter)
+            throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)

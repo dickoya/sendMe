@@ -1,75 +1,85 @@
-# React + TypeScript + Vite
+# SendMe — Frontend (React + TypeScript)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface utilisateur de la passerelle de transfert d'argent multi-canaux SendMe.
 
-Currently, two official plugins are available:
+**Localisation** : `C:\xamp\htdocs\sendMe\web`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack technique
 
-## React Compiler
+| Technologie | Usage |
+|---|---|
+| React 19 + TypeScript 6 | Bibliothèque UI et typage statique |
+| Vite 8 | Bundler et serveur de développement |
+| Tailwind CSS v4 | Styling utilitaire |
+| React Router DOM 7 | Routage SPA |
+| Axios | Client HTTP |
+| Stripe.js | Paiement par carte (Sandbox) |
+| i18next | Internationalisation FR/EN |
+| date-fns | Formatage dates localisé |
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Prérequis
 
-Note: This will impact Vite dev & build performances.
+- Node.js 18+ (recommandé : 20 LTS)
+- npm 9+
+- Backend SendMe en cours d'exécution (port 8080)
 
-## Expanding the ESLint configuration
+## Installation rapide
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```powershell
+cd C:\xamp\htdocs\sendMe\web
+npm install
+copy .env.exemple .env
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+L'application est disponible sur `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Commande | Description |
+|---|---|
+| `npm run dev` | Serveur de développement (port 5173) |
+| `npm run build` | Build de production |
+| `npm run preview` | Prévisualisation du build |
+| `npm run lint` | ESLint |
+| `npm run check:i18n` | Vérification des clés de traduction FR/EN |
+
+## Variables d'environnement
+
+| Variable | Description |
+|---|---|
+| `VITE_API_BASE_URL` | URL de l'API backend (défaut: `http://localhost:8080/api`) |
+| `VITE_STRIPE_PUBLIC_KEY` | Clé publique Stripe (Sandbox ou production) |
+
+## Structure du projet
+
 ```
+src/
+├── App.tsx              # Composant racine (providers)
+├── components/          # Composants UI réutilisables
+│   ├── ui/              # Atomiques (Button, Input, Card...)
+│   ├── layout/          # Header, Sidebar, LanguageSwitcher
+│   ├── beneficiary/     # CRUD bénéficiaires
+│   ├── transfer/        # Tunnel de transfert
+│   └── notification/    # Cloche, centre de notifications
+├── pages/               # Pages par domaine
+│   ├── public/          # Landing, Login, Register
+│   ├── private/         # Dashboard, Transfer, History...
+│   └── admin/           # AdminDashboard, AdminUsers...
+├── layouts/             # PublicLayout, PrivateLayout, AdminLayout
+├── routes/              # AppRoutes, PrivateRoute, AdminRoute
+├── services/            # Couche API (Axios)
+├── hooks/               # Hooks personnalisés
+├── store/               # Context API (auth, notification, transfer)
+├── i18n/                # Traductions FR/EN (9 namespaces)
+├── types/               # Types TypeScript
+├── utils/               # Helpers (dates, devises, notifications)
+└── lib/                 # Utilitaires généraux
+```
+
+## Documentation
+
+- Architecture frontend détaillée : [`docs/web-architecture.md`](../docs/web-architecture.md)
+- Installation et configuration : [`docs/web-setup.md`](../docs/web-setup.md)
+- Internationalisation : [`docs/i18n.md`](../docs/i18n.md)
+- Documentation technique complète : [`docs/`](../docs/)
