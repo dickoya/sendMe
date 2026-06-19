@@ -54,6 +54,12 @@ function TransferSummary({ beneficiary, simulation, currencyFrom }: TransferSumm
             {formatCurrency(simulation.fees, currencyFrom)}
           </span>
                 </div>
+                {simulation.discount && simulation.discount > 0 && (
+                    <div className="flex justify-between">
+                        <span className="text-success-600 font-medium">{t('simulator.discount')}</span>
+                        <span className="text-success-600 font-medium">- {formatCurrency(simulation.discount, currencyFrom)}</span>
+                    </div>
+                )}
                 <div className="flex justify-between">
                     <span className="text-gray-500">{t('simulator.exchangeRate')}</span>
                     <span className="text-gray-500">

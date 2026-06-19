@@ -133,7 +133,9 @@ function Transfer() {
 
     return (
         <div className="mx-auto max-w-lg">
+            <Elements stripe={getStripe(i18n.language)}>
             <Card title={stepTitle(step, t)}>
+
                 {/* ─────────────────────────── ÉTAPE 1 : FORMULAIRE ─────────────────────────── */}
                 {step === 'form' && (
                     <div className="flex flex-col gap-5">
@@ -206,13 +208,11 @@ function Transfer() {
                             <ArrowLeft size={14} /> {t('payment.backToSummary')}
                         </button>
 
-                        <Elements stripe={getStripe(i18n.language)}>
-                            <StripePaymentForm
-                                amountLabel={formatCurrency(simulation.totalDebited, currency)}
-                                onPaymentMethodCreated={handlePayment}
-                                disabled={isTransferring}
-                            />
-                        </Elements>
+                        <StripePaymentForm
+                            amountLabel={formatCurrency(simulation.totalDebited, currency)}
+                            onPaymentMethodCreated={handlePayment}
+                            disabled={isTransferring}
+                        />
 
                         {transferError && (
                             <div className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-600">
@@ -227,7 +227,9 @@ function Transfer() {
                     <TransferSuccess transaction={completedTransaction} onNewTransfer={resetTunnel} />
                 )}
             </Card>
+            </Elements>
         </div>
+
     );
 }
 

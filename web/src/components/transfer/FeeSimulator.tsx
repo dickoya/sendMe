@@ -43,6 +43,13 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
                 value={`- ${formatCurrency(simulation.fees, currencyFrom)}`}
                 muted
             />
+            {simulation.discount && simulation.discount > 0 && (
+                <Row
+                    label={t('simulator.discount')}
+                    value={`- ${formatCurrency(simulation.discount, currencyFrom)}`}
+                    discount
+                />
+            )}
             <Row
                 label={t('simulator.exchangeRate')}
                 value={t('simulator.exchangeRateValue', {
@@ -74,11 +81,11 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
     );
 }
 
-function Row({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+function Row({ label, value, muted, discount }: { label: string; value: string; muted?: boolean; discount?: boolean }) {
     return (
         <div className="flex items-center justify-between text-sm">
-            <span className={muted ? 'text-gray-500' : 'text-gray-700'}>{label}</span>
-            <span className={muted ? 'text-gray-500' : 'font-medium text-gray-900'}>{value}</span>
+            <span className={discount ? 'text-success-600 font-medium' : muted ? 'text-gray-500' : 'text-gray-700'}>{label}</span>
+            <span className={discount ? 'text-success-600 font-medium' : muted ? 'text-gray-500' : 'font-medium text-gray-900'}>{value}</span>
         </div>
     );
 }

@@ -113,6 +113,7 @@ export interface SimulateResponse {
     exchangeRate: number;
     currencyTo: string;
     amountReceived: number;
+    discount?: number;
 }
 
 export interface TransferRequest {

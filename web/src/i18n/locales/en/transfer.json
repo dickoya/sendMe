@@ -20,6 +20,7 @@
     "fees": "Platform fee ({{rate}}%)",
     "exchangeRate": "Exchange rate",
     "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "discount": "Referral discount",
     "totalDebited": "Total charged",
     "amountReceived": "Amount received"
   },

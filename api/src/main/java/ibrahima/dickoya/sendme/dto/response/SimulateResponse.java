@@ -10,13 +10,17 @@ import java.math.BigDecimal;
  * avant que l'utilisateur confirme et paie par carte bancaire.
  *
  * Exemple affiché à l'utilisateur :
- * - Montant envoyé   : 200.00 EUR
- * - Frais (1.5%)     : 3.00 EUR
- * - Total débité     : 203.00 EUR
- * - Taux de change   : 1 EUR = 655.957 XOF
- * - Montant reçu     : 128 745.14 XOF
+ * - Montant envoyé : 200.00 EUR
+ * - Frais (1.5%) : 3.00 EUR
+ * - Total débité : 203.00 EUR
+ * - Taux de change : 1 EUR = 655.957 XOF
+ * - Montant reçu : 128 745.14 XOF
  */
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SimulateResponse {
 
     /** Montant initial saisi par l'utilisateur. */
@@ -45,4 +49,10 @@ public class SimulateResponse {
 
     /** Montant exact que recevra le bénéficiaire après conversion. */
     private BigDecimal amountReceived;
+
+    /**
+     * Montant de la réduction appliquée (parrainage).
+     * 0 si aucun coupon valide n'est disponible.
+     */
+    private BigDecimal discount;
 }

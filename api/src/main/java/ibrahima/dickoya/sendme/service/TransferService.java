@@ -14,13 +14,16 @@ import ibrahima.dickoya.sendme.exception.TransferException;
 import ibrahima.dickoya.sendme.repository.*;
 import ibrahima.dickoya.sendme.strategy.TransferResult;
 import ibrahima.dickoya.sendme.strategy.TransferStrategy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.annotation.PostConstruct;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -43,8 +46,8 @@ import static ibrahima.dickoya.sendme.enums.NotificationType.TRANSFER_FAILED;
  * 7b. Échec → remboursement Stripe + notification TRANSFER_FAILED (RG-04)
  */
 @Service
-@RequiredArgsConstructor
 @Slf4j
+
 public class TransferService {
 
         private final TransactionRepository transactionRepository;
@@ -99,20 +102,60 @@ public class TransferService {
         private final ReferralService referralService;
 
         /**
+         * Service de persistance des transactions en échec.
+         * Séparé de ce service pour éviter le problème de self-invocation
+         * des proxies AOP Spring avec @Transactional(REQUIRES_NEW).
+         */
+        private final TransactionPersistenceService transactionPersistenceService;
+
+        /**
+         * TransactionTemplate pour gérer les transactions programmatiquement.
+         * Évite les deadlocks MySQL causés par REQUIRES_NEW avec une transaction
+         * parente qui détient des locks (gap locks InnoDB).
+         */
+        private final TransactionTemplate transactionTemplate;
+
+        /**
+         * Constructeur pour initialiser TransactionTemplate avec le transaction
+         * manager.
+         */
+        public TransferService(TransactionRepository transactionRepository,
+                        BeneficiaryRepository beneficiaryRepository,
+                        UserRepository userRepository,
+                        SimulatorService simulatorService,
+                        StripePaymentService stripePaymentService,
+                        NotificationService notificationService,
+                        Map<String, TransferStrategy> strategyMap,
+                        EmailService emailService,
+                        ReferralService referralService,
+                        TransactionPersistenceService transactionPersistenceService,
+                        PlatformTransactionManager transactionManager) {
+                this.transactionRepository = transactionRepository;
+                this.beneficiaryRepository = beneficiaryRepository;
+                this.userRepository = userRepository;
+                this.simulatorService = simulatorService;
+                this.stripePaymentService = stripePaymentService;
+                this.notificationService = notificationService;
+                this.strategyMap = strategyMap;
+                this.emailService = emailService;
+                this.referralService = referralService;
+                this.transactionPersistenceService = transactionPersistenceService;
+                this.transactionTemplate = new TransactionTemplate(transactionManager);
+        }
+
+        /**
          * Orchestre le transfert complet avec paiement Stripe et notifications.
          *
-         * @Transactional garantit l'atomicité des opérations en base.
-         *                En cas d'exception, toutes les modifications BDD sont
-         *                annulées.
-         *                Le remboursement Stripe et les notifications sont gérés
-         *                séparément.
+         * Les opérations BDD sont gérées via TransactionTemplate pour éviter
+         * les deadlocks MySQL. Les échecs Stripe sont persistés dans une
+         * transaction séparée (REQUIRES_NEW) sans conflit de lock.
          *
          * @param request   données du transfert avec paymentMethodId Stripe
          * @param userEmail email de l'utilisateur connecté (extrait du JWT)
          * @return TransactionResponse résultat complet de la transaction
          */
-        @Transactional
         public TransactionResponse processTransfer(TransferRequest request, String userEmail) {
+
                 /**
                  * Service email pour notifier l'utilisateur
                  * à chaque étape du cycle de vie du transfert.
@@ -147,46 +190,23 @@ public class TransferService {
                 // ── ÉTAPE 3 : Calculer frais et taux de change ──────────────────────
                 String currencyTo = getCurrencyForChannel(beneficiary.getChannel().name());
 
+                // La simulation prend en compte l'ID utilisateur pour appliquer
+                // automatiquement la réduction de parrainage si un coupon valide existe
                 SimulateResponse simulation = simulatorService.simulate(
                                 SimulateRequest.builder()
                                                 .amount(request.getAmount())
                                                 .currencyFrom(request.getCurrency())
                                                 .currencyTo(currencyTo)
                                                 .channel(beneficiary.getChannel())
-                                                .build());
+                                                .build(),
+                                user.getId());
 
-                // Montant total à débiter = montant envoyé + frais plateforme
-                // Exemple : 200 EUR + 3 EUR (1.5%) = 203 EUR
+                // Montant total à débiter = montant envoyé + frais - réduction (si applicable)
+                // Exemple : 200 EUR + 3 EUR (1.5%) - 5€ (réduction) = 198 EUR
                 var totalToDebit = simulation.getTotalDebited();
 
-                // ── ÉTAPE 4 : Débiter la carte via Stripe ───────────────────────────
-                log.info("[STRIPE] Debit de {} {} sur la carte", totalToDebit, request.getCurrency());
-
-                PaymentIntent paymentIntent;
-                try {
-                        paymentIntent = stripePaymentService.createAndConfirmPayment(
-                                        totalToDebit,
-                                        request.getPaymentMethodId(),
-                                        request.getIdempotencyKey());
-                } catch (StripeException e) {
-                        // Paiement refusé par Stripe (carte invalide, fonds insuffisants...)
-                        log.error("[STRIPE] Paiement refuse : {}", e.getMessage());
-                        throw new TransferException(
-                                        "Paiement refuse par la banque : " + e.getMessage());
-                }
-
-                // Vérifier que Stripe a bien confirmé le paiement
-                if (!stripePaymentService.isPaymentSucceeded(paymentIntent)) {
-                        log.error("[STRIPE] Statut inattendu : {}", paymentIntent.getStatus());
-                        throw new TransferException(
-                                        "Paiement non confirme par Stripe. Statut : " +
-                                                        paymentIntent.getStatus());
-                }
-
-                log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}",
-                                paymentIntent.getId());
-
-                // ── ÉTAPE 5 : Créer la transaction en BDD avec statut PENDING ───────
+                // ── ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING ───────
+                // Créée AVANT le débit Stripe pour que même les échecs soient tracés
                 Transaction transaction = Transaction.builder()
                                 .reference(generateReference())
                                 .amountSent(request.getAmount())
@@ -198,14 +218,74 @@ public class TransferService {
                                 .status(TransactionStatus.PENDING)
                                 .channel(beneficiary.getChannel())
                                 .idempotencyKey(request.getIdempotencyKey())
-                                .stripePaymentIntentId(paymentIntent.getId())
-                                .stripePaymentStatus(paymentIntent.getStatus())
                                 .sender(user)
                                 .beneficiary(beneficiary)
                                 .build();
 
                 transaction = transactionRepository.save(transaction);
                 log.info("Transaction sauvegardee : {}", transaction.getReference());
+
+                // ── ÉTAPE 5 : Débiter la carte via Stripe ───────────────────────────
+                log.info("[STRIPE] Debit de {} {} sur la carte", totalToDebit, request.getCurrency());
+
+                PaymentIntent paymentIntent;
+                try {
+                        paymentIntent = stripePaymentService.createAndConfirmPayment(
+                                        totalToDebit,
+                                        request.getPaymentMethodId(),
+                                        request.getIdempotencyKey());
+                } catch (StripeException e) {
+                        // Paiement refusé par Stripe (carte invalide, fonds insuffisants...)
+                        log.error("[STRIPE] Paiement refuse : {}", e.getMessage());
+                        // Marquer la transaction comme FAILED dans une transaction séparée
+                        // pour éviter le rollback de @Transactional
+                        // La méthode retourne la nouvelle entité FAILED persistée
+                        Transaction failedTransaction = transactionPersistenceService
+                                        .saveFailedTransaction(transaction, "failed", e.getMessage());
+
+                        // Notifier l'utilisateur
+                        notificationService.createAndSend(
+                                        user,
+                                        String.format(
+                                                        "Transfert %s echoue — paiement refuse par la banque : %s",
+                                                        transaction.getReference(),
+                                                        e.getMessage()),
+                                        NotificationType.TRANSFER_FAILED,
+                                        failedTransaction);
+                        emailService.sendTransferFailedEmail(user, failedTransaction, e.getMessage());
+                        return toResponse(failedTransaction);
+                }
+
+                // Vérifier que Stripe a bien confirmé le paiement
+                if (!stripePaymentService.isPaymentSucceeded(paymentIntent)) {
+                        log.error("[STRIPE] Statut inattendu : {}", paymentIntent.getStatus());
+                        // Marquer la transaction comme FAILED dans une transaction séparée
+                        Transaction failedTransaction = transactionPersistenceService
+                                        .saveFailedTransaction(transaction, paymentIntent.getId(),
+                                                        paymentIntent.getStatus());
+
+                        // Notifier l'utilisateur
+                        notificationService.createAndSend(
+                                        user,
+                                        String.format(
+                                                        "Transfert %s echoue — statut Stripe inattendu : %s",
+                                                        transaction.getReference(),
+                                                        paymentIntent.getStatus()),
+                                        NotificationType.TRANSFER_FAILED,
+                                        failedTransaction);
+                        emailService.sendTransferFailedEmail(user, failedTransaction,
+                                        "Paiement non confirme par Stripe. Statut : " + paymentIntent.getStatus());
+                        return toResponse(failedTransaction);
+
+                }
+
+                log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}",
+                                paymentIntent.getId());
+
+                // Mettre à jour la transaction avec les infos Stripe
+                transaction.setStripePaymentIntentId(paymentIntent.getId());
+                transaction.setStripePaymentStatus(paymentIntent.getStatus());
+                transactionRepository.save(transaction);
 
                 // ── NOTIFICATION 1 : Transfert initié ───────────────────────────────
                 // Envoyée dès que la transaction est créée et le paiement confirmé
@@ -222,10 +302,6 @@ public class TransferService {
                 // Email de confirmation d'initiation en arrière-plan
                 emailService.sendTransferInitiatedEmail(user, transaction);
 
-                // ── Après statut COMPLETED ───────────────────────────────────────────
-                transaction.setStatus(TransactionStatus.COMPLETED);
-                transactionRepository.save(transaction);
-
                 // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
                 transaction.setStatus(TransactionStatus.PROCESSING);
                 transactionRepository.save(transaction);
@@ -237,7 +313,7 @@ public class TransferService {
 
                 if (strategy == null) {
                         // Aucune stratégie trouvée pour ce canal — ne devrait jamais arriver
-                        refundStripeAndFail(
+                        return refundStripeAndFail(
                                         paymentIntent.getId(),
                                         transaction,
                                         user,
@@ -250,7 +326,7 @@ public class TransferService {
                 // ── ÉTAPE 7 : Traiter le résultat de la stratégie ───────────────────
                 if (result.isSuccess()) {
 
-                        // ✅ Transfert réussi → statut COMPLETED
+                        // Transfert réussi → statut COMPLETED
                         transaction.setStatus(TransactionStatus.COMPLETED);
                         transactionRepository.save(transaction);
                         log.info("=== TRANSFERT COMPLETE : {} ===", transaction.getReference());
@@ -271,6 +347,10 @@ public class TransferService {
                         // Email de confirmation de complétion en arrière-plan
                         emailService.sendTransferCompletedEmail(user, transaction);
 
+                        // ── PARRAINAGE : Marquer le coupon comme utilisé ──────────────
+                        // Si une réduction a été appliquée via un coupon, on le marque utilisé
+                        useReferralCouponIfApplicable(user, request.getCurrency(), transaction, simulation);
+
                         // ── PARRAINAGE : Récompenser le premier transfert du filleul ──
                         // Si l'utilisateur a été parrainé, des coupons de réduction
                         // sont générés pour lui et son parrain
@@ -287,7 +367,7 @@ public class TransferService {
                                         result.getMessage());
 
                         // On passe l'utilisateur à refundStripeAndFail pour la notification
-                        refundStripeAndFail(
+                        return refundStripeAndFail(
                                         paymentIntent.getId(),
                                         transaction,
                                         user,
@@ -295,6 +375,7 @@ public class TransferService {
                 }
 
                 return toResponse(transaction);
+
         }
 
         /**
@@ -304,15 +385,13 @@ public class TransferService {
          * le débit carte est automatiquement annulé/remboursé ET
          * l'utilisateur est notifié en temps réel via SSE.
          *
-         * Signature mise à jour pour inclure l'utilisateur
-         * nécessaire à l'envoi de la notification.
-         *
          * @param paymentIntentId l'ID Stripe à rembourser
          * @param transaction     la transaction à marquer REFUNDED ou FAILED
          * @param user            l'utilisateur à notifier
          * @param reason          la raison de l'échec (affichée dans la notification)
+         * @return TransactionResponse la transaction mise à jour
          */
-        private void refundStripeAndFail(
+        private TransactionResponse refundStripeAndFail(
                         String paymentIntentId,
                         Transaction transaction,
                         User user,
@@ -341,8 +420,7 @@ public class TransferService {
                         emailService.sendTransferFailedEmail(user, transaction, reason);
                 }
 
-                throw new TransferException(
-                                "Transfert echoue et carte remboursee : " + reason);
+                return toResponse(transaction);
         }
 
         /**
@@ -469,6 +547,31 @@ public class TransferService {
                 }
 
                 return transaction;
+        }
+
+        /**
+         * Utilise le coupon de réduction de parrainage si une réduction a été appliquée
+         * lors de la simulation du transfert.
+         *
+         * @param user        l'utilisateur qui a bénéficié de la réduction
+         * @param currency    la devise du transfert
+         * @param transaction la transaction associée
+         * @param simulation  la simulation contenant le montant de la réduction
+         */
+        private void useReferralCouponIfApplicable(User user, String currency, Transaction transaction,
+                        SimulateResponse simulation) {
+                BigDecimal discount = simulation.getDiscount();
+                if (discount != null && discount.compareTo(BigDecimal.ZERO) > 0) {
+                        try {
+                                referralService.getValidCoupon(user.getId(), currency)
+                                                .ifPresent(coupon -> {
+                                                        referralService.useCoupon(coupon.getId(), transaction);
+                                                });
+                        } catch (Exception e) {
+                                log.error("[PARRAINAGE] Erreur lors de l'utilisation du coupon : {}",
+                                                e.getMessage());
+                        }
+                }
         }
 
         /**

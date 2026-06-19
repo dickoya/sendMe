@@ -20,6 +20,7 @@
     "fees": "Frais plateforme ({{rate}}%)",
     "exchangeRate": "Taux de change",
     "exchangeRateValue": "1 {{from}} = {{rate}} {{to}}",
+    "discount": "Réduction parrainage",
     "totalDebited": "Total débité",
     "amountReceived": "Montant reçu"
   },

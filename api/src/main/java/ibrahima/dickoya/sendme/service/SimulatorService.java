@@ -2,6 +2,7 @@ package ibrahima.dickoya.sendme.service;
 
 import ibrahima.dickoya.sendme.dto.request.SimulateRequest;
 import ibrahima.dickoya.sendme.dto.response.SimulateResponse;
+import ibrahima.dickoya.sendme.entity.ReferralCoupon;
 import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Optional;
 
 /**
  * Service gérant la simulation des frais et du taux de change.
@@ -21,6 +23,9 @@ import java.math.RoundingMode;
  * avec un cache de 30 minutes et une marge interne de 2%.
  *
  * Taux de commission : 1.5% (paramétrable via application.properties)
+ *
+ * Réduction parrainage : si l'utilisateur a un coupon valide pour la devise,
+ * le total débité est réduit du montant du coupon.
  */
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ import java.math.RoundingMode;
 public class SimulatorService {
 
         private final ExchangeRateService exchangeRateService;
+        private final ReferralService referralService;
 
         /**
          * Taux de commission de la plateforme : 1.5%.
@@ -49,6 +55,18 @@ public class SimulatorService {
          * @return SimulateResponse avec tous les détails calculés
          */
         public SimulateResponse simulate(SimulateRequest request) {
+                return simulate(request, null);
+        }
+
+        /**
+         * Calcule la simulation complète d'un transfert, avec application
+         * d'un éventuel coupon de réduction (parrainage).
+         *
+         * @param request contient le montant, les devises et le canal
+         * @param userId  ID de l'utilisateur (optionnel, pour appliquer la réduction)
+         * @return SimulateResponse avec tous les détails calculés
+         */
+        public SimulateResponse simulate(SimulateRequest request, Long userId) {
 
                 BigDecimal amount = request.getAmount();
                 String currencyFrom = request.getCurrencyFrom().toUpperCase();
@@ -70,16 +88,35 @@ public class SimulatorService {
                 BigDecimal amountReceived = amount.multiply(exchangeRate)
                                 .setScale(2, RoundingMode.HALF_UP);
 
-                log.info("Simulation : {} {} → {} {} (frais: {}, taux: {})",
-                                amount, currencyFrom, amountReceived, currencyTo, fees, exchangeRate);
+                // 5. Appliquer la réduction de parrainage si l'utilisateur a un coupon valide
+                BigDecimal discount = BigDecimal.ZERO;
+                if (userId != null) {
+                        Optional<ReferralCoupon> coupon = referralService.getValidCoupon(userId, currencyFrom);
+                        if (coupon.isPresent()) {
+                                discount = coupon.get().getDiscountAmount();
+                                // La réduction s'applique sur le total débité (ne peut pas dépasser le total)
+                                if (discount.compareTo(totalDebited) > 0) {
+                                        discount = totalDebited;
+                                }
+                                log.info("Réduction de {} {} appliquée pour l'utilisateur {}",
+                                                discount, currencyFrom, userId);
+                        }
+                }
 
-                // 5. Construire et retourner la réponse
+                BigDecimal totalAfterDiscount = totalDebited.subtract(discount)
+                                .setScale(2, RoundingMode.HALF_UP);
+
+                log.info("Simulation : {} {} → {} {} (frais: {}, taux: {}, réduction: {})",
+                                amount, currencyFrom, amountReceived, currencyTo, fees, exchangeRate, discount);
+
+                // 6. Construire et retourner la réponse
                 return SimulateResponse.builder()
                                 .amountSent(amount)
                                 .currencyFrom(currencyFrom)
                                 .fees(fees)
                                 .feeRate(FEE_RATE.multiply(new BigDecimal("100"))) // afficher en %
-                                .totalDebited(totalDebited)
+                                .totalDebited(totalAfterDiscount)
+                                .discount(discount)
                                 .exchangeRate(exchangeRate)
                                 .currencyTo(currencyTo)
                                 .amountReceived(amountReceived)
