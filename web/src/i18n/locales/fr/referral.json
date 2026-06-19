@@ -22,5 +22,8 @@
     "step3Desc": "Dès leur premier transfert, vous recevez chacun un coupon de 5€ de réduction",
     "registerReferralLabel": "Vous avez un code de parrainage ?",
     "registerReferralPlaceholder": "Ex : SEND123456",
-    "registerReferralHelp": "Entrez le code de votre parrain pour recevoir 5€ de réduction sur votre premier transfert"
+    "registerReferralHelp": "Entrez le code de votre parrain pour recevoir 5€ de réduction sur votre premier transfert",
+    "codeValid": "Code valide !",
+    "codeInvalid": "Ce code de parrainage n'existe pas. Vérifiez et réessayez.",
+    "codeChecking": "Vérification du code..."
 }

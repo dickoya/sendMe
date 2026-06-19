@@ -1,13 +1,14 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, Lock, User, Phone, Gift, ArrowRight, Zap, Shield, TrendingDown } from 'lucide-react';
+import { Mail, Lock, User, Phone, Gift, ArrowRight, Zap, Shield, TrendingDown, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { useAuth } from '@/store/auth/authContext';
 import { getErrorMessage } from '@/lib/utils';
+import { referralService } from '@/services/referralService';
 
 /**
  * Page d'inscription — design split moderne (branding à gauche, formulaire à droite).
@@ -24,10 +25,32 @@ function Register() {
     const [password, setPassword] = useState('');
     const [phoneNumber, setPhoneNumber] = useState('');
     const [referralCode, setReferralCode] = useState('');
+    const [referralCodeStatus, setReferralCodeStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    // Vérification en temps réel du code de parrainage avec debounce
+    useEffect(() => {
+        if (!referralCode || referralCode.length < 5) {
+            setReferralCodeStatus('idle');
+            return;
+        }
+
+        const timer = setTimeout(async () => {
+            setReferralCodeStatus('checking');
+            try {
+                const isValid = await referralService.verifyCode(referralCode);
+                setReferralCodeStatus(isValid ? 'valid' : 'invalid');
+            } catch {
+                setReferralCodeStatus('idle');
+            }
+        }, 400); // debounce 400ms
+
+        return () => clearTimeout(timer);
+    }, [referralCode]);
+
     const handleSubmit = async (e: FormEvent) => {
+
         e.preventDefault();
         setError(null);
 
@@ -199,15 +222,44 @@ function Register() {
                                     autoComplete="tel"
                                 />
 
-                                <Input
-                                    label={t('referral:registerReferralLabel')}
-                                    placeholder={t('referral:registerReferralPlaceholder')}
-                                    icon={<Gift size={16} />}
-                                    value={referralCode}
-                                    onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                                    hint={t('referral:registerReferralHelp')}
-                                    autoComplete="off"
-                                />
+                                <div className="relative">
+                                    <Input
+                                        label={t('referral:registerReferralLabel')}
+                                        placeholder={t('referral:registerReferralPlaceholder')}
+                                        icon={<Gift size={16} />}
+                                        value={referralCode}
+                                        onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                                        hint={
+                                            referralCodeStatus === 'idle'
+                                                ? t('referral:registerReferralHelp')
+                                                : referralCodeStatus === 'checking'
+                                                    ? t('referral:codeChecking')
+                                                    : referralCodeStatus === 'valid'
+                                                        ? t('referral:codeValid')
+                                                        : t('referral:codeInvalid')
+                                        }
+                                        error={
+                                            referralCodeStatus === 'invalid'
+                                                ? t('referral:codeInvalid')
+                                                : undefined
+                                        }
+                                        autoComplete="off"
+                                    />
+                                    {/* Indicateur visuel à droite du champ */}
+                                    {referralCode.length >= 5 && (
+                                        <span className="absolute right-3 top-[38px]">
+                                            {referralCodeStatus === 'checking' && (
+                                                <Loader2 size={18} className="animate-spin text-gray-400" />
+                                            )}
+                                            {referralCodeStatus === 'valid' && (
+                                                <CheckCircle size={18} className="text-success-500" />
+                                            )}
+                                            {referralCodeStatus === 'invalid' && (
+                                                <XCircle size={18} className="text-danger-500" />
+                                            )}
+                                        </span>
+                                    )}
+                                </div>
 
                                 {error && (
                                     <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">

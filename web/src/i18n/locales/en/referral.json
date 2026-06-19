@@ -22,5 +22,8 @@
     "step3Desc": "On their first transfer, you both receive a 5€ discount coupon",
     "registerReferralLabel": "Have a referral code?",
     "registerReferralPlaceholder": "E.g. SEND123456",
-    "registerReferralHelp": "Enter your sponsor's code to get 5€ off your first transfer"
+    "registerReferralHelp": "Enter your sponsor's code to get 5€ off your first transfer",
+    "codeValid": "Valid code!",
+    "codeInvalid": "This referral code doesn't exist. Please check and try again.",
+    "codeChecking": "Checking code..."
 }
