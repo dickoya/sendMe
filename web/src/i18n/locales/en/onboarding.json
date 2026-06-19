@@ -1,0 +1,24 @@
+{
+  "step1": {
+    "title": "👋 Welcome to SendMe",
+    "description": "From your dashboard, you can manage all your money transfers in a blink. Track your statistics, check exchange rates, and make instant transfers."
+  },
+  "step2": {
+    "title": "📊 Your Statistics",
+    "description": "Find a summary of your activity here: total sent, fees paid, and savings compared to traditional transfers."
+  },
+  "step3": {
+    "title": "💱 Live Exchange Rates",
+    "description": "Check real-time exchange rates and track their evolution to choose the best time for your transfers."
+  },
+  "step4": {
+    "title": "🚀 Ready to get started?",
+    "description": "Make your first transfer now! It's simple, fast, and secure.",
+    "cta": "Make a transfer"
+  },
+  "skip": "Skip",
+  "next": "Next",
+  "previous": "Previous",
+  "finish": "Finish",
+  "stepIndicator": "{{current}}/{{total}}"
+}

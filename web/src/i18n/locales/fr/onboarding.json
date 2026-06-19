@@ -1,0 +1,24 @@
+{
+  "step1": {
+    "title": "👋 Bienvenue sur SendMe",
+    "description": "Depuis votre tableau de bord, vous pouvez gérer tous vos transferts d'argent en un clin d'œil. Suivez vos statistiques, consultez les taux de change et effectuez des transferts instantanés."
+  },
+  "step2": {
+    "title": "📊 Vos statistiques",
+    "description": "Retrouvez ici un résumé de votre activité : total envoyé, frais payés et économies réalisées par rapport aux transferts traditionnels."
+  },
+  "step3": {
+    "title": "💱 Taux de change en direct",
+    "description": "Consultez les taux de change actualisés en temps réel et suivez leur évolution pour choisir le meilleur moment pour vos transferts."
+  },
+  "step4": {
+    "title": "🚀 Prêt à commencer ?",
+    "description": "Effectuez votre premier transfert dès maintenant ! C'est simple, rapide et sécurisé.",
+    "cta": "Effectuer un transfert"
+  },
+  "skip": "Ignorer",
+  "next": "Suivant",
+  "previous": "Précédent",
+  "finish": "Terminer",
+  "stepIndicator": "{{current}}/{{total}}"
+}

@@ -9,11 +9,13 @@ import StatsCard from '@/components/dashboard/StatsCard';
 import TransferEvolutionChart from '@/components/dashboard/TransferEvolutionChart';
 import ExchangeRateWidget from '@/components/dashboard/ExchangeRateWidget';
 import QuickActions from '@/components/dashboard/QuickActions';
+import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { useState } from 'react';
 import { useAuth } from '@/store/auth/authContext';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useTransferHistory } from '@/hooks/useTransfer';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useOnboarding } from '@/hooks/useOnboarding';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDateShort } from '@/utils/formatDate';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
@@ -48,10 +50,24 @@ function Dashboard() {
         isLoading: dashboardLoading,
     } = useDashboard();
 
+    // Onboarding pour les nouveaux utilisateurs (pas de transactions)
+    const isNewUser = stats !== null && stats.totalTransactions === 0;
+    const {
+        isActive: onboardingActive,
+        currentStep,
+        totalSteps,
+        step,
+        targetRect,
+        next: onNext,
+        previous: onPrevious,
+        skip: onSkip,
+        finish: onFinish,
+    } = useOnboarding(isNewUser);
+
     return (
         <div className="flex flex-col gap-6">
             {/* Bannière de bienvenue */}
-            <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
+            <div id="onboarding-welcome" className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-xl font-bold">
@@ -108,7 +124,7 @@ function Dashboard() {
             </div>
 
             {/* Statistiques personnelles */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div id="onboarding-stats" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title={t('stats.totalSent')}
                     value={stats ? formatCurrency(stats.totalSent, 'EUR') : '—'}
@@ -151,13 +167,15 @@ function Dashboard() {
             </div>
 
             {/* Taux de change en direct */}
-            <ExchangeRateWidget
-                exchangeRates={exchangeRates}
-                rateHistory={rateHistory}
-                selectedPair={selectedRatePair}
-                onSelectPair={setSelectedRatePair}
-                isLoading={dashboardLoading}
-            />
+            <div id="onboarding-exchange-rates">
+                <ExchangeRateWidget
+                    exchangeRates={exchangeRates}
+                    rateHistory={rateHistory}
+                    selectedPair={selectedRatePair}
+                    onSelectPair={setSelectedRatePair}
+                    isLoading={dashboardLoading}
+                />
+            </div>
 
             {/* Bénéficiaires et Transactions récentes */}
             <div className="grid gap-6 lg:grid-cols-3">
@@ -247,6 +265,19 @@ function Dashboard() {
                     )}
                 </Card>
             </div>
+
+            {/* Onboarding Tour pour les nouveaux utilisateurs */}
+            <OnboardingTour
+                isActive={onboardingActive}
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+                step={step}
+                targetRect={targetRect}
+                onNext={onNext}
+                onPrevious={onPrevious}
+                onSkip={onSkip}
+                onFinish={onFinish}
+            />
         </div>
     );
 }
