@@ -7,6 +7,14 @@ export interface FeeSimulatorProps {
     simulation: SimulateResponse | null;
     isLoading: boolean;
     currencyFrom: string;
+    /** Montant de la réduction disponible (0 si aucun coupon) */
+    availableDiscount?: number;
+    /** Si true, affiche le toggle pour appliquer ou non la réduction */
+    showDiscountToggle?: boolean;
+    /** État actuel du toggle */
+    applyDiscount?: boolean;
+    /** Callback quand l'utilisateur change le toggle */
+    onToggleDiscount?: (apply: boolean) => void;
 }
 
 /**
@@ -16,7 +24,15 @@ export interface FeeSimulatorProps {
  * Le taux de frais est interpolé en pourcentage déjà formaté
  * (ex: "1.5"), la clé contient le symbole "%".
  */
-function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps) {
+function FeeSimulator({
+    simulation,
+    isLoading,
+    currencyFrom,
+    availableDiscount = 0,
+    showDiscountToggle = false,
+    applyDiscount = true,
+    onToggleDiscount,
+}: FeeSimulatorProps) {
     const { t } = useTranslation('transfer');
 
     if (isLoading) {
@@ -37,9 +53,37 @@ function FeeSimulator({ simulation, isLoading, currencyFrom }: FeeSimulatorProps
 
     return (
         <div className="flex flex-col gap-3 rounded-xl bg-gray-50 p-4">
+            {/* Toggle de réduction de parrainage */}
+            {showDiscountToggle && (
+                <div className="flex items-center justify-between rounded-lg border border-brand-200 bg-brand-50 px-4 py-3">
+                    <div className="flex flex-col">
+                        <span className="text-sm font-medium text-brand-700">
+                            {availableDiscount > 0
+                                ? t('form.applyDiscount', { amount: formatCurrency(availableDiscount, currencyFrom) })
+                                : t('form.noDiscountAvailable')}
+                        </span>
+                    </div>
+                    {availableDiscount > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => onToggleDiscount?.(!applyDiscount)}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                applyDiscount ? 'bg-brand-600' : 'bg-gray-300'
+                            }`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    applyDiscount ? 'translate-x-6' : 'translate-x-1'
+                                }`}
+                            />
+                        </button>
+                    )}
+                </div>
+            )}
+
             <Row label={t('simulator.amountSent')} value={formatCurrency(simulation.amountSent, currencyFrom)} />
             <Row
-                label={t('simulator.fees', { rate: (simulation.feeRate * 100).toFixed(1) })}
+                label={t('simulator.fees', { rate: simulation.feeRate.toFixed(1) })}
                 value={`- ${formatCurrency(simulation.fees, currencyFrom)}`}
                 muted
             />

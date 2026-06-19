@@ -98,6 +98,11 @@ public class ReferralService {
     /**
      * Lie un nouvel utilisateur à son parrain via le code de parrainage.
      * Appelé après la création du compte.
+     * <p>
+     * Crée immédiatement un coupon de réduction pour le filleul (REFERRED)
+     * afin qu'il puisse l'utiliser dès son premier transfert.
+     * Le coupon du parrain (SPONSOR) sera créé lors du premier transfert
+     * du filleul via {@link #rewardFirstTransfer(User, Transaction)}.
      *
      * @param newUser      l'utilisateur qui vient de s'inscrire
      * @param referralCode le code de parrainage saisi (peut être null)
@@ -126,8 +131,22 @@ public class ReferralService {
         newUser.setReferredBy(sponsor);
         userRepository.save(newUser);
 
-        log.info("[PARRAINAGE] {} a été parrainé par {} (code: {})",
-                newUser.getEmail(), sponsor.getEmail(), referralCode);
+        // Créer immédiatement le coupon de réduction pour le filleul
+        // afin qu'il puisse l'utiliser dès son premier transfert
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(COUPON_EXPIRY_DAYS);
+        ReferralCoupon referredCoupon = ReferralCoupon.builder()
+                .user(newUser)
+                .referredUser(newUser)
+                .couponType("REFERRED")
+                .discountAmount(REFERRAL_DISCOUNT)
+                .currency("EUR")
+                .isUsed(false)
+                .expiresAt(expiresAt)
+                .build();
+        couponRepository.save(referredCoupon);
+
+        log.info("[PARRAINAGE] {} a été parrainé par {} (code: {}) — coupon filleul de {} EUR créé",
+                newUser.getEmail(), sponsor.getEmail(), referralCode, REFERRAL_DISCOUNT);
     }
 
     // ── Génération des coupons au premier transfert du filleul ────────────
@@ -137,6 +156,9 @@ public class ReferralService {
      * de réduction pour son premier transfert réussi.
      * <p>
      * Appelé par TransferService après un transfert COMPLETED.
+     * <p>
+     * Depuis la création du coupon filleul à l'inscription, cette méthode
+     * ne crée plus que le coupon du parrain (SPONSOR) si ce n'est pas déjà fait.
      *
      * @param user        l'expéditeur du transfert
      * @param transaction la transaction complétée
@@ -148,30 +170,18 @@ public class ReferralService {
             return;
         }
 
-        // Vérifier que c'est bien son premier transfert
-        long existingCoupons = couponRepository.countByUserIdAndCouponType(user.getId(), "REFERRED");
-        if (existingCoupons > 0) {
-            log.debug("[PARRAINAGE] {} a déjà reçu son coupon filleul, ignoré", user.getEmail());
-            return;
-        }
-
         User sponsor = user.getReferredBy();
         String currency = transaction.getCurrencySent() != null ? transaction.getCurrencySent() : "EUR";
         LocalDateTime expiresAt = LocalDateTime.now().plusDays(COUPON_EXPIRY_DAYS);
 
-        // 1. Coupon pour le filleul (REFERRED) — réduction sur son prochain transfert
-        ReferralCoupon referredCoupon = ReferralCoupon.builder()
-                .user(user)
-                .referredUser(user)
-                .couponType("REFERRED")
-                .discountAmount(REFERRAL_DISCOUNT)
-                .currency(currency)
-                .isUsed(false)
-                .expiresAt(expiresAt)
-                .build();
-        couponRepository.save(referredCoupon);
+        // Vérifier si le parrain a déjà reçu son coupon pour ce filleul
+        long existingSponsorCoupons = couponRepository.countByUserIdAndCouponType(sponsor.getId(), "SPONSOR");
+        if (existingSponsorCoupons > 0) {
+            log.debug("[PARRAINAGE] {} a déjà reçu son coupon parrain, ignoré", sponsor.getEmail());
+            return;
+        }
 
-        // 2. Coupon pour le parrain (SPONSOR) — réduction sur son prochain transfert
+        // Coupon pour le parrain (SPONSOR) — réduction sur son prochain transfert
         ReferralCoupon sponsorCoupon = ReferralCoupon.builder()
                 .user(sponsor)
                 .referredUser(user)
@@ -183,8 +193,8 @@ public class ReferralService {
                 .build();
         couponRepository.save(sponsorCoupon);
 
-        log.info("[PARRAINAGE] Coupons générés — {} (filleul) et {} (parrain) — {} {}",
-                user.getEmail(), sponsor.getEmail(), REFERRAL_DISCOUNT, currency);
+        log.info("[PARRAINAGE] Coupon parrain généré pour {} — {} {}",
+                sponsor.getEmail(), REFERRAL_DISCOUNT, currency);
     }
 
     // ── Récupération des coupons disponibles ──────────────────────────────
@@ -259,11 +269,12 @@ public class ReferralService {
     }
 
     /**
-     * Récupère la liste des coupons (valides et utilisés) d'un utilisateur.
+     * Récupère la liste de tous les coupons d'un utilisateur
+     * (valides, utilisés et expirés), triés par date de création décroissante.
      */
     @Transactional(readOnly = true)
     public List<ReferralCouponResponse> getUserCoupons(Long userId) {
-        List<ReferralCoupon> coupons = couponRepository.findValidCouponsByUserId(userId);
+        List<ReferralCoupon> coupons = couponRepository.findAllByUserId(userId);
         return coupons.stream()
                 .map(this::toCouponResponse)
                 .toList();

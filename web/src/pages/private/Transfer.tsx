@@ -16,6 +16,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useToast } from '@/store/notification/toastContext';
 import { getStripe } from '@/services/stripeService';
 import { transferService } from '@/services/transferService';
+import { referralService } from '@/services/referralService';
 import { getErrorMessage } from '@/lib/utils';
 import { getCurrencyForChannel } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -52,6 +53,15 @@ function Transfer() {
     const [transferError, setTransferError] = useState<string | null>(null);
     const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
 
+    // ── État du toggle de réduction de parrainage ───────────────────────────
+    const [applyDiscount, setApplyDiscount] = useState(true);
+    const [availableDiscount, setAvailableDiscount] = useState(0);
+
+    // Récupérer le montant de réduction disponible au chargement
+    useEffect(() => {
+        referralService.getDiscount(currency).then(setAvailableDiscount).catch(() => setAvailableDiscount(0));
+    }, [currency]);
+
     const selectedBeneficiary: Beneficiary | undefined = beneficiaries.find((b) => b.id === beneficiaryId);
 
     const debouncedAmount = useDebounce(amount, 400);
@@ -74,6 +84,7 @@ function Transfer() {
                 currencyFrom: currency,
                 currencyTo: getCurrencyForChannel(selectedBeneficiary.channel),
                 channel: selectedBeneficiary.channel,
+                applyDiscount,
             })
             .then((result) => {
                 if (!cancelled) setSimulation(result);
@@ -88,7 +99,7 @@ function Transfer() {
         return () => {
             cancelled = true;
         };
-    }, [debouncedAmount, numericAmount, selectedBeneficiary, currency]);
+    }, [debouncedAmount, numericAmount, selectedBeneficiary, currency, applyDiscount]);
 
     // ── Soumission du paiement ──────────────────────────────────────────────
     const handlePayment = async (paymentMethodId: string) => {
@@ -158,7 +169,15 @@ function Transfer() {
                         />
 
                         {selectedBeneficiary && amount && (
-                            <FeeSimulator simulation={simulation} isLoading={simulating} currencyFrom={currency} />
+                            <FeeSimulator
+                                simulation={simulation}
+                                isLoading={simulating}
+                                currencyFrom={currency}
+                                showDiscountToggle={availableDiscount > 0}
+                                availableDiscount={availableDiscount}
+                                applyDiscount={applyDiscount}
+                                onToggleDiscount={setApplyDiscount}
+                            />
                         )}
 
                         {simulateError && (

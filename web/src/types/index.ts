@@ -102,6 +102,8 @@ export interface SimulateRequest {
     currencyFrom: string;
     currencyTo: string;
     channel: ChannelType;
+    /** Si true (défaut), applique la réduction de parrainage si un coupon valide existe */
+    applyDiscount?: boolean;
 }
 
 export interface SimulateResponse {

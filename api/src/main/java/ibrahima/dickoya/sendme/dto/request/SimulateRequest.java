@@ -14,7 +14,11 @@ import java.math.BigDecimal;
  * - Le montant exact que recevra le bénéficiaire
  * Tout ceci AVANT de confirmer et débiter la carte.
  */
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SimulateRequest {
 
     /**
@@ -44,4 +48,12 @@ public class SimulateRequest {
      */
     @NotNull(message = "Le canal est obligatoire")
     private ChannelType channel;
+
+    /**
+     * Indique si l'utilisateur souhaite appliquer sa réduction de parrainage.
+     * true par défaut — la réduction est appliquée automatiquement si un coupon
+     * valide existe.
+     * L'utilisateur peut désactiver cette option pour ne pas utiliser son coupon.
+     */
+    private Boolean applyDiscount;
 }

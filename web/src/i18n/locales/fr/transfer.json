@@ -11,7 +11,9 @@
     "addBeneficiaryLink": "Ajouter un bénéficiaire",
     "amountLabel": "Montant à envoyer",
     "amountHint": "Devise de paiement : {{currency}}",
-    "continueButton": "Continuer"
+    "continueButton": "Continuer",
+    "applyDiscount": "Appliquer ma réduction de parrainage ({{amount}})",
+    "noDiscountAvailable": "Aucune réduction disponible"
   },
   "simulator": {
     "calculating": "Calcul en cours...",

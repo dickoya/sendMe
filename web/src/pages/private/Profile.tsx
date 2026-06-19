@@ -17,6 +17,8 @@ import {
     XCircle,
     Monitor,
     AlertTriangle,
+    Gift,
+    Ticket,
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
@@ -27,9 +29,11 @@ import { useAuth } from '@/store/auth/authContext';
 import { useTheme } from '@/store/theme/themeContext';
 import { useToast } from '@/store/notification/toastContext';
 import { profileService, type ProfileData, type LoginHistoryEntry } from '@/services/profileService';
+import { referralService } from '@/services/referralService';
 import { getErrorMessage } from '@/lib/utils';
 import { LANGUAGES } from '@/utils/constants';
 import { formatDateTime } from '@/utils/formatDate';
+import type { ReferralCouponResponse } from '@/types';
 
 /**
  * Page de profil utilisateur complète.
@@ -79,6 +83,10 @@ function Profile() {
     // ── Historique de connexion ─────────────────────────────────────────────
     const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+
+    // ── Coupons de réduction ────────────────────────────────────────────────
+    const [coupons, setCoupons] = useState<ReferralCouponResponse[]>([]);
+    const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
 
     // ── Suppression de compte ───────────────────────────────────────────────
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -142,6 +150,24 @@ function Profile() {
         loadLoginHistory();
         return () => { cancelled = true; };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ── Chargement des coupons de réduction ─────────────────────────────────
+    useEffect(() => {
+        let cancelled = false;
+        const loadCoupons = async () => {
+            setIsLoadingCoupons(true);
+            try {
+                const data = await referralService.getCoupons();
+                if (!cancelled) setCoupons(data);
+            } catch {
+                // Silencieux — les coupons ne sont pas bloquants
+            } finally {
+                if (!cancelled) setIsLoadingCoupons(false);
+            }
+        };
+        loadCoupons();
+        return () => { cancelled = true; };
+    }, []);
 
     // Fonction de rechargement pour le bouton "Réessayer"
     const retryLoadProfile = useCallback(async () => {
@@ -447,7 +473,56 @@ function Profile() {
                     </div>
                 </Card>
 
-                {/* ── Section 4 : Historique de connexion ────────────────────── */}
+                {/* ── Section 4 : Mes coupons de réduction ──────────────────── */}
+                <Card title={t('sections.referralCoupons', 'Mes coupons de réduction')} className="lg:col-span-2">
+                    {isLoadingCoupons ? (
+                        <Spinner size="sm" />
+                    ) : coupons.length === 0 ? (
+                        <div className="flex flex-col items-center gap-2 py-6 text-center">
+                            <Ticket size={24} className="text-gray-400" />
+                            <p className="text-sm text-gray-500">{t('referralCoupons.empty', 'Aucun coupon de réduction pour le moment')}</p>
+                        </div>
+                    ) : (
+                        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                            {coupons.map((coupon) => (
+                                <div
+                                    key={coupon.id}
+                                    className={`rounded-xl border p-4 transition-all ${
+                                        coupon.isUsed
+                                            ? 'border-gray-200 bg-gray-50 opacity-60 dark:border-[#2a2a2a] dark:bg-[#1a1a1a]'
+                                            : 'border-brand-200 bg-brand-50 dark:border-brand-800 dark:bg-brand-900/20'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-medium uppercase tracking-wider text-gray-500">
+                                            {coupon.couponType === 'SPONSOR' ? t('referralCoupons.sponsor', 'Parrain') : t('referralCoupons.referred', 'Filleul')}
+                                        </span>
+                                        {!coupon.isUsed && (
+                                            <span className="rounded-full bg-accent-100 px-2 py-0.5 text-xs font-medium text-accent-700 dark:bg-accent-900/30 dark:text-accent-400">
+                                                {t('referralCoupons.available', 'Disponible')}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="mt-2 text-lg font-bold text-brand-700 dark:text-brand-300">
+                                        {coupon.discountAmount} {coupon.currency}
+                                    </p>
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        {coupon.isUsed
+                                            ? t('referralCoupons.usedOn', 'Utilisé le {{date}}', { date: new Date(coupon.usedAt!).toLocaleDateString() })
+                                            : t('referralCoupons.expiresOn', 'Expire le {{date}}', { date: new Date(coupon.expiresAt).toLocaleDateString() })}
+                                    </p>
+                                    {coupon.referredUserName && (
+                                        <p className="mt-1 text-xs text-gray-400">
+                                            {t('referralCoupons.referredBy', 'Parrainé par {{name}}', { name: coupon.referredUserName })}
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </Card>
+
+                {/* ── Section 5 : Historique de connexion ────────────────────── */}
                 <Card title={t('loginHistory.title')} className="lg:col-span-2">
                     {isLoadingHistory ? (
                         <Spinner size="sm" />

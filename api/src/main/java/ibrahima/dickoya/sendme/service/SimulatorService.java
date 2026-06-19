@@ -89,8 +89,11 @@ public class SimulatorService {
                                 .setScale(2, RoundingMode.HALF_UP);
 
                 // 5. Appliquer la réduction de parrainage si l'utilisateur a un coupon valide
+                // ET si applyDiscount n'est pas explicitement désactivé
                 BigDecimal discount = BigDecimal.ZERO;
-                if (userId != null) {
+                boolean shouldApplyDiscount = userId != null
+                                && (request.getApplyDiscount() == null || request.getApplyDiscount());
+                if (shouldApplyDiscount) {
                         Optional<ReferralCoupon> coupon = referralService.getValidCoupon(userId, currencyFrom);
                         if (coupon.isPresent()) {
                                 discount = coupon.get().getDiscountAmount();

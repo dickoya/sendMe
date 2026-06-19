@@ -11,7 +11,9 @@
     "addBeneficiaryLink": "Add a beneficiary",
     "amountLabel": "Amount to send",
     "amountHint": "Payment currency: {{currency}}",
-    "continueButton": "Continue"
+    "continueButton": "Continue",
+    "applyDiscount": "Apply my referral discount ({{amount}})",
+    "noDiscountAvailable": "No discount available"
   },
   "simulator": {
     "calculating": "Calculating...",
