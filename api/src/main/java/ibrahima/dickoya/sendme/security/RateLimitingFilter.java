@@ -19,7 +19,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Filtre de rate limiting pour protéger les endpoints d'authentification
  * contre les attaques par brute-force.
  * <p>
- * Utilise un token bucket (Caffeine) par IP pour limiter le débit,
+ * Utilise un token bucket (Caffeine) par IP pour limiter le débit,propose un
+ * message de commit en français sans jamais commiter a ma place
  * et vérifie également les blocages persistants en base de données.
  */
 @Slf4j
@@ -27,7 +28,7 @@ public class RateLimitingFilter implements Filter {
 
     private static final int MAX_REQUESTS_PER_MINUTE = 10;
     private static final int MAX_REGISTER_PER_HOUR = 3;
-    private static final int MAX_FAILED_ATTEMPTS_BEFORE_BLOCK = 20;
+    private static final int MAX_FAILED_ATTEMPTS_BEFORE_BLOCK = 10;
     private static final int BLOCK_DURATION_MINUTES = 30;
     private static final int CLEANUP_INTERVAL_SECONDS = 300;
 
@@ -91,7 +92,10 @@ public class RateLimitingFilter implements Filter {
         }
 
         // 2. Vérifier le rate limiting général (10 req/min par IP)
-        if (!checkRequestRate(ipAddress)) {
+        // Ne pas appliquer le rate limit général à /api/auth/login car le blocage
+        // IP est déjà géré par recordFailedAttempt() dans AuthService (seuil de 20
+        // échecs)
+        if (!path.equals("/api/auth/login") && !checkRequestRate(ipAddress)) {
             log.warn("[RATE-LIMIT] Rate limit dépassé pour IP : {}", ipAddress);
             sendTooManyRequestsResponse(response, 60);
             return;
