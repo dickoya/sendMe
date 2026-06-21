@@ -20,6 +20,8 @@ Projet réalisé dans le cadre d'un Travail de Fin d'Études (TFE).
 | Emails | Spring Mail + Thymeleaf + Mailtrap (Sandbox) |
 | Temps réel | Server-Sent Events (SSE) |
 | PDF | iText7 |
+| Taux de change | OpenExchangeRates API |
+| Rate Limiting | Bucket4j + Caffeine |
 
 ---
 
@@ -40,9 +42,9 @@ sendMe/
 | Document | Description |
 |---|---|
 | [`docs/README.md`](./docs/README.md) | Index de la documentation technique |
-| [`docs/architecture.md`](./docs/architecture.md) | Architecture générale, Strategy Pattern, flux de transfert |
+| [`docs/architecture.md`](./docs/architecture.md) | Architecture générale, Strategy Pattern, flux de transfert, sécurité, multi-devises, parrainage |
 | [`docs/api-reference.md`](./docs/api-reference.md) | Référence complète des endpoints REST |
-| [`docs/database.md`](./docs/database.md) | Schéma de base de données, migrations Flyway |
+| [`docs/database.md`](./docs/database.md) | Schéma de base de données, migrations Flyway V1–V14 |
 | [`docs/notifications.md`](./docs/notifications.md) | Système de notifications (SSE + emails) |
 | [`docs/i18n.md`](./docs/i18n.md) | Internationalisation FR/EN |
 | [`docs/progress.md`](./docs/progress.md) | État d'avancement détaillé |
@@ -86,6 +88,24 @@ L'application est disponible sur `http://localhost:5173`.
 - Wave
 - Moov Money
 - Airtel Money
+
+---
+
+## Fonctionnalités principales
+
+- **Authentification JWT** — inscription, connexion, refresh token, déconnexion
+- **Bénéficiaires** — CRUD avec champs contextuels selon le canal (RG-02)
+- **Transferts** — simulation temps réel, tunnel 4 étapes, paiement Stripe, routage multi-canaux
+- **Multi-devises** — 5 devises d'envoi (EUR, USD, GBP, CAD, CHF), 8 devises de réception (XOF, XAF, GNF, NGN, GHS, ZAR, MAD, TND)
+- **Dashboard utilisateur** — statistiques personnelles, évolution des transferts, taux de change en direct
+- **Profil** — modification, changement de mot de passe, historique des connexions, suppression de compte
+- **Parrainage** — code unique, coupons de réduction (5€), statistiques
+- **Notifications** — temps réel (SSE) + emails (13 templates)
+- **Administration** — dashboard, gestion utilisateurs, transactions, configuration frais, maintenance
+- **Internationalisation** — interface entièrement bilingue français/anglais (13 namespaces)
+- **Sécurité** — rate limiting (Bucket4j), exponential backoff, blocage IP, JWT stateless
+- **Onboarding** — tour guidé pour les nouveaux utilisateurs
+- **Thème clair/sombre**
 
 ---
 

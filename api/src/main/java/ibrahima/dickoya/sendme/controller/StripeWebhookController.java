@@ -4,6 +4,10 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.*;
 import com.stripe.net.Webhook;
 import ibrahima.dickoya.sendme.service.StripeWebhookService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
  * pour éviter les faux événements malveillants.
  *
  * Événements traités :
- * - payment_intent.succeeded    → paiement confirmé
- * - payment_intent.failed       → paiement échoué
- * - charge.refunded             → remboursement confirmé
+ * - payment_intent.succeeded → paiement confirmé
+ * - payment_intent.failed → paiement échoué
+ * - charge.refunded → remboursement confirmé
  *
  * IMPORTANT : Cette route doit être exclue de Spring Security
  * car Stripe n'envoie pas de JWT. La sécurité est assurée
@@ -34,6 +38,9 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/webhooks")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Webhooks Stripe", description = "Endpoint de callback Stripe (webhook) pour les notifications de paiement. "
+        +
+        "Sécurisé par vérification de signature, pas de JWT requis.")
 public class StripeWebhookController {
 
     /** Service qui traite la logique métier des webhooks. */
@@ -54,6 +61,15 @@ public class StripeWebhookController {
      * @return 200 OK si traité, 400 si signature invalide
      */
     @PostMapping("/stripe")
+    @Operation(summary = "Webhook Stripe", description = """
+            Reçoit les événements Stripe (paiement confirmé, échoué, remboursé).
+            La sécurité est assurée par la vérification de la signature Stripe.
+            Aucun token JWT requis — Stripe ne peut pas envoyer de JWT.
+            """)
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Webhook traité avec succès"),
+            @ApiResponse(responseCode = "400", description = "Signature Stripe invalide")
+    })
     public ResponseEntity<String> handleStripeWebhook(
             @RequestBody String payload,
             @RequestHeader("Stripe-Signature") String sigHeader) {
@@ -77,25 +93,22 @@ public class StripeWebhookController {
 
             case "payment_intent.succeeded":
                 // Paiement confirmé par Stripe
-                PaymentIntent succeededIntent = (PaymentIntent)
-                        event.getDataObjectDeserializer()
-                                .getObject().orElseThrow();
+                PaymentIntent succeededIntent = (PaymentIntent) event.getDataObjectDeserializer()
+                        .getObject().orElseThrow();
                 stripeWebhookService.handlePaymentSucceeded(succeededIntent);
                 break;
 
             case "payment_intent.payment_failed":
                 // Paiement échoué côté Stripe
-                PaymentIntent failedIntent = (PaymentIntent)
-                        event.getDataObjectDeserializer()
-                                .getObject().orElseThrow();
+                PaymentIntent failedIntent = (PaymentIntent) event.getDataObjectDeserializer()
+                        .getObject().orElseThrow();
                 stripeWebhookService.handlePaymentFailed(failedIntent);
                 break;
 
             case "charge.refunded":
                 // Remboursement confirmé
-                Charge charge = (Charge)
-                        event.getDataObjectDeserializer()
-                                .getObject().orElseThrow();
+                Charge charge = (Charge) event.getDataObjectDeserializer()
+                        .getObject().orElseThrow();
                 stripeWebhookService.handleChargeRefunded(charge);
                 break;
 

@@ -14,8 +14,9 @@ Interface utilisateur de la passerelle de transfert d'argent multi-canaux SendMe
 | React Router DOM 7 | Routage SPA |
 | Axios | Client HTTP |
 | Stripe.js | Paiement par carte (Sandbox) |
-| i18next | Internationalisation FR/EN |
+| i18next | Internationalisation FR/EN (13 namespaces) |
 | date-fns | Formatage dates localisé |
+| Vitest | Tests unitaires |
 
 ## Prérequis
 
@@ -43,6 +44,7 @@ L'application est disponible sur `http://localhost:5173`.
 | `npm run preview` | Prévisualisation du build |
 | `npm run lint` | ESLint |
 | `npm run check:i18n` | Vérification des clés de traduction FR/EN |
+| `npm run test` | Tests unitaires (Vitest) |
 
 ## Variables d'environnement
 
@@ -57,21 +59,24 @@ L'application est disponible sur `http://localhost:5173`.
 src/
 ├── App.tsx              # Composant racine (providers)
 ├── components/          # Composants UI réutilisables
-│   ├── ui/              # Atomiques (Button, Input, Card...)
+│   ├── ui/              # Atomiques (Button, Input, Card, CurrencySelect...)
 │   ├── layout/          # Header, Sidebar, LanguageSwitcher
 │   ├── beneficiary/     # CRUD bénéficiaires
-│   ├── transfer/        # Tunnel de transfert
+│   ├── transfer/        # Tunnel de transfert (FeeSimulator, TransferSummary, TransferTimeline...)
+│   ├── dashboard/       # StatsCard, TransferEvolutionChart, ExchangeRateWidget, QuickActions
+│   ├── referral/        # ReferralCard
+│   ├── onboarding/      # OnboardingTour
 │   └── notification/    # Cloche, centre de notifications
 ├── pages/               # Pages par domaine
-│   ├── public/          # Landing, Login, Register
-│   ├── private/         # Dashboard, Transfer, History...
+│   ├── public/          # Home, Login, Register
+│   ├── private/         # Dashboard, Transfer, History, Profile, Referral...
 │   └── admin/           # AdminDashboard, AdminUsers...
 ├── layouts/             # PublicLayout, PrivateLayout, AdminLayout
 ├── routes/              # AppRoutes, PrivateRoute, AdminRoute
-├── services/            # Couche API (Axios)
-├── hooks/               # Hooks personnalisés
-├── store/               # Context API (auth, notification, transfer)
-├── i18n/                # Traductions FR/EN (9 namespaces)
+├── services/            # Couche API (Axios) — auth, beneficiary, transfer, dashboard, profile, referral...
+├── hooks/               # Hooks personnalisés (useDashboard, useReferral, useOnboarding...)
+├── store/               # Context API (auth, notification, transfer, theme)
+├── i18n/                # Traductions FR/EN (13 namespaces)
 ├── types/               # Types TypeScript
 ├── utils/               # Helpers (dates, devises, notifications)
 └── lib/                 # Utilitaires généraux
