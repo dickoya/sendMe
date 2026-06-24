@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Pencil, Trash2, Landmark, Smartphone } from 'lucide-react';
+import { Pencil, Trash2, Landmark, Smartphone, Globe } from 'lucide-react';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
-import type { Beneficiary } from '@/types';
+import type { Beneficiary, BeneficiaryChannel } from '@/types';
 
 export interface BeneficiaryCardProps {
     beneficiary: Beneficiary;
@@ -10,43 +10,33 @@ export interface BeneficiaryCardProps {
 }
 
 /**
- * Carte affichant un bénéficiaire avec ses informations
- * de réception et les actions modifier/supprimer.
+ * Carte affichant un bénéficiaire avec ses canaux de réception
+ * et les actions modifier/supprimer.
  *
- * Migration i18n (Phase 7) : libellé de canal via getChannelLabel,
- * aria-labels des boutons d'action via "common".
+ * Un bénéficiaire peut avoir 1 ou plusieurs canaux (ex: Orange Money + Wave).
+ * Chaque canal affiche ses détails spécifiques et sa devise.
  */
 function BeneficiaryCard({ beneficiary, onEdit, onDelete }: BeneficiaryCardProps) {
     const { t: tCommon } = useTranslation('common');
-    const isBank = beneficiary.channel === 'BANK_TRANSFER';
 
     return (
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-gray-100 p-4 transition-shadow hover:shadow-sm">
-            <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 p-4 transition-shadow hover:shadow-sm">
+            <div className="flex items-start gap-3 min-w-0 flex-1">
                 <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-lg font-semibold text-brand-700">
                     {beneficiary.firstName[0]}
                     {beneficiary.lastName[0]}
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-gray-900">
                         {beneficiary.firstName} {beneficiary.lastName}
                     </p>
-                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                        <span>{getChannelIcon(beneficiary.channel)}</span>
-                        <span>{getChannelLabel(beneficiary.channel, tCommon)}</span>
-                        <span className="text-gray-300">•</span>
-                        {isBank ? (
-                            <span className="flex items-center gap-1 truncate">
-                <Landmark size={12} />
-                                {maskIban(beneficiary.bankDetails?.iban)}
-              </span>
-                        ) : (
-                            <span className="flex items-center gap-1 truncate">
-                <Smartphone size={12} />
-                                {beneficiary.mobileDetails?.phoneNumber}
-              </span>
-                        )}
+
+                    {/* Liste des canaux */}
+                    <div className="mt-2 flex flex-col gap-1.5">
+                        {beneficiary.channels.map((ch) => (
+                            <ChannelBadge key={ch.id} channel={ch} />
+                        ))}
                     </div>
                 </div>
             </div>
@@ -68,6 +58,52 @@ function BeneficiaryCard({ beneficiary, onEdit, onDelete }: BeneficiaryCardProps
                     <Trash2 size={16} />
                 </button>
             </div>
+        </div>
+    );
+}
+
+/**
+ * Badge affichant un canal de réception avec ses détails.
+ */
+function ChannelBadge({ channel }: { channel: BeneficiaryChannel }) {
+    const { t: tCommon } = useTranslation('common');
+    const isBank = channel.channel === 'BANK_TRANSFER';
+
+    return (
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>{getChannelIcon(channel.channel)}</span>
+            <span className="font-medium text-gray-700">
+                {getChannelLabel(channel.channel, tCommon)}
+            </span>
+            <span className="text-gray-300">•</span>
+            {isBank ? (
+                <span className="flex items-center gap-1 truncate">
+                    <Landmark size={12} />
+                    {channel.bankName ? `${channel.bankName} — ` : ''}
+                    {maskIban(channel.iban)}
+                </span>
+            ) : (
+                <span className="flex items-center gap-1 truncate">
+                    <Smartphone size={12} />
+                    {channel.phoneNumber}
+                </span>
+            )}
+            {channel.countryCode && (
+                <>
+                    <span className="text-gray-300">•</span>
+                    <span className="flex items-center gap-1">
+                        <Globe size={12} />
+                        {channel.countryCode}
+                    </span>
+                </>
+            )}
+            <span className="text-gray-300">•</span>
+            <span className="font-mono text-xs text-brand-600">{channel.currency}</span>
+            {channel.isPrimary && (
+                <span className="ml-1 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-medium text-brand-700">
+                    Principal
+                </span>
+            )}
         </div>
     );
 }

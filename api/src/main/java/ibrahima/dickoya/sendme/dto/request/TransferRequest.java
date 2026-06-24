@@ -16,7 +16,11 @@ import java.math.BigDecimal;
  * IMPORTANT : Les données de carte bancaire ne transitent JAMAIS
  * par notre backend (conformité PCI DSS Level 1).
  */
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class TransferRequest {
 
     /**
@@ -48,8 +52,8 @@ public class TransferRequest {
      *
      * Généré côté frontend avec :
      * const {paymentMethod} = await stripe.createPaymentMethod({
-     *     type: 'card',
-     *     card: cardElement,
+     * type: 'card',
+     * card: cardElement,
      * });
      * → paymentMethod.id = "pm_XXXXXXXXXXXX"
      *
@@ -59,6 +63,14 @@ public class TransferRequest {
      */
     @NotBlank(message = "L'identifiant de paiement Stripe est obligatoire")
     private String paymentMethodId;
+
+    /**
+     * Identifiant du canal de réception choisi pour ce transfert.
+     * Si le bénéficiaire a plusieurs canaux, l'utilisateur peut choisir
+     * vers lequel envoyer l'argent. Si non fourni, le canal principal
+     * (isPrimary=true) est utilisé.
+     */
+    private Long channelId;
 
     /**
      * Clé d'idempotence pour éviter les doubles débits (RG-06).

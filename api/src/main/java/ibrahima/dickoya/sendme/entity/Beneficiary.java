@@ -4,10 +4,16 @@ import ibrahima.dickoya.sendme.enums.ChannelType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "beneficiaries")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Beneficiary {
 
     @Id
@@ -20,6 +26,10 @@ public class Beneficiary {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    /**
+     * Canal par défaut (conservé pour compatibilité ascendante).
+     * La liste complète des canaux est dans beneficiaryChannels.
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChannelType channel;
@@ -28,11 +38,13 @@ public class Beneficiary {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToOne(mappedBy = "beneficiary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private BankDetails bankDetails;
-
-    @OneToOne(mappedBy = "beneficiary", cascade = CascadeType.ALL, orphanRemoval = true)
-    private MobileMoneyDetails mobileMoneyDetails;
+    /**
+     * Liste des canaux de réception de ce bénéficiaire.
+     * Un bénéficiaire peut avoir 1 ou plusieurs canaux.
+     */
+    @OneToMany(mappedBy = "beneficiary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<BeneficiaryChannel> channels = new ArrayList<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

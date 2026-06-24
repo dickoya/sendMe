@@ -1,7 +1,9 @@
 package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.entity.Beneficiary;
+import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
+import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +30,12 @@ public class OrangeMoneyStrategy implements TransferStrategy {
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
 
-        String phoneNumber = beneficiary.getMobileMoneyDetails().getPhoneNumber();
+        // Récupérer le canal Orange Money
+        String phoneNumber = beneficiary.getChannels().stream()
+                .filter(ch -> ch.getChannel() == ChannelType.ORANGE_MONEY)
+                .findFirst()
+                .map(BeneficiaryChannel::getPhoneNumber)
+                .orElse("N/A");
         log.info("[ORANGE_MONEY] Debut du transfert vers le numero : {}", maskPhone(phoneNumber));
 
         try {
@@ -59,7 +66,8 @@ public class OrangeMoneyStrategy implements TransferStrategy {
      * Exemple : +22507123456 → +225****3456
      */
     private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6) return "****";
+        if (phone == null || phone.length() < 6)
+            return "****";
         return phone.substring(0, phone.length() - 4) + "****";
     }
 

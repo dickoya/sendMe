@@ -32,7 +32,7 @@ function AdminDashboard() {
     }
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 ">
             {/* ── Statistiques utilisateurs ──────────────────────────────────── */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
@@ -120,20 +120,20 @@ function AdminDashboard() {
                 </Card>
             </div>
 
-            {/* ── Taux de change : toutes les paires ──────────────────────────────── */}
-            {allExchangeRates.length > 0 && (
-                <Card title={t('dashboard.allExchangeRates.title')}>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead>
+                {/* ── Taux de change : toutes les paires ──────────────────────────────── */}
+                {allExchangeRates.length > 0 && (
+                    <Card title={t('dashboard.allExchangeRates.title')}>
+                        <div className="overflow-x-auto max-h-96 overflow-y-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead>
                                 <tr className="border-b border-gray-200 text-xs font-medium uppercase text-gray-500">
                                     <th className="px-3 py-2">{t('dashboard.allExchangeRates.pair')}</th>
                                     <th className="px-3 py-2">{t('dashboard.allExchangeRates.rawRate')}</th>
                                     <th className="px-3 py-2">{t('dashboard.allExchangeRates.marginRate')}</th>
                                     <th className="px-3 py-2">{t('dashboard.allExchangeRates.cacheTimestamp')}</th>
                                 </tr>
-                            </thead>
-                            <tbody>
+                                </thead>
+                                <tbody>
                                 {allExchangeRates.map((rate) => (
                                     <tr key={`${rate.from}-${rate.to}`} className="border-b border-gray-100 hover:bg-gray-50">
                                         <td className="whitespace-nowrap px-3 py-2 font-medium text-gray-900">
@@ -150,11 +150,12 @@ function AdminDashboard() {
                                         </td>
                                     </tr>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Card>
-            )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </Card>
+                )}
+
 
             {/* ── Debug EUR → XOF (carte existante) ──────────────────────────────── */}
             {exchangeRateDebug && (
@@ -193,6 +194,8 @@ function AdminDashboard() {
                     </p>
                 </Card>
             )}
+
+
         </div>
     );
 }

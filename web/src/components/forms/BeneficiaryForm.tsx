@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User } from 'lucide-react';
+import { Plus, User } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
-import ChannelSelector from '@/components/transfer/ChannelSelector';
-import ChannelDetailsForm from '@/components/beneficiary/BankDetailsForm';
+import BeneficiaryChannelForm from '@/components/beneficiary/BeneficiaryChannelForm';
 import { getErrorMessage } from '@/lib/utils';
-import type { Beneficiary, BeneficiaryFormData, BankDetails, MobileMoneyDetails, ChannelType } from '@/types';
+import type { Beneficiary, BeneficiaryFormData, BeneficiaryChannelFormData, ChannelType } from '@/types';
 
 export interface BeneficiaryFormProps {
     initialData?: Beneficiary;
@@ -14,14 +13,19 @@ export interface BeneficiaryFormProps {
     onCancel: () => void;
 }
 
-const EMPTY_BANK: BankDetails = { bankName: '', iban: '', bic: '' };
-const EMPTY_MOBILE: MobileMoneyDetails = { phoneNumber: '' };
+const EMPTY_CHANNEL: BeneficiaryChannelFormData = {
+    channel: 'ORANGE_MONEY',
+    phoneNumber: '',
+    countryCode: '',
+    isPrimary: true,
+};
 
 /**
  * Formulaire de création/édition d'un bénéficiaire.
  *
- * Migration i18n (Phase 7) : namespace "beneficiaries" (clés form.*),
- * "common" pour les boutons Annuler/Continuer génériques.
+ * Un bénéficiaire peut avoir 1 ou plusieurs canaux de réception.
+ * Chaque canal peut être de type bancaire ou Mobile Money,
+ * avec un code pays qui détermine la devise de réception.
  */
 function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormProps) {
     const { t } = useTranslation('beneficiaries');
@@ -29,28 +33,51 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
 
     const [firstName, setFirstName] = useState(initialData?.firstName ?? '');
     const [lastName, setLastName] = useState(initialData?.lastName ?? '');
-    const [channel, setChannel] = useState<ChannelType>(initialData?.channel ?? 'ORANGE_MONEY');
-    const [bankDetails, setBankDetails] = useState<BankDetails>(
-        initialData?.bankDetails ?? EMPTY_BANK
-    );
-    const [mobileDetails, setMobileDetails] = useState<MobileMoneyDetails>(
-        initialData?.mobileDetails ?? EMPTY_MOBILE
+    const [channels, setChannels] = useState<BeneficiaryChannelFormData[]>(
+        initialData
+            ? initialData.channels.map((ch) => ({
+                  channel: ch.channel,
+                  phoneNumber: ch.phoneNumber || '',
+                  countryCode: ch.countryCode || '',
+                  bankName: ch.bankName || '',
+                  iban: ch.iban || '',
+                  bic: ch.bic || '',
+                  isPrimary: ch.isPrimary,
+              }))
+            : [{ ...EMPTY_CHANNEL }]
     );
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleChannelChange = (index: number, data: BeneficiaryChannelFormData) => {
+        const updated = channels.map((ch, i) => (i === index ? data : ch));
+        setChannels(updated);
+    };
+
+    const handleRemoveChannel = (index: number) => {
+        setChannels((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const handleAddChannel = () => {
+        setChannels((prev) => [
+            ...prev,
+            { ...EMPTY_CHANNEL, isPrimary: false },
+        ]);
+    };
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 
+        // Utiliser le premier canal comme canal par défaut (compatibilité)
+        const defaultChannel = channels[0]?.channel || 'ORANGE_MONEY';
+
         const payload: BeneficiaryFormData = {
             firstName,
             lastName,
-            channel,
-            ...(channel === 'BANK_TRANSFER'
-                ? { bankDetails }
-                : { mobileDetails }),
+            channel: defaultChannel,
+            channels,
         };
 
         try {
@@ -64,6 +91,7 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {/* Nom et prénom */}
             <div className="grid grid-cols-2 gap-4">
                 <Input
                     label={t('form.firstName')}
@@ -82,15 +110,33 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
                 />
             </div>
 
-            <ChannelSelector value={channel} onChange={setChannel} />
+            {/* Canaux de réception */}
+            <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-gray-700">
+                        Canaux de réception
+                    </label>
+                    <button
+                        type="button"
+                        onClick={handleAddChannel}
+                        className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:text-brand-700"
+                    >
+                        <Plus size={14} />
+                        Ajouter un canal
+                    </button>
+                </div>
 
-            <ChannelDetailsForm
-                channel={channel}
-                bankDetails={bankDetails}
-                mobileDetails={mobileDetails}
-                onBankChange={(field, value) => setBankDetails((prev) => ({ ...prev, [field]: value }))}
-                onMobileChange={(field, value) => setMobileDetails((prev) => ({ ...prev, [field]: value }))}
-            />
+                {channels.map((ch, index) => (
+                    <BeneficiaryChannelForm
+                        key={index}
+                        index={index}
+                        data={ch}
+                        onChange={handleChannelChange}
+                        onRemove={handleRemoveChannel}
+                        canRemove={channels.length > 1}
+                    />
+                ))}
+            </div>
 
             {error && (
                 <div className="rounded-lg bg-danger-50 px-3 py-2 text-sm text-danger-600">

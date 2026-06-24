@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,17 +69,19 @@ class BeneficiaryServiceTest {
                 @DisplayName("Création avec succès - Canal BANK_TRANSFER")
                 void create_ShouldReturnBeneficiaryResponse_WhenBankTransfer() {
                         // Arrange
-                        BankDetailsRequest bankDetails = BankDetailsRequest.builder()
+                        BeneficiaryChannelRequest channelRequest = BeneficiaryChannelRequest.builder()
+                                        .channel(ChannelType.BANK_TRANSFER)
                                         .bankName("Societe Generale")
                                         .iban("FR7630006008011234567890189")
                                         .bic("BNPAFRPPXXX")
+                                        .isPrimary(true)
                                         .build();
 
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
                                         .channel(ChannelType.BANK_TRANSFER)
-                                        .bankDetails(bankDetails)
+                                        .channels(List.of(channelRequest))
                                         .build();
 
                         Beneficiary beneficiary = createBankBeneficiary();
@@ -94,8 +97,8 @@ class BeneficiaryServiceTest {
                         assertThat(response.getFirstName()).isEqualTo("Fatou");
                         assertThat(response.getLastName()).isEqualTo("Kone");
                         assertThat(response.getChannel()).isEqualTo(ChannelType.BANK_TRANSFER);
-                        assertThat(response.getBankDetails()).isNotNull();
-                        assertThat(response.getBankDetails().getBankName()).isEqualTo("Societe Generale");
+                        assertThat(response.getChannels()).isNotEmpty();
+                        assertThat(response.getChannels().get(0).getBankName()).isEqualTo("Societe Generale");
 
                         verify(userRepository).findByEmail(USER_EMAIL);
                         verify(beneficiaryRepository).save(any(Beneficiary.class));
@@ -105,15 +108,18 @@ class BeneficiaryServiceTest {
                 @DisplayName("Création avec succès - Canal Mobile Money")
                 void create_ShouldReturnBeneficiaryResponse_WhenMobileMoney() {
                         // Arrange
-                        MobileMoneyDetailsRequest mobileDetails = MobileMoneyDetailsRequest.builder()
+                        BeneficiaryChannelRequest channelRequest = BeneficiaryChannelRequest.builder()
+                                        .channel(ChannelType.ORANGE_MONEY)
                                         .phoneNumber("+224620000001")
+                                        .countryCode("GIN")
+                                        .isPrimary(true)
                                         .build();
 
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Amadou")
                                         .lastName("Diallo")
                                         .channel(ChannelType.ORANGE_MONEY)
-                                        .mobileDetails(mobileDetails)
+                                        .channels(List.of(channelRequest))
                                         .build();
 
                         Beneficiary beneficiary = createMobileBeneficiary();
@@ -128,8 +134,8 @@ class BeneficiaryServiceTest {
                         assertThat(response).isNotNull();
                         assertThat(response.getFirstName()).isEqualTo("Amadou");
                         assertThat(response.getChannel()).isEqualTo(ChannelType.ORANGE_MONEY);
-                        assertThat(response.getMobileDetails()).isNotNull();
-                        assertThat(response.getMobileDetails().getPhoneNumber()).isEqualTo("+224620000001");
+                        assertThat(response.getChannels()).isNotEmpty();
+                        assertThat(response.getChannels().get(0).getPhoneNumber()).isEqualTo("+224620000001");
 
                         verify(userRepository).findByEmail(USER_EMAIL);
                         verify(beneficiaryRepository).save(any(Beneficiary.class));
@@ -156,14 +162,14 @@ class BeneficiaryServiceTest {
                 }
 
                 @Test
-                @DisplayName("Création BANK_TRANSFER sans bankDetails - Doit lancer TransferException")
-                void create_ShouldThrowTransferException_WhenBankDetailsMissing() {
+                @DisplayName("Création BANK_TRANSFER sans channels - Doit lancer TransferException")
+                void create_ShouldThrowTransferException_WhenChannelsMissing() {
                         // Arrange
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
                                         .channel(ChannelType.BANK_TRANSFER)
-                                        .bankDetails(null)
+                                        .channels(null)
                                         .build();
 
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -171,20 +177,20 @@ class BeneficiaryServiceTest {
                         // Act & Assert
                         assertThatThrownBy(() -> beneficiaryService.create(request, USER_EMAIL))
                                         .isInstanceOf(TransferException.class)
-                                        .hasMessage("Les details bancaires (IBAN, BIC) sont obligatoires pour un virement bancaire");
+                                        .hasMessage("Au moins un canal de reception est requis");
 
                         verify(beneficiaryRepository, never()).save(any());
                 }
 
                 @Test
-                @DisplayName("Création Mobile Money sans mobileDetails - Doit lancer TransferException")
-                void create_ShouldThrowTransferException_WhenMobileDetailsMissing() {
+                @DisplayName("Création Mobile Money sans channels - Doit lancer TransferException")
+                void create_ShouldThrowTransferException_WhenMobileChannelsMissing() {
                         // Arrange
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Amadou")
                                         .lastName("Diallo")
                                         .channel(ChannelType.ORANGE_MONEY)
-                                        .mobileDetails(null)
+                                        .channels(null)
                                         .build();
 
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -192,7 +198,7 @@ class BeneficiaryServiceTest {
                         // Act & Assert
                         assertThatThrownBy(() -> beneficiaryService.create(request, USER_EMAIL))
                                         .isInstanceOf(TransferException.class)
-                                        .hasMessage("Le numero de telephone est obligatoire pour un transfert Mobile Money");
+                                        .hasMessage("Au moins un canal de reception est requis");
 
                         verify(beneficiaryRepository, never()).save(any());
                 }
@@ -275,17 +281,19 @@ class BeneficiaryServiceTest {
                 @DisplayName("Mise à jour avec succès - BANK_TRANSFER")
                 void update_ShouldUpdateBeneficiary_WhenSuccessful() {
                         // Arrange
-                        BankDetailsRequest bankDetails = BankDetailsRequest.builder()
+                        BeneficiaryChannelRequest channelRequest = BeneficiaryChannelRequest.builder()
+                                        .channel(ChannelType.BANK_TRANSFER)
                                         .bankName("BNP Paribas")
                                         .iban("FR7612345678901234567890123")
                                         .bic("BNPAFRPPXXX")
+                                        .isPrimary(true)
                                         .build();
 
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Traore")
                                         .channel(ChannelType.BANK_TRANSFER)
-                                        .bankDetails(bankDetails)
+                                        .channels(List.of(channelRequest))
                                         .build();
 
                         Beneficiary existingBeneficiary = createBankBeneficiary();
@@ -303,7 +311,7 @@ class BeneficiaryServiceTest {
                         assertThat(response).isNotNull();
                         assertThat(response.getFirstName()).isEqualTo("Fatou");
                         assertThat(response.getLastName()).isEqualTo("Traore");
-                        assertThat(response.getBankDetails().getBankName()).isEqualTo("BNP Paribas");
+                        assertThat(response.getChannels().get(0).getBankName()).isEqualTo("BNP Paribas");
 
                         verify(beneficiaryRepository).save(any(Beneficiary.class));
                 }
@@ -416,11 +424,13 @@ class BeneficiaryServiceTest {
         // Méthodes utilitaires pour créer des bénéficiaires de test
 
         private Beneficiary createBankBeneficiary() {
-                BankDetails bankDetails = BankDetails.builder()
+                BeneficiaryChannel channel = BeneficiaryChannel.builder()
                                 .id(1L)
+                                .channel(ChannelType.BANK_TRANSFER)
                                 .bankName("Societe Generale")
                                 .iban("FR7630006008011234567890189")
                                 .bic("BNPAFRPPXXX")
+                                .isPrimary(true)
                                 .build();
 
                 Beneficiary beneficiary = Beneficiary.builder()
@@ -429,19 +439,22 @@ class BeneficiaryServiceTest {
                                 .lastName("Kone")
                                 .channel(ChannelType.BANK_TRANSFER)
                                 .user(user)
-                                .bankDetails(bankDetails)
+                                .channels(new ArrayList<>(List.of(channel)))
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(LocalDateTime.now())
                                 .build();
 
-                bankDetails.setBeneficiary(beneficiary);
+                channel.setBeneficiary(beneficiary);
                 return beneficiary;
         }
 
         private Beneficiary createMobileBeneficiary() {
-                MobileMoneyDetails mobileDetails = MobileMoneyDetails.builder()
-                                .id(1L)
+                BeneficiaryChannel channel = BeneficiaryChannel.builder()
+                                .id(2L)
+                                .channel(ChannelType.ORANGE_MONEY)
                                 .phoneNumber("+224620000001")
+                                .countryCode("GIN")
+                                .isPrimary(true)
                                 .build();
 
                 Beneficiary beneficiary = Beneficiary.builder()
@@ -450,12 +463,12 @@ class BeneficiaryServiceTest {
                                 .lastName("Diallo")
                                 .channel(ChannelType.ORANGE_MONEY)
                                 .user(user)
-                                .mobileMoneyDetails(mobileDetails)
+                                .channels(new ArrayList<>(List.of(channel)))
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(LocalDateTime.now())
                                 .build();
 
-                mobileDetails.setBeneficiary(beneficiary);
+                channel.setBeneficiary(beneficiary);
                 return beneficiary;
         }
 }

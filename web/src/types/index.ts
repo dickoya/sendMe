@@ -78,22 +78,48 @@ export interface MobileMoneyDetails {
     phoneNumber: string;
 }
 
+/**
+ * Canal de réception d'un bénéficiaire.
+ * Un bénéficiaire peut avoir 1 ou plusieurs canaux.
+ */
+export interface BeneficiaryChannel {
+    id: number;
+    channel: ChannelType;
+    phoneNumber?: string;
+    countryCode?: string;
+    bankName?: string;
+    /** IBAN masqué pour la sécurité */
+    iban?: string;
+    bic?: string;
+    isPrimary: boolean;
+    /** Devise déterminée par le pays (ex: GIN → GNF, SEN → XOF, FRA → EUR) */
+    currency: string;
+}
+
 export interface Beneficiary {
     id: number;
     firstName: string;
     lastName: string;
     channel: ChannelType;
-    bankDetails?: BankDetails;
-    mobileDetails?: MobileMoneyDetails;
+    channels: BeneficiaryChannel[];
     createdAt: string;
+}
+
+export interface BeneficiaryChannelFormData {
+    channel: ChannelType;
+    phoneNumber?: string;
+    countryCode?: string;
+    bankName?: string;
+    iban?: string;
+    bic?: string;
+    isPrimary: boolean;
 }
 
 export interface BeneficiaryFormData {
     firstName: string;
     lastName: string;
     channel: ChannelType;
-    bankDetails?: BankDetails;
-    mobileDetails?: MobileMoneyDetails;
+    channels: BeneficiaryChannelFormData[];
 }
 
 // ── Transferts ─────────────────────────────────────────────────────────
@@ -122,6 +148,8 @@ export interface TransferRequest {
     amount: number;
     currency: string;
     beneficiaryId: number;
+    /** Identifiant du canal de réception choisi (optionnel, utilise le canal principal si non fourni) */
+    channelId?: number;
     paymentMethodId: string;
     idempotencyKey: string;
 }

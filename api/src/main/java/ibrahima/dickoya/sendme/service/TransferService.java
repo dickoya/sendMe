@@ -14,6 +14,7 @@ import ibrahima.dickoya.sendme.exception.TransferException;
 import ibrahima.dickoya.sendme.repository.*;
 import ibrahima.dickoya.sendme.strategy.TransferResult;
 import ibrahima.dickoya.sendme.strategy.TransferStrategy;
+import ibrahima.dickoya.sendme.utils.CurrencyByCountry;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.*;
@@ -187,8 +188,24 @@ public class TransferService {
                         throw new TransferException("Ce beneficiaire ne vous appartient pas");
                 }
 
-                // ── ÉTAPE 3 : Calculer frais et taux de change ──────────────────────
-                String currencyTo = getCurrencyForChannel(beneficiary.getChannel().name());
+                // ── ÉTAPE 3 : Déterminer le canal de réception ─────────────────────
+                // Si un channelId est fourni, on utilise ce canal spécifique.
+                // Sinon, on utilise le canal principal (isPrimary=true) ou le premier.
+                BeneficiaryChannel selectedChannel;
+                if (request.getChannelId() != null) {
+                        selectedChannel = beneficiary.getChannels().stream()
+                                        .filter(ch -> ch.getId().equals(request.getChannelId()))
+                                        .findFirst()
+                                        .orElseThrow(() -> new TransferException(
+                                                        "Canal de reception non trouve pour ce beneficiaire"));
+                } else {
+                        selectedChannel = beneficiary.getChannels().stream()
+                                        .filter(BeneficiaryChannel::getIsPrimary)
+                                        .findFirst()
+                                        .orElse(beneficiary.getChannels().get(0));
+                }
+
+                String currencyTo = getCurrencyForChannel(selectedChannel.getChannel().name());
 
                 // La simulation prend en compte l'ID utilisateur pour appliquer
                 // automatiquement la réduction de parrainage si un coupon valide existe
@@ -197,7 +214,7 @@ public class TransferService {
                                                 .amount(request.getAmount())
                                                 .currencyFrom(request.getCurrency())
                                                 .currencyTo(currencyTo)
-                                                .channel(beneficiary.getChannel())
+                                                .channel(selectedChannel.getChannel())
                                                 .build(),
                                 user.getId());
 
@@ -216,7 +233,7 @@ public class TransferService {
                                 .exchangeRate(simulation.getExchangeRate())
                                 .fees(simulation.getFees())
                                 .status(TransactionStatus.PENDING)
-                                .channel(beneficiary.getChannel())
+                                .channel(selectedChannel.getChannel())
                                 .idempotencyKey(request.getIdempotencyKey())
                                 .sender(user)
                                 .beneficiary(beneficiary)
@@ -308,7 +325,8 @@ public class TransferService {
 
                 // Sélectionner la bonne stratégie via la Map (Strategy Pattern)
                 // Spring IoC a injecté toutes les stratégies automatiquement
-                String channelName = beneficiary.getChannel().name();
+                // On utilise le canal sélectionné (pas forcément le canal par défaut)
+                String channelName = selectedChannel.getChannel().name();
                 TransferStrategy strategy = strategyMap.get(channelName);
 
                 if (strategy == null) {
@@ -320,7 +338,7 @@ public class TransferService {
                                         "Canal non supporte : " + channelName);
                 }
 
-                log.info("Execution de la strategie : {}", channelName);
+                log.info("Execution de la strategie : {} pour le canal {}", channelName, selectedChannel.getId());
                 TransferResult result = strategy.execute(transaction, beneficiary);
 
                 // ── ÉTAPE 7 : Traiter le résultat de la stratégie ───────────────────
@@ -478,21 +496,13 @@ public class TransferService {
 
         /**
          * Détermine la devise de réception selon le canal choisi.
-         * Utilise CurrencyConfig pour un mapping flexible et évolutif.
+         * Utilise CurrencyByCountry pour un mapping flexible et évolutif.
          *
          * @param channelName le nom du canal (ex: "ORANGE_MONEY")
          * @return code devise ISO 4217
          */
         private String getCurrencyForChannel(String channelName) {
-                return switch (channelName) {
-                        case "BANK_TRANSFER" -> "EUR";
-                        case "ORANGE_MONEY" -> "GNF";
-                        case "MTN_MOBILE_MONEY" -> "GNF";
-                        case "WAVE" -> "XOF";
-                        case "MOOV_MONEY" -> "XOF";
-                        case "AIRTEL_MONEY" -> "XOF";
-                        default -> "XOF";
-                };
+                return CurrencyByCountry.getDefaultCurrencyForChannel(channelName);
         }
 
         /**

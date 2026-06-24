@@ -1,7 +1,9 @@
 package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.entity.Beneficiary;
+import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
+import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -32,8 +34,15 @@ public class BankTransferStrategy implements TransferStrategy {
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
 
+        // Récupérer le canal bancaire principal
+        String iban = beneficiary.getChannels().stream()
+                .filter(ch -> ch.getChannel() == ChannelType.BANK_TRANSFER)
+                .findFirst()
+                .map(BeneficiaryChannel::getIban)
+                .orElse("N/A");
+
         log.info("[BANK_TRANSFER] Debut du virement vers IBAN: {}",
-                maskIban(beneficiary.getBankDetails().getIban()));
+                maskIban(iban));
 
         try {
             // Simuler le délai de traitement bancaire (1 à 3 secondes)
@@ -66,7 +75,8 @@ public class BankTransferStrategy implements TransferStrategy {
      * @return l'IBAN masqué
      */
     private String maskIban(String iban) {
-        if (iban == null || iban.length() < 8) return "****";
+        if (iban == null || iban.length() < 8)
+            return "****";
         return iban.substring(0, 4) + "****" + iban.substring(iban.length() - 6);
     }
 

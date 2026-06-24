@@ -12,6 +12,12 @@
     "amountLabel": "Montant à envoyer",
     "amountHint": "Devise de paiement : {{currency}}",
     "continueButton": "Continuer",
+    "channelLabel": "Moyen de réception",
+    "primaryBadge": "Principal",
+    "searchBeneficiary": "Rechercher un bénéficiaire (nom, canal, devise...)",
+    "noSearchResults": "Aucun bénéficiaire trouvé",
+    "showMore": "Voir tout ({{count}} masqués)",
+    "showLess": "Voir moins",
     "applyDiscount": "Appliquer ma réduction de parrainage ({{amount}})",
     "noDiscountAvailable": "Aucune réduction disponible"
   },

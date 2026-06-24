@@ -12,6 +12,12 @@
     "amountLabel": "Amount to send",
     "amountHint": "Payment currency: {{currency}}",
     "continueButton": "Continue",
+    "channelLabel": "Receiving method",
+    "primaryBadge": "Primary",
+    "searchBeneficiary": "Search beneficiary (name, channel, currency...)",
+    "noSearchResults": "No beneficiaries found",
+    "showMore": "Show all ({{count}} hidden)",
+    "showLess": "Show less",
     "applyDiscount": "Apply my referral discount ({{amount}})",
     "noDiscountAvailable": "No discount available"
   },

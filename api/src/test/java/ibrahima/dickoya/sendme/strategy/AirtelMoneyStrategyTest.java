@@ -1,7 +1,7 @@
 package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.entity.Beneficiary;
-import ibrahima.dickoya.sendme.entity.MobileMoneyDetails;
+import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.ChannelType;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,9 +35,11 @@ class AirtelMoneyStrategyTest {
                 .email("ibrahima@sendme.com")
                 .build();
 
-        MobileMoneyDetails mobileDetails = MobileMoneyDetails.builder()
+        BeneficiaryChannel channel = BeneficiaryChannel.builder()
                 .id(1L)
+                .channel(ChannelType.AIRTEL_MONEY)
                 .phoneNumber("+224620000005")
+                .isPrimary(true)
                 .build();
 
         beneficiary = Beneficiary.builder()
@@ -45,12 +48,12 @@ class AirtelMoneyStrategyTest {
                 .lastName("Camara")
                 .channel(ChannelType.AIRTEL_MONEY)
                 .user(user)
-                .mobileMoneyDetails(mobileDetails)
+                .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        mobileDetails.setBeneficiary(beneficiary);
+        channel.setBeneficiary(beneficiary);
 
         transaction = Transaction.builder()
                 .id(1L)

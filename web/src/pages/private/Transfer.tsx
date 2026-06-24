@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Elements } from '@stripe/react-stripe-js';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Smartphone, Landmark } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -18,9 +19,9 @@ import { getStripe } from '@/services/stripeService';
 import { transferService } from '@/services/transferService';
 import { referralService } from '@/services/referralService';
 import { getErrorMessage } from '@/lib/utils';
-import { getCurrencyForChannel } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon, getCurrencyForChannel } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
-import type { SimulateResponse, Transaction, Beneficiary } from '@/types';
+import type { SimulateResponse, Transaction, Beneficiary, BeneficiaryChannel } from '@/types';
 
 type Step = 'form' | 'summary' | 'payment' | 'success';
 
@@ -44,6 +45,7 @@ function Transfer() {
     const [amount, setAmount] = useState('');
     const [currency] = useState('EUR');
     const [beneficiaryId, setBeneficiaryId] = useState<number | null>(null);
+    const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null);
 
     const [simulation, setSimulation] = useState<SimulateResponse | null>(null);
     const [simulating, setSimulating] = useState(false);
@@ -64,12 +66,27 @@ function Transfer() {
 
     const selectedBeneficiary: Beneficiary | undefined = beneficiaries.find((b) => b.id === beneficiaryId);
 
+    /**
+     * Canal sélectionné pour ce transfert.
+     * Si l'utilisateur a choisi un canal spécifique, on l'utilise.
+     * Sinon, on prend le canal principal (isPrimary=true) ou le premier.
+     */
+    const selectedChannel: BeneficiaryChannel | undefined =
+        selectedBeneficiary?.channels.find((ch) => ch.id === selectedChannelId) ||
+        selectedBeneficiary?.channels.find((ch) => ch.isPrimary) ||
+        selectedBeneficiary?.channels[0];
+
+    // Réinitialiser le canal sélectionné quand le bénéficiaire change
+    useEffect(() => {
+        setSelectedChannelId(null);
+    }, [beneficiaryId]);
+
     const debouncedAmount = useDebounce(amount, 400);
     const numericAmount = parseFloat(debouncedAmount);
 
     // ── Simulation automatique ──────────────────────────────────────────────
     useEffect(() => {
-        if (!selectedBeneficiary || !numericAmount || numericAmount <= 0) {
+        if (!selectedBeneficiary || !selectedChannel || !numericAmount || numericAmount <= 0) {
             setSimulation(null);
             return;
         }
@@ -82,8 +99,8 @@ function Transfer() {
             .simulate({
                 amount: numericAmount,
                 currencyFrom: currency,
-                currencyTo: getCurrencyForChannel(selectedBeneficiary.channel),
-                channel: selectedBeneficiary.channel,
+                currencyTo: selectedChannel.currency,
+                channel: selectedChannel.channel,
                 applyDiscount,
             })
             .then((result) => {
@@ -99,7 +116,7 @@ function Transfer() {
         return () => {
             cancelled = true;
         };
-    }, [debouncedAmount, numericAmount, selectedBeneficiary, currency, applyDiscount]);
+    }, [debouncedAmount, numericAmount, selectedBeneficiary, selectedChannel, currency, applyDiscount]);
 
     // ── Soumission du paiement ──────────────────────────────────────────────
     const handlePayment = async (paymentMethodId: string) => {
@@ -113,6 +130,7 @@ function Transfer() {
                 amount: simulation.amountSent,
                 currency,
                 beneficiaryId: selectedBeneficiary.id,
+                channelId: selectedChannel?.id,
                 paymentMethodId,
                 idempotencyKey: crypto.randomUUID(),
             });
@@ -155,6 +173,46 @@ function Transfer() {
                             value={beneficiaryId}
                             onChange={setBeneficiaryId}
                         />
+
+                        {/* ── Sélecteur de canal si le bénéficiaire a plusieurs canaux ── */}
+                        {selectedBeneficiary && selectedBeneficiary.channels.length > 1 && (
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-sm font-medium text-gray-700">
+                                    {t('form.channelLabel')}
+                                </label>
+                                <div className="flex flex-wrap gap-2">
+                                    {selectedBeneficiary.channels.map((ch) => (
+                                        <button
+                                            key={ch.id}
+                                            type="button"
+                                            onClick={() => setSelectedChannelId(ch.id)}
+                                            className={cn(
+                                                'flex items-center gap-2 rounded-xl border px-3 py-2 text-left transition-all',
+                                                selectedChannelId === ch.id || (!selectedChannelId && ch.isPrimary)
+                                                    ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-100'
+                                                    : 'border-gray-200 bg-white hover:border-gray-300'
+                                            )}
+                                        >
+                                            <span className="text-lg">{getChannelIcon(ch.channel)}</span>
+                                            <div className="text-sm">
+                                                <p className="font-medium text-gray-900">
+                                                    {getChannelLabel(ch.channel, tCommon)}
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                    {ch.channel === 'BANK_TRANSFER' ? ch.bankName : ch.phoneNumber}
+                                                    {ch.isPrimary && (
+                                                        <span className="ml-1.5 rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] text-brand-700">
+                                                            {t('form.primaryBadge')}
+                                                        </span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <span className="ml-auto text-xs font-mono text-gray-400">{ch.currency}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <Input
                             label={t('form.amountLabel')}
@@ -204,6 +262,7 @@ function Transfer() {
                             beneficiary={selectedBeneficiary}
                             simulation={simulation}
                             currencyFrom={currency}
+                            selectedChannel={selectedChannel}
                         />
 
                         <div className="flex gap-2">

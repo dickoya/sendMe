@@ -1,7 +1,9 @@
 package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.entity.Beneficiary;
+import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
+import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +28,11 @@ public class MoovMoneyStrategy implements TransferStrategy {
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
 
-        String phoneNumber = beneficiary.getMobileMoneyDetails().getPhoneNumber();
+        String phoneNumber = beneficiary.getChannels().stream()
+                .filter(ch -> ch.getChannel() == ChannelType.MOOV_MONEY)
+                .findFirst()
+                .map(BeneficiaryChannel::getPhoneNumber)
+                .orElse("N/A");
         log.info("[MOOV_MONEY] Debut du transfert vers : {}", maskPhone(phoneNumber));
 
         try {
@@ -48,7 +54,8 @@ public class MoovMoneyStrategy implements TransferStrategy {
     }
 
     private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6) return "****";
+        if (phone == null || phone.length() < 6)
+            return "****";
         return phone.substring(0, phone.length() - 4) + "****";
     }
 

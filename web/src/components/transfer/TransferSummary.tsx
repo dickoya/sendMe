@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
-import type { Beneficiary, SimulateResponse } from '@/types';
+import type { Beneficiary, SimulateResponse, BeneficiaryChannel } from '@/types';
 
 export interface TransferSummaryProps {
     beneficiary: Beneficiary;
     simulation: SimulateResponse;
     currencyFrom: string;
+    /** Canal de réception sélectionné pour ce transfert (optionnel) */
+    selectedChannel?: BeneficiaryChannel;
 }
 
 /**
@@ -17,9 +19,12 @@ export interface TransferSummaryProps {
  * duplication entre simulateur et récapitulatif), et "transfer.summary.*"
  * pour les éléments propres à cette étape.
  */
-function TransferSummary({ beneficiary, simulation, currencyFrom }: TransferSummaryProps) {
+function TransferSummary({ beneficiary, simulation, currencyFrom, selectedChannel }: TransferSummaryProps) {
     const { t } = useTranslation('transfer');
     const { t: tCommon } = useTranslation('common');
+
+    // Utiliser le canal sélectionné s'il est fourni, sinon le canal principal ou le premier
+    const displayChannel = selectedChannel || beneficiary.channels.find((ch) => ch.isPrimary) || beneficiary.channels[0];
 
     return (
         <div className="flex flex-col gap-4">
@@ -33,7 +38,11 @@ function TransferSummary({ beneficiary, simulation, currencyFrom }: TransferSumm
                         {beneficiary.firstName} {beneficiary.lastName}
                     </p>
                     <p className="text-xs text-gray-500">
-                        {getChannelIcon(beneficiary.channel)} {getChannelLabel(beneficiary.channel, tCommon)}
+                        {displayChannel ? (
+                            <>{getChannelIcon(displayChannel.channel)} {getChannelLabel(displayChannel.channel, tCommon)} • {displayChannel.currency}</>
+                        ) : (
+                            <>{getChannelIcon(beneficiary.channel)} {getChannelLabel(beneficiary.channel, tCommon)}</>
+                        )}
                     </p>
                 </div>
             </div>

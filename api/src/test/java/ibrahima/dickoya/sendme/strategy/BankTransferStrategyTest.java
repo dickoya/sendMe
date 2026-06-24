@@ -1,7 +1,7 @@
 package ibrahima.dickoya.sendme.strategy;
 
-import ibrahima.dickoya.sendme.entity.BankDetails;
 import ibrahima.dickoya.sendme.entity.Beneficiary;
+import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.ChannelType;
@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,11 +35,13 @@ class BankTransferStrategyTest {
                 .email("ibrahima@sendme.com")
                 .build();
 
-        BankDetails bankDetails = BankDetails.builder()
+        BeneficiaryChannel channel = BeneficiaryChannel.builder()
                 .id(1L)
+                .channel(ChannelType.BANK_TRANSFER)
                 .bankName("Societe Generale")
                 .iban("FR7630006008011234567890189")
                 .bic("BNPAFRPPXXX")
+                .isPrimary(true)
                 .build();
 
         beneficiary = Beneficiary.builder()
@@ -47,12 +50,12 @@ class BankTransferStrategyTest {
                 .lastName("Kone")
                 .channel(ChannelType.BANK_TRANSFER)
                 .user(user)
-                .bankDetails(bankDetails)
+                .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        bankDetails.setBeneficiary(beneficiary);
+        channel.setBeneficiary(beneficiary);
 
         transaction = Transaction.builder()
                 .id(1L)

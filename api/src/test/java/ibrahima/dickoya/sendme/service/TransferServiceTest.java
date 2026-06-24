@@ -96,11 +96,13 @@ class TransferServiceTest {
                                 .isActive(true)
                                 .build();
 
-                BankDetails bankDetails = BankDetails.builder()
+                BeneficiaryChannel channel = BeneficiaryChannel.builder()
                                 .id(1L)
+                                .channel(ChannelType.BANK_TRANSFER)
                                 .bankName("Societe Generale")
                                 .iban("FR7630006008011234567890189")
                                 .bic("BNPAFRPPXXX")
+                                .isPrimary(true)
                                 .build();
 
                 beneficiary = Beneficiary.builder()
@@ -109,12 +111,12 @@ class TransferServiceTest {
                                 .lastName("Kone")
                                 .channel(ChannelType.BANK_TRANSFER)
                                 .user(user)
-                                .bankDetails(bankDetails)
+                                .channels(List.of(channel))
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(LocalDateTime.now())
                                 .build();
 
-                bankDetails.setBeneficiary(beneficiary);
+                channel.setBeneficiary(beneficiary);
 
                 transferRequest = TransferRequest.builder()
                                 .amount(new BigDecimal("200.00"))

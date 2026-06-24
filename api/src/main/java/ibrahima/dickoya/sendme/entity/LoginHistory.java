@@ -21,15 +21,14 @@ public class LoginHistory {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "ip_address")
+    @Column(name = "ip_address", nullable = false, length = 45)
     private String ipAddress;
 
-    @Column(name = "user_agent", length = 500)
+    @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
 
     @Column(nullable = false)
-    @Builder.Default
-    private boolean success = true;
+    private boolean success;
 
     @Column(name = "login_time", nullable = false, updatable = false)
     private LocalDateTime loginTime;

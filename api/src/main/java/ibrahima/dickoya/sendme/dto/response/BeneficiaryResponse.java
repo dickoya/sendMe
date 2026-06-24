@@ -3,13 +3,18 @@ package ibrahima.dickoya.sendme.dto.response;
 import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DTO de réponse retourné au frontend après création,
  * modification ou consultation d'un bénéficiaire.
  * Ne contient jamais le mot de passe ni les données sensibles de l'utilisateur.
  */
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BeneficiaryResponse {
 
     /** Identifiant unique du bénéficiaire en base de données. */
@@ -22,20 +27,15 @@ public class BeneficiaryResponse {
     private String lastName;
 
     /**
-     * Canal de réception associé à ce bénéficiaire.
-     * Détermine quel type de détails (bankDetails ou mobileDetails) est renseigné.
+     * Canal par défaut du bénéficiaire.
      */
     private ChannelType channel;
 
     /**
-     * Détails bancaires — non null uniquement si channel = BANK_TRANSFER.
+     * Liste des canaux de réception de ce bénéficiaire.
+     * Un bénéficiaire peut avoir 1 ou plusieurs canaux.
      */
-    private BankDetailsResponse bankDetails;
-
-    /**
-     * Détails Mobile Money — non null uniquement si channel != BANK_TRANSFER.
-     */
-    private MobileMoneyDetailsResponse mobileDetails;
+    private List<BeneficiaryChannelResponse> channels;
 
     /** Date de création du bénéficiaire. */
     private LocalDateTime createdAt;

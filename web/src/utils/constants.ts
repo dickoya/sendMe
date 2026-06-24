@@ -59,12 +59,64 @@ export function getChannelLabel(channel: ChannelType, t: TFunction): string {
 }
 
 /**
- * Détermine la devise de réception selon le canal.
+ * Mapping pays → devise.
+ */
+export const COUNTRY_CURRENCY: Record<string, string> = {
+    // Afrique de l'Ouest - UEMOA (XOF)
+    BEN: 'XOF', BFA: 'XOF', CIV: 'XOF', GNB: 'XOF',
+    MLI: 'XOF', NER: 'XOF', SEN: 'XOF', TGO: 'XOF',
+    // Afrique centrale - CEMAC (XAF)
+    CMR: 'XAF', CAF: 'XAF', TCD: 'XAF', COG: 'XAF',
+    GNQ: 'XAF', GAB: 'XAF',
+    // Guinée
+    GIN: 'GNF',
+    // Europe
+    FRA: 'EUR', BEL: 'EUR', DEU: 'EUR', ESP: 'EUR',
+    ITA: 'EUR', PRT: 'EUR', NLD: 'EUR', LUX: 'EUR',
+    CHE: 'CHF', GBR: 'GBP',
+    // Amérique
+    USA: 'USD', CAN: 'CAD',
+    // Autres
+    MAR: 'MAD', DZA: 'DZD', TUN: 'TND', EGY: 'EGP', ZAF: 'ZAR',
+};
+
+/**
+ * Liste des pays avec leurs indicatifs téléphoniques et codes.
+ */
+export const COUNTRIES = [
+    { code: 'GIN', name: 'Guinée', dialCode: '+224', currency: 'GNF' },
+    { code: 'SEN', name: 'Sénégal', dialCode: '+221', currency: 'XOF' },
+    { code: 'CIV', name: "Côte d'Ivoire", dialCode: '+225', currency: 'XOF' },
+    { code: 'MLI', name: 'Mali', dialCode: '+223', currency: 'XOF' },
+    { code: 'BFA', name: 'Burkina Faso', dialCode: '+226', currency: 'XOF' },
+    { code: 'BEN', name: 'Bénin', dialCode: '+229', currency: 'XOF' },
+    { code: 'TGO', name: 'Togo', dialCode: '+228', currency: 'XOF' },
+    { code: 'NER', name: 'Niger', dialCode: '+227', currency: 'XOF' },
+    { code: 'CMR', name: 'Cameroun', dialCode: '+237', currency: 'XAF' },
+    { code: 'FRA', name: 'France', dialCode: '+33', currency: 'EUR' },
+    { code: 'BEL', name: 'Belgique', dialCode: '+32', currency: 'EUR' },
+    { code: 'MAR', name: 'Maroc', dialCode: '+212', currency: 'MAD' },
+    { code: 'DZA', name: 'Algérie', dialCode: '+213', currency: 'DZD' },
+    { code: 'TUN', name: 'Tunisie', dialCode: '+216', currency: 'TND' },
+    { code: 'USA', name: 'États-Unis', dialCode: '+1', currency: 'USD' },
+    { code: 'CAN', name: 'Canada', dialCode: '+1', currency: 'CAD' },
+];
+
+/**
+ * Détermine la devise de réception selon le canal (fallback si pas de pays).
  */
 export function getCurrencyForChannel(channel: ChannelType): string {
     if (channel === 'BANK_TRANSFER') return 'EUR';
     if (channel === 'ORANGE_MONEY' || channel === 'MTN_MOBILE_MONEY') return 'GNF';
     return 'XOF';
+}
+
+/**
+ * Retourne la devise pour un code pays donné.
+ */
+export function getCurrencyForCountry(countryCode?: string): string {
+    if (!countryCode) return 'EUR';
+    return COUNTRY_CURRENCY[countryCode.toUpperCase()] || 'EUR';
 }
 
 /**
