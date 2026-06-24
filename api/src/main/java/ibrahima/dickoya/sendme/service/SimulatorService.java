@@ -36,11 +36,11 @@ public class SimulatorService {
         private final ReferralService referralService;
 
         /**
-         * Taux de commission de la plateforme : 1.5%.
-         * En production, ce taux serait lu depuis la base de données
-         * et modifiable par l'administrateur.
+         * Taux de commission modifiable par l'administrateur.
+         * volatile garantit la visibilité entre les threads.
+         * Initialisé à 1.5% et modifiable à chaud sans redémarrage.
          */
-        private static final BigDecimal FEE_RATE = new BigDecimal("0.015");
+        private volatile BigDecimal feeRate = new BigDecimal("0.015");
 
         /**
          * Calcule la simulation complète d'un transfert.
@@ -72,8 +72,9 @@ public class SimulatorService {
                 String currencyFrom = request.getCurrencyFrom().toUpperCase();
                 String currencyTo = request.getCurrencyTo().toUpperCase();
 
-                // 1. Calculer les frais de la plateforme (1.5% du montant)
-                BigDecimal fees = amount.multiply(FEE_RATE)
+                // 1. Calculer les frais de la plateforme (1.5% du montant par défaut,
+                // modifiable)
+                BigDecimal fees = amount.multiply(feeRate)
                                 .setScale(2, RoundingMode.HALF_UP);
 
                 // 2. Calculer le total débité sur la carte (montant + frais)
@@ -117,7 +118,7 @@ public class SimulatorService {
                                 .amountSent(amount)
                                 .currencyFrom(currencyFrom)
                                 .fees(fees)
-                                .feeRate(FEE_RATE.multiply(new BigDecimal("100"))) // afficher en %
+                                .feeRate(feeRate.multiply(new BigDecimal("100"))) // afficher en %
                                 .totalDebited(totalAfterDiscount)
                                 .discount(discount)
                                 .exchangeRate(exchangeRate)
@@ -125,13 +126,6 @@ public class SimulatorService {
                                 .amountReceived(amountReceived)
                                 .build();
         }
-
-        /**
-         * Taux de commission modifiable par l'administrateur.
-         * volatile garantit la visibilité entre les threads.
-         * Initialisé à 1.5% et modifiable à chaud sans redémarrage.
-         */
-        private volatile BigDecimal feeRate = new BigDecimal("0.015");
 
         /**
          * Met à jour le taux de commission de la plateforme.
