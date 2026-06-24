@@ -28,8 +28,17 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
     /**
      * Simule un délai de traitement réseau/API.
      * 
-     * En production, ce délai serait remplacé par un véritable appel HTTP
-     * vers l'API de l'opérateur (Orange, MTN, banque, etc.).
+     * ⚠️ SIMULATION SEULEMENT - En production, cette méthode sera remplacée
+     * par de vrais appels HTTP asynchrones vers les APIs des opérateurs.
+     * 
+     * Thread.sleep() bloque le thread actuel, ce qui n'est pas idéal en production.
+     * En production, les appels HTTP (avec RestTemplate, WebClient, ou HttpClient)
+     * sont naturellement asynchrones et ne bloquent pas.
+     * 
+     * TODO PRODUCTION: Remplacer par vrais appels HTTP asynchrones
+     * - Option 1: WebClient (Spring WebFlux) - non bloquant
+     * - Option 2: RestTemplate avec @Async
+     * - Option 3: CompletableFuture avec HTTP client
      * 
      * @param minMs délai minimum en millisecondes
      * @param maxMs délai maximum en millisecondes
@@ -37,6 +46,8 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
      */
     protected void simulateProcessingDelay(int minMs, int maxMs)
             throws InterruptedException {
+        // ⚠️ Thread.sleep() utilisé uniquement pour simulation
+        // En production: appel HTTP réel vers API opérateur
         int delay = minMs + random.nextInt(maxMs - minMs);
         Thread.sleep(delay);
     }

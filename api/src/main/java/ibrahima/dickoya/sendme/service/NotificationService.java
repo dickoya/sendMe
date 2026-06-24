@@ -10,6 +10,8 @@ import ibrahima.dickoya.sendme.repository.NotificationRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,170 +33,176 @@ import java.util.stream.Collectors;
 @Slf4j
 public class NotificationService {
 
-    /** Repository pour sauvegarder les notifications en base. */
-    private final NotificationRepository notificationRepository;
+        /** Repository pour sauvegarder les notifications en base. */
+        private final NotificationRepository notificationRepository;
 
-    /** Repository pour récupérer l'utilisateur destinataire. */
-    private final UserRepository userRepository;
+        /** Repository pour récupérer l'utilisateur destinataire. */
+        private final UserRepository userRepository;
 
-    /**
-     * Service SSE pour pousser les notifications en temps réel.
-     * Si l'utilisateur n'est pas connecté, la notification
-     * est quand même sauvegardée en base.
-     */
-    private final SseEmitterService sseEmitterService;
+        /**
+         * Service SSE pour pousser les notifications en temps réel.
+         * Si l'utilisateur n'est pas connecté, la notification
+         * est quand même sauvegardée en base.
+         */
+        private final SseEmitterService sseEmitterService;
 
-    /**
-     * Crée une notification et l'envoie en temps réel.
-     *
-     * Cette méthode est le point central de création de notifications.
-     * Elle sauvegarde en base ET pousse via SSE en une seule opération.
-     *
-     * @param user        l'utilisateur destinataire
-     * @param message     le message à afficher
-     * @param type        le type de notification
-     * @param transaction la transaction liée (peut être null)
-     * @return NotificationResponse la notification créée
-     */
-    @Transactional
-    public NotificationResponse createAndSend(
-            User user,
-            String message,
-            NotificationType type,
-            Transaction transaction) {
+        /**
+         * Crée une notification et l'envoie en temps réel.
+         *
+         * Cette méthode est le point central de création de notifications.
+         * Elle sauvegarde en base ET pousse via SSE en une seule opération.
+         *
+         * @param user        l'utilisateur destinataire
+         * @param message     le message à afficher
+         * @param type        le type de notification
+         * @param transaction la transaction liée (peut être null)
+         * @return NotificationResponse la notification créée
+         */
+        @Transactional
+        public NotificationResponse createAndSend(
+                        User user,
+                        String message,
+                        NotificationType type,
+                        Transaction transaction) {
 
-        // 1. Construire et sauvegarder la notification en base
-        Notification notification = Notification.builder()
-                .message(message)
-                .type(type)
-                .isRead(false)          // non lue par défaut
-                .user(user)
-                .transaction(transaction)
-                .build();
+                // 1. Construire et sauvegarder la notification en base
+                Notification notification = Notification.builder()
+                                .message(message)
+                                .type(type)
+                                .isRead(false) // non lue par défaut
+                                .user(user)
+                                .transaction(transaction)
+                                .build();
 
-        notification = notificationRepository.save(notification);
-        log.info("[NOTIF] Notification créée : type={}, userId={}",
-                type, user.getId());
+                notification = notificationRepository.save(notification);
+                log.info("[NOTIF] Notification créée : type={}, userId={}",
+                                type, user.getId());
 
-        // 2. Convertir en DTO
-        NotificationResponse response = toResponse(notification);
+                // 2. Convertir en DTO
+                NotificationResponse response = toResponse(notification);
 
-        // 3. Pousser en temps réel via SSE (sans bloquer si l'utilisateur est déconnecté)
-        sseEmitterService.sendToUser(user.getId(), response, type.name());
+                // 3. Pousser en temps réel via SSE (sans bloquer si l'utilisateur est
+                // déconnecté)
+                sseEmitterService.sendToUser(user.getId(), response, type.name());
 
-        return response;
-    }
-
-    /**
-     * Récupère toutes les notifications de l'utilisateur connecté.
-     * Triées par date décroissante (plus récentes en premier).
-     *
-     * @param userEmail email de l'utilisateur connecté
-     * @return liste des notifications formatées en DTO
-     */
-    public List<NotificationResponse> findAllByUser(String userEmail) {
-
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouvé : " + userEmail));
-
-        return notificationRepository
-                .findByUserIdOrderByCreatedAtDesc(user.getId())
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Marque une notification spécifique comme lue.
-     *
-     * @param notificationId identifiant de la notification
-     * @param userEmail      email de l'utilisateur connecté
-     */
-    @Transactional
-    public void markAsRead(Long notificationId, String userEmail) {
-
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouvé : " + userEmail));
-
-        Notification notification = notificationRepository
-                .findById(notificationId)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Notification non trouvée : " + notificationId));
-
-        // Vérifier que la notification appartient à l'utilisateur
-        if (!notification.getUser().getId().equals(user.getId())) {
-            throw new ResourceNotFoundException("Accès refusé à cette notification");
+                return response;
         }
 
-        // Marquer comme lue
-        notification.setIsRead(true);
-        notificationRepository.save(notification);
-        log.info("[NOTIF] Notification {} marquée comme lue", notificationId);
-    }
+        /**
+         * Récupère les notifications de l'utilisateur connecté avec pagination.
+         * Triées par date décroissante (plus récentes en premier).
+         *
+         * La pagination évite de charger toutes les notifications en mémoire,
+         * ce qui améliore les performances pour les utilisateurs ayant
+         * beaucoup de notifications.
+         *
+         * @param userEmail email de l'utilisateur connecté
+         * @param pageable  paramètres de pagination (page, size, sort)
+         * @return Page de notifications formatées en DTO
+         */
+        public Page<NotificationResponse> findAllByUser(String userEmail, Pageable pageable) {
 
-    /**
-     * Marque toutes les notifications de l'utilisateur comme lues.
-     * Utilisé par le bouton "Tout marquer comme lu" dans l'interface.
-     *
-     * @param userEmail email de l'utilisateur connecté
-     */
-    @Transactional
-    public void markAllAsRead(String userEmail) {
+                User user = userRepository.findByEmail(userEmail)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Utilisateur non trouvé : " + userEmail));
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouvé : " + userEmail));
+                return notificationRepository
+                                .findByUserIdOrderByCreatedAtDesc(user.getId(), pageable)
+                                .map(this::toResponse);
+        }
 
-        // Récupérer toutes les notifications non lues
-        List<Notification> unread = notificationRepository
-                .findByUserIdOrderByCreatedAtDesc(user.getId())
-                .stream()
-                .filter(n -> !n.getIsRead())
-                .collect(Collectors.toList());
+        /**
+         * Marque une notification spécifique comme lue.
+         *
+         * @param notificationId identifiant de la notification
+         * @param userEmail      email de l'utilisateur connecté
+         */
+        @Transactional
+        public void markAsRead(Long notificationId, String userEmail) {
 
-        // Marquer toutes comme lues
-        unread.forEach(n -> n.setIsRead(true));
-        notificationRepository.saveAll(unread);
+                User user = userRepository.findByEmail(userEmail)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Utilisateur non trouvé : " + userEmail));
 
-        log.info("[NOTIF] {} notifications marquées comme lues pour userId : {}",
-                unread.size(), user.getId());
-    }
+                Notification notification = notificationRepository
+                                .findById(notificationId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Notification non trouvée : " + notificationId));
 
-    /**
-     * Compte le nombre de notifications non lues.
-     * Utilisé pour afficher le badge rouge dans la navbar.
-     *
-     * @param userEmail email de l'utilisateur connecté
-     * @return nombre de notifications non lues
-     */
-    public Long countUnread(String userEmail) {
+                // Vérifier que la notification appartient à l'utilisateur
+                if (!notification.getUser().getId().equals(user.getId())) {
+                        throw new ResourceNotFoundException("Accès refusé à cette notification");
+                }
 
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouvé : " + userEmail));
+                // Marquer comme lue
+                notification.setIsRead(true);
+                notificationRepository.save(notification);
+                log.info("[NOTIF] Notification {} marquée comme lue", notificationId);
+        }
 
-        return notificationRepository.countByUserIdAndIsReadFalse(user.getId());
-    }
+        /**
+         * Marque toutes les notifications de l'utilisateur comme lues.
+         * Utilisé par le bouton "Tout marquer comme lu" dans l'interface.
+         *
+         * @param userEmail email de l'utilisateur connecté
+         */
+        @Transactional
+        public void markAllAsRead(String userEmail) {
 
-    /**
-     * Convertit une entité Notification en DTO NotificationResponse.
-     *
-     * @param notification l'entité à convertir
-     * @return NotificationResponse le DTO formaté
-     */
-    private NotificationResponse toResponse(Notification notification) {
-        return NotificationResponse.builder()
-                .id(notification.getId())
-                .message(notification.getMessage())
-                .type(notification.getType())
-                .isRead(notification.getIsRead())
-                .transactionId(notification.getTransaction() != null
-                        ? notification.getTransaction().getId() : null)
-                .transactionReference(notification.getTransaction() != null
-                        ? notification.getTransaction().getReference() : null)
-                .createdAt(notification.getCreatedAt())
-                .build();
-    }
+                User user = userRepository.findByEmail(userEmail)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Utilisateur non trouvé : " + userEmail));
+
+                // Récupérer toutes les notifications non lues
+                List<Notification> unread = notificationRepository
+                                .findByUserIdOrderByCreatedAtDesc(user.getId())
+                                .stream()
+                                .filter(n -> !n.getIsRead())
+                                .collect(Collectors.toList());
+
+                // Marquer toutes comme lues
+                unread.forEach(n -> n.setIsRead(true));
+                notificationRepository.saveAll(unread);
+
+                log.info("[NOTIF] {} notifications marquées comme lues pour userId : {}",
+                                unread.size(), user.getId());
+        }
+
+        /**
+         * Compte le nombre de notifications non lues.
+         * Utilisé pour afficher le badge rouge dans la navbar.
+         *
+         * @param userEmail email de l'utilisateur connecté
+         * @return nombre de notifications non lues
+         */
+        public Long countUnread(String userEmail) {
+
+                User user = userRepository.findByEmail(userEmail)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Utilisateur non trouvé : " + userEmail));
+
+                return notificationRepository.countByUserIdAndIsReadFalse(user.getId());
+        }
+
+        /**
+         * Convertit une entité Notification en DTO NotificationResponse.
+         *
+         * @param notification l'entité à convertir
+         * @return NotificationResponse le DTO formaté
+         */
+        private NotificationResponse toResponse(Notification notification) {
+                return NotificationResponse.builder()
+                                .id(notification.getId())
+                                .message(notification.getMessage())
+                                .type(notification.getType())
+                                .isRead(notification.getIsRead())
+                                .transactionId(notification.getTransaction() != null
+                                                ? notification.getTransaction().getId()
+                                                : null)
+                                .transactionReference(notification.getTransaction() != null
+                                                ? notification.getTransaction().getReference()
+                                                : null)
+                                .createdAt(notification.getCreatedAt())
+                                .build();
+        }
 }
