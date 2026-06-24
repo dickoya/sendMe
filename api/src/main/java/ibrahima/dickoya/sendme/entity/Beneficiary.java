@@ -1,6 +1,5 @@
 package ibrahima.dickoya.sendme.entity;
 
-import ibrahima.dickoya.sendme.enums.ChannelType;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -25,14 +24,6 @@ public class Beneficiary {
 
     @Column(name = "last_name", nullable = false)
     private String lastName;
-
-    /**
-     * Canal par défaut (conservé pour compatibilité ascendante).
-     * La liste complète des canaux est dans beneficiaryChannels.
-     */
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ChannelType channel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
