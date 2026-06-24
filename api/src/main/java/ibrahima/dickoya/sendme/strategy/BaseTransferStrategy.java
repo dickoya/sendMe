@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.strategy;
 
+import ibrahima.dickoya.sendme.utils.DataMaskingUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Random;
@@ -54,34 +55,24 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
 
     /**
      * Masque un numéro de téléphone pour la sécurité dans les logs.
-     * 
-     * Affiche seulement les premiers caractères et masque les 4 derniers.
-     * Exemple : +22507123456 → +2250712****
+     * Délègue à DataMaskingUtils pour centraliser la logique.
      * 
      * @param phone le numéro de téléphone complet
      * @return le numéro masqué
      */
     protected String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6) {
-            return "****";
-        }
-        return phone.substring(0, phone.length() - 4) + "****";
+        return DataMaskingUtils.maskPhone(phone);
     }
 
     /**
      * Masque un IBAN pour la sécurité dans les logs.
-     * 
-     * Affiche seulement les 4 premiers et 6 derniers caractères.
-     * Exemple : FR7630006000011234567890189 → FR76****890189
+     * Délègue à DataMaskingUtils pour centraliser la logique.
      * 
      * @param iban l'IBAN complet
      * @return l'IBAN masqué
      */
     protected String maskIban(String iban) {
-        if (iban == null || iban.length() < 8) {
-            return "****";
-        }
-        return iban.substring(0, 4) + "****" + iban.substring(iban.length() - 6);
+        return DataMaskingUtils.maskIban(iban);
     }
 
     /**

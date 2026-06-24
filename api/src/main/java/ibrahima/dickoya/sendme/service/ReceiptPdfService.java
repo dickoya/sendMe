@@ -16,6 +16,7 @@ import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.enums.ChannelType;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
+import ibrahima.dickoya.sendme.utils.DataMaskingUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -669,16 +670,12 @@ public class ReceiptPdfService {
 
         /**
          * Masque un IBAN pour la sécurité dans le PDF.
-         * Montre seulement les 4 premiers et 4 derniers caractères.
-         * Exemple : FR7630006000011234567890189 → FR76 **** **** 0189
+         * Délègue à DataMaskingUtils pour centraliser la logique de masquage.
          *
          * @param iban l'IBAN complet
          * @return l'IBAN masqué
          */
         private String maskIban(String iban) {
-                if (iban == null || iban.length() < 8)
-                        return "****";
-                return iban.substring(0, 4) + " **** **** " +
-                                iban.substring(iban.length() - 4);
+                return DataMaskingUtils.maskIban(iban);
         }
 }
