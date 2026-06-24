@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.utils;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -59,6 +60,16 @@ public final class CurrencyByCountry {
 
     private CurrencyByCountry() {
         // Classe utilitaire - pas d'instanciation
+    }
+
+    /**
+     * Retourne la Map complète des pays et devises.
+     * Utilisé par l'API REST pour exposer la liste des pays supportés.
+     * 
+     * @return Map immuable avec code pays → code devise
+     */
+    public static Map<String, String> getAllCountries() {
+        return Collections.unmodifiableMap(COUNTRY_TO_CURRENCY);
     }
 
     /**
