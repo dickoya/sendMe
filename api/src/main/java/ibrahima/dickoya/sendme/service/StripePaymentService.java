@@ -152,9 +152,11 @@ public class StripePaymentService {
                 log.info("[STRIPE] Remboursement du PaymentIntent : {}", paymentIntentId);
 
                 // Construire la demande de remboursement
+                // REQUESTED_BY_CUSTOMER est approprié car le remboursement fait suite
+                // à un échec de transfert (opérateur mobile/banque), pas une fraude
                 RefundCreateParams refundParams = RefundCreateParams.builder()
                                 .setPaymentIntent(paymentIntentId) // référence le paiement original
-                                .setReason(RefundCreateParams.Reason.FRAUDULENT) // raison du remboursement
+                                .setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
                                 .build();
 
                 Refund refund = Refund.create(refundParams);
