@@ -232,6 +232,7 @@ public class TransferService {
                                 .currencyReceived(currencyTo)
                                 .exchangeRate(simulation.getExchangeRate())
                                 .fees(simulation.getFees())
+                                .discount(simulation.getDiscount() != null ? simulation.getDiscount() : BigDecimal.ZERO)
                                 .status(TransactionStatus.PENDING)
                                 .channel(selectedChannel.getChannel())
                                 .idempotencyKey(request.getIdempotencyKey())

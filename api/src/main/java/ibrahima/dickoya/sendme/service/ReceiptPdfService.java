@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
 /**
@@ -403,25 +404,39 @@ public class ReceiptPdfService {
                 // Ligne 2 : Frais de la plateforme
                 addFinancialRow(financialTable,
                                 "Frais de la plateforme (1.5%)",
-                                "- " + transaction.getFees() + " " + transaction.getCurrencySent(),
+                                "+ " + transaction.getFees() + " " + transaction.getCurrencySent(),
                                 true);
 
-                // Ligne 3 : Taux de change
+                // Ligne 3 : Réduction parrainage (si applicable)
+                if (transaction.getDiscount() != null
+                                && transaction.getDiscount().compareTo(BigDecimal.ZERO) > 0) {
+                        addFinancialRow(financialTable,
+                                        "Reduction de parrainage",
+                                        "- " + transaction.getDiscount() + " " + transaction.getCurrencySent(),
+                                        false);
+                }
+
+                // Ligne 4 : Taux de change
                 addFinancialRow(financialTable,
                                 "Taux de change applique",
                                 "1 " + transaction.getCurrencySent() +
                                                 " = " + transaction.getExchangeRate() +
                                                 " " + transaction.getCurrencyReceived(),
-                                false);
+                                transaction.getDiscount() != null
+                                                && transaction.getDiscount().compareTo(BigDecimal.ZERO) > 0);
 
-                // Ligne 4 : Total débité (en gras, mis en évidence)
+                // Ligne 5 : Total débité (en gras, mis en évidence)
+                // Calcul : amountSent + fees - discount
+                BigDecimal totalDebited = transaction.getAmountSent()
+                                .add(transaction.getFees());
+                if (transaction.getDiscount() != null) {
+                        totalDebited = totalDebited.subtract(transaction.getDiscount());
+                }
                 addFinancialRowHighlighted(financialTable,
                                 "TOTAL DEBITE SUR LA CARTE",
-                                transaction.getAmountSent()
-                                                .add(transaction.getFees()) +
-                                                " " + transaction.getCurrencySent());
+                                totalDebited + " " + transaction.getCurrencySent());
 
-                // Ligne 5 : Montant reçu (en vert)
+                // Ligne 6 : Montant reçu (en vert)
                 addFinancialRowSuccess(financialTable,
                                 "MONTANT RECU PAR LE BENEFICIAIRE",
                                 transaction.getAmountReceived() + " " +

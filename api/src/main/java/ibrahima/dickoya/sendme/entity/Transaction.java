@@ -1,6 +1,5 @@
 package ibrahima.dickoya.sendme.entity;
 
-
 import ibrahima.dickoya.sendme.enums.ChannelType;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
 import jakarta.persistence.*;
@@ -10,7 +9,11 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Transaction {
 
     @Id
@@ -36,6 +39,13 @@ public class Transaction {
     private BigDecimal exchangeRate;
 
     private BigDecimal fees;
+
+    /**
+     * Montant de la réduction appliquée (coupon de parrainage).
+     * Si aucune réduction n'a été appliquée, vaut 0.
+     */
+    @Column(name = "discount")
+    private BigDecimal discount;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
