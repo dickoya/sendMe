@@ -133,21 +133,13 @@
 		</dependency>
 
 		<!-- iText7 — génération de reçus PDF professionnels -->
+		<!-- itext7-core type=pom est un BOM (Bill Of Materials) qui inclut automatiquement -->
+		<!-- tous les modules nécessaires (kernel, layout, io, etc.) avec les bonnes versions -->
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itext7-core</artifactId>
 			<version>7.2.5</version>
 			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>kernel</artifactId>
-			<version>7.2.5</version>
-		</dependency>
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>layout</artifactId>
-			<version>7.2.5</version>
 		</dependency>
 
 		<!-- Caffeine — cache mémoire pour les taux de change -->
