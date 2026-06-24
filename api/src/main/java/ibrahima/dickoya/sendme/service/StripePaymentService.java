@@ -40,6 +40,15 @@ public class StripePaymentService {
         private String defaultCurrency;
 
         /**
+         * URL de retour après paiement Stripe (pour 3D Secure).
+         * Configurable via application.properties.
+         * Exemple dev : http://localhost:3000/payment/callback
+         * Exemple prod : https://sendme.com/payment/callback
+         */
+        @Value("${stripe.return-url:http://localhost:3000/payment/callback}")
+        private String returnUrl;
+
+        /**
          * Crée et confirme un PaymentIntent Stripe en une seule étape.
          *
          * Un PaymentIntent représente une tentative de collecte de paiement.
@@ -104,8 +113,8 @@ public class StripePaymentService {
                                 .setConfirm(true)
                                 // Description visible dans le dashboard Stripe
                                 .setDescription("SendMe - Transfert d'argent international")
-                                // Désactiver la redirection (pas de 3D Secure pour simplifier)
-                                .setReturnUrl("http://localhost:3000/payment/callback")
+                                // URL de retour configurée via application.properties
+                                .setReturnUrl(returnUrl)
                                 // Metadata utiles pour le support client
                                 .putMetadata("idempotency_key", idempotencyKey)
                                 .putMetadata("platform", "sendme")
