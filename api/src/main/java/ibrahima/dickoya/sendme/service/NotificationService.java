@@ -144,6 +144,9 @@ public class NotificationService {
          * Marque toutes les notifications de l'utilisateur comme lues.
          * Utilisé par le bouton "Tout marquer comme lu" dans l'interface.
          *
+         * Utilise une requête UPDATE SQL directe via @Query pour améliorer
+         * les performances (évite de charger toutes les notifications en mémoire).
+         *
          * @param userEmail email de l'utilisateur connecté
          */
         @Transactional
@@ -153,19 +156,11 @@ public class NotificationService {
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 "Utilisateur non trouvé : " + userEmail));
 
-                // Récupérer toutes les notifications non lues
-                List<Notification> unread = notificationRepository
-                                .findByUserIdOrderByCreatedAtDesc(user.getId())
-                                .stream()
-                                .filter(n -> !n.getIsRead())
-                                .collect(Collectors.toList());
-
-                // Marquer toutes comme lues
-                unread.forEach(n -> n.setIsRead(true));
-                notificationRepository.saveAll(unread);
+                // Utiliser la requête UPDATE directe pour meilleures performances
+                int updatedCount = notificationRepository.markAllAsReadByUserId(user.getId());
 
                 log.info("[NOTIF] {} notifications marquées comme lues pour userId : {}",
-                                unread.size(), user.getId());
+                                updatedCount, user.getId());
         }
 
         /**
