@@ -421,8 +421,17 @@ public class TransferService {
                         transaction.setStatus(TransactionStatus.REFUNDED);
                         transactionRepository.save(transaction);
 
-                        // Notification SSE déjà existante
-                        notificationService.createAndSend(user, "...", TRANSFER_FAILED, transaction);
+                        // Notification SSE : remboursement réussi
+                        notificationService.createAndSend(
+                                        user,
+                                        String.format(
+                                                        "Transfert %s echoue : %s. Le montant de %s %s a ete rembourse sur votre carte.",
+                                                        transaction.getReference(),
+                                                        reason,
+                                                        transaction.getAmountSent().add(transaction.getFees()),
+                                                        transaction.getCurrencySent()),
+                                        TRANSFER_FAILED,
+                                        transaction);
 
                         // Email remboursement confirmé
                         emailService.sendTransferRefundedEmail(user, transaction);
@@ -431,8 +440,15 @@ public class TransferService {
                         transaction.setStatus(TransactionStatus.FAILED);
                         transactionRepository.save(transaction);
 
-                        // Notification SSE déjà existante
-                        notificationService.createAndSend(user, "...", TRANSFER_FAILED, transaction);
+                        // Notification SSE : échec du remboursement
+                        notificationService.createAndSend(
+                                        user,
+                                        String.format(
+                                                        "Transfert %s echoue : %s. Attention : le remboursement automatique a echoue. Veuillez contacter le support.",
+                                                        transaction.getReference(),
+                                                        reason),
+                                        TRANSFER_FAILED,
+                                        transaction);
 
                         // Email transfert échoué sans remboursement
                         emailService.sendTransferFailedEmail(user, transaction, reason);
