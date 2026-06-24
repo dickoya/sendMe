@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.annotation.PostConstruct;
@@ -151,10 +152,15 @@ public class TransferService {
          * les deadlocks MySQL. Les échecs Stripe sont persistés dans une
          * transaction séparée (REQUIRES_NEW) sans conflit de lock.
          *
+         * @Transactional assure que toutes les opérations BDD sont atomiques.
+         *                En cas d'exception non catchée, toutes les modifications sont
+         *                rollbackées.
+         *
          * @param request   données du transfert avec paymentMethodId Stripe
          * @param userEmail email de l'utilisateur connecté (extrait du JWT)
          * @return TransactionResponse résultat complet de la transaction
          */
+        @Transactional
         public TransactionResponse processTransfer(TransferRequest request, String userEmail) {
 
                 /**
@@ -404,12 +410,15 @@ public class TransferService {
          * le débit carte est automatiquement annulé/remboursé ET
          * l'utilisateur est notifié en temps réel via SSE.
          *
+         * @Transactional assure que les mises à jour de statut sont atomiques.
+         *
          * @param paymentIntentId l'ID Stripe à rembourser
          * @param transaction     la transaction à marquer REFUNDED ou FAILED
          * @param user            l'utilisateur à notifier
          * @param reason          la raison de l'échec (affichée dans la notification)
          * @return TransactionResponse la transaction mise à jour
          */
+        @Transactional
         private TransactionResponse refundStripeAndFail(
                         String paymentIntentId,
                         Transaction transaction,
