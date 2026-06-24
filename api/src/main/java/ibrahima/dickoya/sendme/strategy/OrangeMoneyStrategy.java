@@ -23,9 +23,7 @@ import java.util.UUID;
  */
 @Component("ORANGE_MONEY")
 @Slf4j
-public class OrangeMoneyStrategy implements TransferStrategy {
-
-    private final Random random = new Random();
+public class OrangeMoneyStrategy extends BaseTransferStrategy {
 
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
@@ -56,23 +54,7 @@ public class OrangeMoneyStrategy implements TransferStrategy {
             return TransferResult.success(externalRef);
 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return TransferResult.failure("Interruption du traitement Orange Money");
+            return handleInterruption("ORANGE_MONEY");
         }
-    }
-
-    /**
-     * Masque le numéro de téléphone pour la sécurité dans les logs.
-     * Exemple : +22507123456 → +225****3456
-     */
-    private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6)
-            return "****";
-        return phone.substring(0, phone.length() - 4) + "****";
-    }
-
-    private void simulateProcessingDelay(int minMs, int maxMs)
-            throws InterruptedException {
-        Thread.sleep(minMs + new Random().nextInt(maxMs - minMs));
     }
 }

@@ -26,10 +26,7 @@ import java.util.UUID;
  */
 @Component("BANK_TRANSFER")
 @Slf4j
-public class BankTransferStrategy implements TransferStrategy {
-
-    /** Générateur de nombres aléatoires pour simuler les échecs. */
-    private final Random random = new Random();
+public class BankTransferStrategy extends BaseTransferStrategy {
 
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
@@ -61,34 +58,7 @@ public class BankTransferStrategy implements TransferStrategy {
             return TransferResult.success(externalRef);
 
         } catch (InterruptedException e) {
-            // Restaurer l'état d'interruption du thread
-            Thread.currentThread().interrupt();
-            return TransferResult.failure("Interruption du traitement bancaire");
+            return handleInterruption("BANK_TRANSFER");
         }
-    }
-
-    /**
-     * Masque l'IBAN pour la sécurité dans les logs.
-     * Exemple : FR7630006000011234567890189 → FR76****890189
-     *
-     * @param iban l'IBAN complet
-     * @return l'IBAN masqué
-     */
-    private String maskIban(String iban) {
-        if (iban == null || iban.length() < 8)
-            return "****";
-        return iban.substring(0, 4) + "****" + iban.substring(iban.length() - 6);
-    }
-
-    /**
-     * Simule un délai de traitement réseau.
-     *
-     * @param minMs délai minimum en millisecondes
-     * @param maxMs délai maximum en millisecondes
-     */
-    private void simulateProcessingDelay(int minMs, int maxMs)
-            throws InterruptedException {
-        int delay = minMs + random.nextInt(maxMs - minMs);
-        Thread.sleep(delay);
     }
 }

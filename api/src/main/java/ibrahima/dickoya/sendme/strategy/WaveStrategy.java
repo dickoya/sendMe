@@ -25,9 +25,7 @@ import java.util.UUID;
  */
 @Component("WAVE")
 @Slf4j
-public class WaveStrategy implements TransferStrategy {
-
-    private final Random random = new Random();
+public class WaveStrategy extends BaseTransferStrategy {
 
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
@@ -53,19 +51,7 @@ public class WaveStrategy implements TransferStrategy {
             return TransferResult.success(externalRef);
 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return TransferResult.failure("Interruption du traitement Wave");
+            return handleInterruption("WAVE");
         }
-    }
-
-    private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6)
-            return "****";
-        return phone.substring(0, phone.length() - 4) + "****";
-    }
-
-    private void simulateProcessingDelay(int minMs, int maxMs)
-            throws InterruptedException {
-        Thread.sleep(minMs + new Random().nextInt(maxMs - minMs));
     }
 }

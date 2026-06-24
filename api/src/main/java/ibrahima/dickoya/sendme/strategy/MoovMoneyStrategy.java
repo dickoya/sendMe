@@ -21,9 +21,7 @@ import java.util.UUID;
  */
 @Component("MOOV_MONEY")
 @Slf4j
-public class MoovMoneyStrategy implements TransferStrategy {
-
-    private final Random random = new Random();
+public class MoovMoneyStrategy extends BaseTransferStrategy {
 
     @Override
     public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
@@ -48,19 +46,7 @@ public class MoovMoneyStrategy implements TransferStrategy {
             return TransferResult.success(externalRef);
 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return TransferResult.failure("Interruption du traitement Moov Money");
+            return handleInterruption("MOOV_MONEY");
         }
-    }
-
-    private String maskPhone(String phone) {
-        if (phone == null || phone.length() < 6)
-            return "****";
-        return phone.substring(0, phone.length() - 4) + "****";
-    }
-
-    private void simulateProcessingDelay(int minMs, int maxMs)
-            throws InterruptedException {
-        Thread.sleep(minMs + new Random().nextInt(maxMs - minMs));
     }
 }
