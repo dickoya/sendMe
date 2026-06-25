@@ -61,7 +61,6 @@ public class BeneficiaryService {
         Beneficiary beneficiary = Beneficiary.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
-                .channel(request.getChannel())
                 .user(user)
                 .channels(new ArrayList<>())
                 .build();
@@ -110,7 +109,6 @@ public class BeneficiaryService {
         // Mettre à jour les champs de base
         beneficiary.setFirstName(request.getFirstName());
         beneficiary.setLastName(request.getLastName());
-        beneficiary.setChannel(request.getChannel());
 
         // Remplacer les canaux existants par les nouveaux
         beneficiary.getChannels().clear();
@@ -210,7 +208,6 @@ public class BeneficiaryService {
                 .id(beneficiary.getId())
                 .firstName(beneficiary.getFirstName())
                 .lastName(beneficiary.getLastName())
-                .channel(beneficiary.getChannel())
                 .channels(channelResponses)
                 .createdAt(beneficiary.getCreatedAt())
                 .build();

@@ -27,11 +27,6 @@ public class BeneficiaryResponse {
     private String lastName;
 
     /**
-     * Canal par défaut du bénéficiaire.
-     */
-    private ChannelType channel;
-
-    /**
      * Liste des canaux de réception de ce bénéficiaire.
      * Un bénéficiaire peut avoir 1 ou plusieurs canaux.
      */

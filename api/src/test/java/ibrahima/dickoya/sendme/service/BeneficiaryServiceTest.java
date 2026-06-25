@@ -80,7 +80,6 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
-                                        .channel(ChannelType.BANK_TRANSFER)
                                         .channels(List.of(channelRequest))
                                         .build();
 
@@ -96,7 +95,6 @@ class BeneficiaryServiceTest {
                         assertThat(response).isNotNull();
                         assertThat(response.getFirstName()).isEqualTo("Fatou");
                         assertThat(response.getLastName()).isEqualTo("Kone");
-                        assertThat(response.getChannel()).isEqualTo(ChannelType.BANK_TRANSFER);
                         assertThat(response.getChannels()).isNotEmpty();
                         assertThat(response.getChannels().get(0).getBankName()).isEqualTo("Societe Generale");
 
@@ -118,7 +116,6 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Amadou")
                                         .lastName("Diallo")
-                                        .channel(ChannelType.ORANGE_MONEY)
                                         .channels(List.of(channelRequest))
                                         .build();
 
@@ -133,7 +130,6 @@ class BeneficiaryServiceTest {
                         // Assert
                         assertThat(response).isNotNull();
                         assertThat(response.getFirstName()).isEqualTo("Amadou");
-                        assertThat(response.getChannel()).isEqualTo(ChannelType.ORANGE_MONEY);
                         assertThat(response.getChannels()).isNotEmpty();
                         assertThat(response.getChannels().get(0).getPhoneNumber()).isEqualTo("+224620000001");
 
@@ -148,7 +144,7 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
-                                        .channel(ChannelType.BANK_TRANSFER)
+                                        .channels(null)
                                         .build();
 
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.empty());
@@ -168,7 +164,6 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
-                                        .channel(ChannelType.BANK_TRANSFER)
                                         .channels(null)
                                         .build();
 
@@ -189,7 +184,6 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Amadou")
                                         .lastName("Diallo")
-                                        .channel(ChannelType.ORANGE_MONEY)
                                         .channels(null)
                                         .build();
 
@@ -231,7 +225,7 @@ class BeneficiaryServiceTest {
                         // Assert
                         assertThat(responses).hasSize(2);
                         assertThat(responses.getContent().get(0).getFirstName()).isEqualTo("Fatou");
-                        assertThat(responses.getContent().get(1).getChannel()).isEqualTo(ChannelType.ORANGE_MONEY);
+                        assertThat(responses.getContent().get(1).getChannels()).isNotEmpty();
 
                         verify(userRepository).findByEmail(USER_EMAIL);
                         verify(beneficiaryRepository).findByUserId(eq(USER_ID), any(Pageable.class));
@@ -292,7 +286,6 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Traore")
-                                        .channel(ChannelType.BANK_TRANSFER)
                                         .channels(List.of(channelRequest))
                                         .build();
 
@@ -323,7 +316,7 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
-                                        .channel(ChannelType.BANK_TRANSFER)
+                                        .channels(null)
                                         .build();
 
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
@@ -345,7 +338,7 @@ class BeneficiaryServiceTest {
                         BeneficiaryRequest request = BeneficiaryRequest.builder()
                                         .firstName("Fatou")
                                         .lastName("Kone")
-                                        .channel(ChannelType.BANK_TRANSFER)
+                                        .channels(null)
                                         .build();
 
                         Beneficiary beneficiaryOfOtherUser = createBankBeneficiary();
@@ -437,7 +430,6 @@ class BeneficiaryServiceTest {
                                 .id(1L)
                                 .firstName("Fatou")
                                 .lastName("Kone")
-                                .channel(ChannelType.BANK_TRANSFER)
                                 .user(user)
                                 .channels(new ArrayList<>(List.of(channel)))
                                 .createdAt(LocalDateTime.now())
@@ -461,7 +453,6 @@ class BeneficiaryServiceTest {
                                 .id(2L)
                                 .firstName("Amadou")
                                 .lastName("Diallo")
-                                .channel(ChannelType.ORANGE_MONEY)
                                 .user(user)
                                 .channels(new ArrayList<>(List.of(channel)))
                                 .createdAt(LocalDateTime.now())

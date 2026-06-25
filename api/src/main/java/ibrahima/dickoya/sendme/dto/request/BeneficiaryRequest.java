@@ -34,12 +34,6 @@ public class BeneficiaryRequest {
     private String lastName;
 
     /**
-     * Canal par défaut (conservé pour compatibilité).
-     */
-    @NotNull(message = "Le canal de reception est obligatoire")
-    private ChannelType channel;
-
-    /**
      * Liste des canaux de réception de ce bénéficiaire.
      * Un bénéficiaire peut avoir 1 ou plusieurs canaux.
      * Chaque canal contient ses propres détails selon le type.
