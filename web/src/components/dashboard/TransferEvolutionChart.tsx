@@ -82,7 +82,7 @@ export default function TransferEvolutionChart({ evolution, isLoading }: Transfe
                     className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                         view === 'monthly'
                             ? 'bg-brand-600 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-400 dark:hover:bg-[#333]'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-300 dark:hover:bg-[#333]'
                     }`}
                 >
                     {t('charts.monthly')}
@@ -92,7 +92,7 @@ export default function TransferEvolutionChart({ evolution, isLoading }: Transfe
                     className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                         view === 'yearly'
                             ? 'bg-brand-600 text-white'
-                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-400 dark:hover:bg-[#333]'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-300 dark:hover:bg-[#333]'
                     }`}
                 >
                     {t('charts.yearly')}

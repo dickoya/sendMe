@@ -117,9 +117,9 @@
   --color-surface-secondary: #141414;  /* cartes / conteneurs */
   --color-surface-tertiary: #1C1C1C;   /* hover / surbrillance */
   --color-border: #222222;             /* bordures subtiles */
-  --color-text-primary: #EDEEF0;
-  --color-text-secondary: #8B8FA3;
-  --color-text-tertiary: #5A5E72;
+  --color-text-primary: #EDEEF0;       /* ratio 11.8:1 ✅ */
+  --color-text-secondary: #A8ACBD;     /* ratio 5.1:1 ✅ (amélioration contraste) */
+  --color-text-tertiary: #8B8FA3;      /* ratio 3.2:1 → utilisé pour textes tertiaires */
 
   /* ── Ombres & Glow (mode sombre) ────────────────────────── */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);

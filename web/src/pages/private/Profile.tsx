@@ -290,7 +290,7 @@ function Profile() {
             <div className="flex min-h-[60vh] items-center justify-center">
                 <div className="text-center">
                     <AlertTriangle size={48} className="mx-auto text-danger-500" />
-                    <p className="mt-4 text-gray-600 dark:text-gray-400">{profileError}</p>
+                    <p className="mt-4 text-gray-600 dark:text-gray-300">{profileError}</p>
                     <Button variant="primary" className="mt-4" onClick={retryLoadProfile}>
                         {tCommon('actions.retry')}
                     </Button>
@@ -536,10 +536,10 @@ function Profile() {
                             <table className="w-full text-left text-sm">
                                 <thead>
                                     <tr className="border-b border-gray-100 dark:border-[#222222]">
-                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.date')}</th>
-                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.ipAddress')}</th>
-                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.device')}</th>
-                                        <th className="pb-3 font-medium text-gray-500 dark:text-gray-400">{t('loginHistory.status')}</th>
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-300">{t('loginHistory.date')}</th>
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-300">{t('loginHistory.ipAddress')}</th>
+                                        <th className="pb-3 pr-4 font-medium text-gray-500 dark:text-gray-300">{t('loginHistory.device')}</th>
+                                        <th className="pb-3 font-medium text-gray-500 dark:text-gray-300">{t('loginHistory.status')}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -548,10 +548,10 @@ function Profile() {
                                             <td className="py-3 pr-4 text-gray-900 dark:text-[#EDEEF0]">
                                                 {formatDateTime(entry.loginTime)}
                                             </td>
-                                            <td className="py-3 pr-4 font-mono text-xs text-gray-600 dark:text-gray-400">
+                                            <td className="py-3 pr-4 font-mono text-xs text-gray-600 dark:text-gray-300">
                                                 {entry.ipAddress}
                                             </td>
-                                            <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                                            <td className="py-3 pr-4 text-gray-600 dark:text-gray-300">
                                                 <div className="flex items-center gap-1.5">
                                                     <Monitor size={14} className="flex-shrink-0" />
                                                     <span className="truncate max-w-[200px]" title={entry.userAgent}>
@@ -585,7 +585,7 @@ function Profile() {
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h4 className="font-medium text-gray-900 dark:text-[#EDEEF0]">{t('deleteAccount.title')}</h4>
-                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-300">
                                 {t('deleteAccount.description')}
                             </p>
                         </div>

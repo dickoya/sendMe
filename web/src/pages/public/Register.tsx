@@ -89,10 +89,10 @@ function Register() {
                         <span className="text-lg font-bold text-gray-900 dark:text-gray-100">SendMe</span>
                     </Link>
                     <div className="flex items-center gap-6">
-                        <Link to="/" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400 sm:block">
+                        <Link to="/" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400 sm:block">
                             Accueil
                         </Link>
-                        <Link to="/#features" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400 sm:block">
+                        <Link to="/#features" className="hidden text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400 sm:block">
                             Fonctionnalités
                         </Link>
                         <ThemeToggle />
@@ -165,7 +165,7 @@ function Register() {
                         <div className="w-full max-w-sm">
                             <div className="mb-8">
                                 <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('register.title')}</h1>
-                                <p className="mt-2 text-gray-500 dark:text-gray-400">{t('register.subtitle')}</p>
+                                <p className="mt-2 text-gray-500 dark:text-gray-300">{t('register.subtitle')}</p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -273,7 +273,7 @@ function Register() {
                                 </Button>
                             </form>
 
-                            <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                            <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-300">
                                 {t('register.hasAccount')}{' '}
                                 <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
                                     {t('register.loginLink')}
@@ -288,13 +288,13 @@ function Register() {
             <footer className="border-t border-gray-100 bg-white px-6 py-6 sm:px-10 dark:border-[#222222] dark:bg-[#0D0D0D]">
 
                 <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 sm:flex-row">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
                         © {new Date().getFullYear()} SendMe. Tous droits réservés.
                     </p>
                     <div className="flex items-center gap-6">
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">Confidentialité</a>
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">CGU</a>
-                        <a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">Aide</a>
+                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">Confidentialité</a>
+                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">CGU</a>
+                        <a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">Aide</a>
                     </div>
                 </div>
             </footer>

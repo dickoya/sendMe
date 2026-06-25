@@ -37,7 +37,7 @@ function Header({ title, onMenuClick }: HeaderProps) {
             <div className="flex items-center gap-3">
                 <button
                     onClick={onMenuClick}
-                    className="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
+                    className="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
                     aria-label={t('actions.openMenu')}
                 >
                     <Menu size={20} />
@@ -52,7 +52,7 @@ function Header({ title, onMenuClick }: HeaderProps) {
 
                 <button
                     onClick={() => navigate('/profile')}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                     title={t('nav.profile')}
                 >
                     <User size={16} />
@@ -61,7 +61,7 @@ function Header({ title, onMenuClick }: HeaderProps) {
 
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
                     <LogOut size={16} />
                     <span className="hidden sm:inline">{t('nav.logout')}</span>

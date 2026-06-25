@@ -24,7 +24,7 @@ function Spinner({ size = 'md', label, fullPage, className }: SpinnerProps) {
     const content = (
         <div className="flex flex-col items-center gap-2">
             <Loader2 className={cn('animate-spin text-brand-600 dark:text-brand-400', sizeMap[size], className)} />
-            {label && <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>}
+            {label && <span className="text-sm text-gray-500 dark:text-gray-300">{label}</span>}
         </div>
     );
 

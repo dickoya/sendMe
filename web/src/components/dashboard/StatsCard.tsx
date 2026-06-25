@@ -40,14 +40,14 @@ export default function StatsCard({ title, value, subtitle, icon, trend, isLoadi
                     {icon}
                 </div>
                 <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                    <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-300">
                         {title}
                     </p>
                     <p className="mt-1 text-xl font-bold text-gray-900 dark:text-[#EDEEF0] truncate">
                         {value}
                     </p>
                     {subtitle && (
-                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-300">
                             {subtitle}
                         </p>
                     )}
@@ -57,7 +57,7 @@ export default function StatsCard({ title, value, subtitle, icon, trend, isLoadi
                                 ? 'text-green-600 dark:text-green-400'
                                 : trend.direction === 'down'
                                 ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                : 'text-gray-500 dark:text-gray-300'
                         }`}>
                             {trend.label}
                         </p>

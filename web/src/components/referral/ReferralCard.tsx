@@ -32,7 +32,7 @@ export default function ReferralCard() {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                         {t('title', 'Parrainage')}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-gray-500 dark:text-gray-300">
                         {t('subtitle', 'Parrainez vos proches et gagnez des réductions')}
                     </p>
                 </div>
@@ -42,7 +42,7 @@ export default function ReferralCard() {
             {referralInfo && (
                 <>
                     <div className="mb-5">
-                        <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1.5">
+                        <label className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1.5">
                             {t('yourCode', 'Votre code de parrainage')}
                         </label>
                         <div className="flex gap-2">
@@ -66,7 +66,7 @@ export default function ReferralCard() {
                             <p className="text-xl font-bold text-gray-900 dark:text-white">
                                 {referralInfo.totalReferred}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                                 {t('referred', 'Filleuls')}
                             </p>
                         </div>
@@ -75,7 +75,7 @@ export default function ReferralCard() {
                             <p className="text-xl font-bold text-gray-900 dark:text-white">
                                 {referralInfo.availableCoupons}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                                 {t('coupons', 'Coupons')}
                             </p>
                         </div>
@@ -84,7 +84,7 @@ export default function ReferralCard() {
                             <p className="text-xl font-bold text-gray-900 dark:text-white">
                                 {referralInfo.totalCouponsEarned}
                             </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                                 {t('earned', 'Gagnés')}
                             </p>
                         </div>
@@ -132,7 +132,7 @@ export default function ReferralCard() {
                                         <p className="text-sm font-medium text-gray-900 dark:text-white">
                                             {coupon.discountAmount} {coupon.currency}
                                         </p>
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                        <p className="text-xs text-gray-500 dark:text-gray-300">
                                             {coupon.isUsed
                                                 ? t('used', 'Utilisé')
                                                 : `${t('expires', 'Expire le')} ${new Date(coupon.expiresAt).toLocaleDateString()}`}

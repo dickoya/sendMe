@@ -15,7 +15,7 @@ export default function ReferralPage() {
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                     {t('pageTitle', 'Parrainage')}
                 </h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-gray-500 dark:text-gray-300 mt-1">
                     {t('pageSubtitle', 'Invitez vos proches et gagnez 5€ de réduction chacun')}
                 </p>
             </div>
@@ -37,7 +37,7 @@ export default function ReferralPage() {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {t('step1Title', 'Partagez votre code')}
                             </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className="text-sm text-gray-500 dark:text-gray-300">
                                 {t('step1Desc', 'Copiez votre code de parrainage et partagez-le avec vos proches')}
                             </p>
                         </div>
@@ -50,7 +50,7 @@ export default function ReferralPage() {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {t('step2Title', 'Ils s\'inscrivent avec votre code')}
                             </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className="text-sm text-gray-500 dark:text-gray-300">
                                 {t('step2Desc', 'Vos proches saisissent votre code lors de leur inscription')}
                             </p>
                         </div>
@@ -63,7 +63,7 @@ export default function ReferralPage() {
                             <p className="text-sm font-medium text-gray-900 dark:text-white">
                                 {t('step3Title', 'Recevez 5€ de réduction')}
                             </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className="text-sm text-gray-500 dark:text-gray-300">
                                 {t('step3Desc', 'Dès leur premier transfert, vous recevez chacun un coupon de 5€ de réduction')}
                             </p>
                         </div>

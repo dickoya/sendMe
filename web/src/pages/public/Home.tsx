@@ -177,15 +177,15 @@ function Home() {
 
                     {/* Navigation desktop */}
                     <div className="hidden items-center gap-6 md:flex">
-                        <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
+                        <a href="#features" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">
                             {t('nav.features')}
                         </a>
-                        <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
+                        <a href="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">
                             {t('nav.howItWorks')}
                         </a>
                         <ThemeToggle />
                         <LanguageSwitcher />
-                        <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">
+                        <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">
                             {t('nav.login')}
                         </Link>
                         <Link to="/register">
@@ -359,7 +359,7 @@ function Home() {
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                             {t('features.title')}
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                             {t('features.subtitle')}
                         </p>
                     </div>
@@ -377,7 +377,7 @@ function Home() {
                                 <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-gray-100">
                                     {feature.title}
                                 </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                     {feature.description}
                                 </p>
                             </div>
@@ -394,7 +394,7 @@ function Home() {
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                             {t('howItWorks.title')}
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                             {t('howItWorks.subtitle')}
                         </p>
                     </div>
@@ -415,7 +415,7 @@ function Home() {
                                 <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-gray-100">
                                     {step.title}
                                 </h3>
-                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                                <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                     {step.description}
                                 </p>
                             </div>
@@ -439,7 +439,7 @@ function Home() {
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                             {t('referral.title')}
                         </h2>
-                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                        <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                             {t('referral.subtitle')}
                         </p>
                     </div>
@@ -453,7 +453,7 @@ function Home() {
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {t('referral.benefit1')}
                             </h3>
-                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                 {t('referral.benefit1Desc')}
                             </p>
                         </div>
@@ -473,7 +473,7 @@ function Home() {
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {t('referral.benefit2')}
                             </h3>
-                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                 {t('referral.benefit2Desc')}
                             </p>
                         </div>
@@ -486,7 +486,7 @@ function Home() {
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
                                 {t('referral.benefit3')}
                             </h3>
-                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                            <p className="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                 {t('referral.benefit3Desc')}
                             </p>
                         </div>
@@ -500,7 +500,7 @@ function Home() {
                                 <ArrowRight size={18} />
                             </Button>
                         </Link>
-                        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+                        <p className="mt-3 text-sm text-gray-500 dark:text-gray-300">
                             {t('referral.ctaSub')}
                         </p>
                     </div>
@@ -534,7 +534,7 @@ function Home() {
                     <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
                         {t('cta.title')}
                     </h2>
-                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
+                    <p className="mt-4 text-lg text-gray-600 dark:text-gray-300">
                         {t('cta.subtitle')}
                     </p>
                     <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -566,30 +566,30 @@ function Home() {
                                 </div>
                                 <span className="text-lg font-bold text-gray-900 dark:text-gray-100">SendMe</span>
                             </div>
-                            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                            <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-300">
                                 {t('footer.description')}
                             </p>
                         </div>
                         <div>
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.product')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#features" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.features')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.support')}</a></li>
+                                <li><a href="#features" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.features')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.security')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.support')}</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.company')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.about')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.legal')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.about')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
+                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.legal')}</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Support</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-400 dark:hover:text-brand-400">support@sendme.com</a></li>
+                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">support@sendme.com</a></li>
                             </ul>
                         </div>
                     </div>

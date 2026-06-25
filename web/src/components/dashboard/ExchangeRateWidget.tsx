@@ -77,7 +77,7 @@ export default function ExchangeRateWidget({
         if (active && payload && payload.length) {
             return (
                 <div className="rounded-lg border border-gray-200 bg-white p-3 shadow-lg dark:border-[#333] dark:bg-[#1a1a1a]">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300">{label}</p>
                     <p className="text-sm font-semibold text-gray-900 dark:text-[#EDEEF0]">
                         {payload[0].value.toFixed(6)}
                     </p>
@@ -98,7 +98,7 @@ export default function ExchangeRateWidget({
                         className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
                             selectedPair.from === pair.from && selectedPair.to === pair.to
                                 ? 'bg-brand-600 text-white'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-400 dark:hover:bg-[#333]'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#222] dark:text-gray-300 dark:hover:bg-[#333]'
                         }`}
                     >
                         {pair.label}
@@ -111,7 +111,7 @@ export default function ExchangeRateWidget({
                 <div className="mb-4 rounded-lg bg-gray-50 p-3 dark:bg-[#1a1a1a]">
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                                 {t('charts.currentRate')}
                             </p>
                             <p className="text-2xl font-bold text-gray-900 dark:text-[#EDEEF0]">
@@ -119,7 +119,7 @@ export default function ExchangeRateWidget({
                             </p>
                         </div>
                         <div className="text-right">
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-gray-500 dark:text-gray-300">
                                 {t('charts.rawRate')}
                             </p>
                             <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
