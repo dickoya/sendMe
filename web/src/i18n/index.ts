@@ -15,6 +15,7 @@ import homeFr from './locales/fr/home.json';
 import profileFr from './locales/fr/profile.json';
 import referralFr from './locales/fr/referral.json';
 import onboardingFr from './locales/fr/onboarding.json';
+import faqFr from './locales/fr/faq.json';
 
 // EN
 import commonEn from './locales/en/common.json';
@@ -29,6 +30,7 @@ import homeEn from './locales/en/home.json';
 import profileEn from './locales/en/profile.json';
 import referralEn from './locales/en/referral.json';
 import onboardingEn from './locales/en/onboarding.json';
+import faqEn from './locales/en/faq.json';
 
 /**
  * Liste des namespaces disponibles dans l'application.
@@ -51,6 +53,7 @@ export const NAMESPACES = [
     'profile',
     'referral',
     'onboarding',
+    'faq',
 ] as const;
 
 /**
@@ -89,6 +92,7 @@ i18n
                 profile: profileFr,
                 referral: referralFr,
                 onboarding: onboardingFr,
+                faq: faqFr,
             },
             en: {
                 common: commonEn,
@@ -103,6 +107,7 @@ i18n
                 profile: profileEn,
                 referral: referralEn,
                 onboarding: onboardingEn,
+                faq: faqEn,
             },
         },
         fallbackLng: 'fr',

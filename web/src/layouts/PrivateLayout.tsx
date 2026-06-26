@@ -44,6 +44,7 @@ function getPageTitle(pathname: string, t: (key: string) => string): string {
     if (pathname.startsWith('/transfer')) return t('nav.transfer');
     if (pathname.startsWith('/history')) return t('nav.history');
     if (pathname.startsWith('/notifications')) return t('nav.notifications');
+    if (pathname.startsWith('/faq')) return t('nav.faq');
     return '';
 }
 

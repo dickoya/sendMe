@@ -1,0 +1,74 @@
+{
+  "title": "Foire Aux Questions",
+  "subtitle": "Trouvez des réponses rapides à toutes vos questions sur SendMe.",
+  "searchPlaceholder": "Rechercher une question, un mot-clé...",
+  "noResults": "Aucun résultat trouvé pour votre recherche.",
+  "noResultsSub": "Essayez de formuler votre recherche différemment ou parcourez nos catégories.",
+  "contactTitle": "Toujours besoin d'aide ?",
+  "contactSubtitle": "Notre équipe de support est là pour vous accompagner 24h/24 et 7j/7.",
+  "contactButton": "Contacter le support",
+  "categories": {
+    "all": "Tous",
+    "general": "Général",
+    "transfers": "Transferts",
+    "beneficiaries": "Bénéficiaires",
+    "security": "Sécurité",
+    "fees": "Tarifs & Frais"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "category": "general",
+      "question": "Qu'est-ce que SendMe ?",
+      "answer": "SendMe est une plateforme moderne et sécurisée de transfert d'argent qui vous permet d'envoyer des fonds instantanément vers divers canaux de paiement tels que Orange Money, MTN Mobile Money, Wave, Moov Money, Airtel Money et les virements bancaires directs."
+    },
+    {
+      "id": "q2",
+      "category": "general",
+      "question": "Comment créer un compte sur SendMe ?",
+      "answer": "La création d'un compte est simple et gratuite. Cliquez sur le bouton 'Créer un compte' en haut de la page, remplissez le formulaire avec vos coordonnées (nom, e-mail, téléphone) et définissez un mot de passe sécurisé. Vous recevrez ensuite un e-mail de confirmation pour activer votre compte."
+    },
+    {
+      "id": "q3",
+      "category": "transfers",
+      "question": "Combien de temps prend un transfert ?",
+      "answer": "La majorité de nos transferts vers les portefeuilles mobiles (Mobile Money comme Wave, Orange Money, etc.) sont instantanés. Les virements bancaires peuvent prendre entre 1 et 3 jours ouvrables selon la banque destinataire."
+    },
+    {
+      "id": "q4",
+      "category": "transfers",
+      "question": "Puis-je annuler un transfert en cours ?",
+      "answer": "Les transferts envoyés vers des comptes Mobile Money sont traités instantanément et ne peuvent pas être annulés ou remboursés une fois finalisés. Pour les virements bancaires, s'ils n'ont pas encore été validés par nos services, vous pouvez contacter immédiatement le support pour tenter une annulation."
+    },
+    {
+      "id": "q5",
+      "category": "beneficiaries",
+      "question": "Comment ajouter un bénéficiaire ?",
+      "answer": "Allez dans la section 'Bénéficiaires' de votre tableau de bord, cliquez sur 'Ajouter un bénéficiaire', puis saisissez ses informations (nom, pays et coordonnées de paiement). Une fois enregistré, vous pourrez lui envoyer de l'argent en quelques clics."
+    },
+    {
+      "id": "q6",
+      "category": "beneficiaries",
+      "question": "Puis-je associer plusieurs canaux à un même bénéficiaire ?",
+      "answer": "Oui ! SendMe vous permet d'associer plusieurs canaux de paiement (par exemple un compte Wave et un numéro MTN Money) à un seul et même bénéficiaire pour faciliter vos futurs envois."
+    },
+    {
+      "id": "q7",
+      "category": "security",
+      "question": "Mes transactions et données personnelles sont-elles sécurisées ?",
+      "answer": "Absolument. Nous utilisons des protocoles de chiffrement SSL/TLS de niveau bancaire pour protéger toutes vos données personnelles et financières. De plus, nos processus de paiement respectent les standards de sécurité les plus stricts (PCI-DSS) et nous masquons les données sensibles pour préserver votre vie privée."
+    },
+    {
+      "id": "q8",
+      "category": "fees",
+      "question": "Quels sont les frais de transfert sur SendMe ?",
+      "answer": "Nos frais sont parmi les plus bas du marché et varient selon le mode de transfert choisi. Avant chaque validation, notre simulateur intégré vous affiche en toute transparence les frais appliqués, le taux de change en temps réel et le montant exact que recevra votre bénéficiaire."
+    },
+    {
+      "id": "q9",
+      "category": "general",
+      "question": "Comment fonctionne le programme de parrainage ?",
+      "answer": "En partageant votre code de parrainage unique (disponible dans la rubrique 'Parrainage'), vous et vos filleuls bénéficiez de réductions exclusives sur vos prochains transferts dès que votre filleul effectue son premier envoi."
+    }
+  ]
+}

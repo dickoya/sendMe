@@ -22,6 +22,7 @@ import History from '@/pages/private/History';
 import Notifications from '@/pages/private/Notifications';
 import Profile from '@/pages/private/Profile';
 import ReferralPage from '@/pages/private/ReferralPage';
+import Faq from '@/pages/private/Faq';
 
 // Pages admin
 import AdminDashboard from '@/pages/admin/AdminDashboard';
@@ -64,6 +65,7 @@ function AppRoutes() {
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/referral" element={<ReferralPage />} />
+                    <Route path="/faq" element={<Faq />} />
                 </Route>
             </Route>
 

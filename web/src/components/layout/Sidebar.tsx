@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     LayoutDashboard, Users, Send, History, Bell, User, Gift,
     LayoutGrid, UserCog, ArrowRightLeft, Settings, ArrowLeft,
+    HelpCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
         { to: '/referral', label: t('nav.referral', 'Parrainage'), icon: Gift },
         { to: '/notifications', label: t('nav.notifications'), icon: Bell },
         { to: '/profile', label: t('nav.profile'), icon: User },
+        { to: '/faq', label: t('nav.faq'), icon: HelpCircle },
     ];
 
     const adminLinks = [

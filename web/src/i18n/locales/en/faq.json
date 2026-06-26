@@ -1,0 +1,74 @@
+{
+  "title": "Frequently Asked Questions",
+  "subtitle": "Find quick answers to all your questions about SendMe.",
+  "searchPlaceholder": "Search for a question, keyword...",
+  "noResults": "No results found for your search.",
+  "noResultsSub": "Try a different search term or browse our categories.",
+  "contactTitle": "Still need help?",
+  "contactSubtitle": "Our support team is here to assist you 24/7.",
+  "contactButton": "Contact Support",
+  "categories": {
+    "all": "All",
+    "general": "General",
+    "transfers": "Transfers",
+    "beneficiaries": "Beneficiaries",
+    "security": "Security",
+    "fees": "Fees & Rates"
+  },
+  "questions": [
+    {
+      "id": "q1",
+      "category": "general",
+      "question": "What is SendMe?",
+      "answer": "SendMe is a modern, secure money transfer platform that allows you to send funds instantly to various payment channels including Orange Money, MTN Mobile Money, Wave, Moov Money, Airtel Money, and direct bank transfers."
+    },
+    {
+      "id": "q2",
+      "category": "general",
+      "question": "How do I create a SendMe account?",
+      "answer": "Creating an account is simple and free. Click the 'Register' button at the top of the page, fill out the form with your details (name, email, phone number) and set up a secure password. You will then receive a confirmation email to activate your account."
+    },
+    {
+      "id": "q3",
+      "category": "transfers",
+      "question": "How long does a transfer take?",
+      "answer": "The majority of our transfers to mobile wallets (Mobile Money like Wave, Orange Money, etc.) are instantaneous. Bank transfers can take between 1 and 3 business days depending on the receiving bank."
+    },
+    {
+      "id": "q4",
+      "category": "transfers",
+      "question": "Can I cancel a transfer in progress?",
+      "answer": "Transfers sent to Mobile Money accounts are processed instantly and cannot be cancelled or refunded once completed. For bank transfers, if they have not yet been approved by our services, you can contact support immediately to attempt a cancellation."
+    },
+    {
+      "id": "q5",
+      "category": "beneficiaries",
+      "question": "How do I add a beneficiary?",
+      "answer": "Go to the 'Beneficiaries' section of your dashboard, click 'Add Beneficiary', then enter their details (name, country, and payment details). Once saved, you can send them money in just a few clicks."
+    },
+    {
+      "id": "q6",
+      "category": "beneficiaries",
+      "question": "Can I associate multiple channels with the same beneficiary?",
+      "answer": "Yes! SendMe allows you to associate multiple payment channels (such as a Wave account and an MTN Money number) with a single beneficiary to simplify your future transfers."
+    },
+    {
+      "id": "q7",
+      "category": "security",
+      "question": "Are my transactions and personal data secure?",
+      "answer": "Absolutely. We use bank-grade SSL/TLS encryption protocols to protect all your personal and financial data. In addition, our payment processes comply with the strictest security standards (PCI-DSS) and we mask sensitive data to protect your privacy."
+    },
+    {
+      "id": "q8",
+      "category": "fees",
+      "question": "What are the transfer fees on SendMe?",
+      "answer": "Our fees are among the lowest in the market and vary depending on the chosen transfer method. Before validating, our integrated simulator shows you the applied fees, real-time exchange rate, and the exact amount your beneficiary will receive, with full transparency."
+    },
+    {
+      "id": "q9",
+      "category": "general",
+      "question": "How does the referral program work?",
+      "answer": "By sharing your unique referral code (available under the 'Referral' section), both you and your referee will receive exclusive discounts on your next transfers once your referee makes their first transfer."
+    }
+  ]
+}
