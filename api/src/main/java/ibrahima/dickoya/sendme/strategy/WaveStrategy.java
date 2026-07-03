@@ -7,8 +7,8 @@ import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Stratégie concrète pour les transferts Wave.
@@ -19,9 +19,9 @@ import java.util.UUID;
  * En production, utiliserait l'API Wave Business
  * avec authentification par token Bearer.
  *
- * Simulation :
- * - Délai entre 300ms et 1.5 secondes (Wave est généralement rapide)
- * - 5% de chance d'échec
+ * En mode simulation (strategy.simulation-mode=true) :
+ * - Délai entre 300ms et 1.5 secondes (non-bloquant via CompletableFuture)
+ * - Taux d'échec configurable via strategy.failure-rate (défaut: 0%)
  */
 @Component("WAVE")
 @Slf4j
@@ -39,10 +39,10 @@ public class WaveStrategy extends BaseTransferStrategy {
 
         try {
             // Wave est généralement plus rapide que les autres opérateurs
-            simulateProcessingDelay(300, 1500);
+            simulateProcessingDelay(300, 1500).get(5, TimeUnit.SECONDS);
 
-            if (random.nextInt(100) < 5) {
-                log.warn("[WAVE] Transfert rejete par Wave");
+            if (shouldSimulateFailure()) {
+                log.warn("[WAVE] Transfert rejete par Wave (simulation)");
                 return TransferResult.failure("Compte Wave inactif ou limite depassee");
             }
 
@@ -52,6 +52,9 @@ public class WaveStrategy extends BaseTransferStrategy {
 
         } catch (InterruptedException e) {
             return handleInterruption("WAVE");
+        } catch (Exception e) {
+            log.error("[WAVE] Erreur lors du transfert : {}", e.getMessage());
+            return TransferResult.failure("Erreur technique Wave : " + e.getMessage());
         }
     }
 }

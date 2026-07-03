@@ -51,9 +51,6 @@ public class SecurityConfig {
             // ── Vérification publique d'un code de parrainage ────────────────
             "/api/referral/verify",
 
-            // ── Notifications & SSE (Ajusté selon tes logs d'arborescence) ────
-            "/api/notifications/**",
-
             // ── Stripe Webhook ────────────────────────────────────────────────
             "/api/webhooks/**",
 
@@ -90,7 +87,7 @@ public class SecurityConfig {
                         // ── Autoriser les requêtes de pré-vérification OPTIONS ──
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ── Inclut maintenant /api/auth/** et /api/notifications/** ──
+                        // ── Routes publiques ──
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
 
                         // ── Administration ──

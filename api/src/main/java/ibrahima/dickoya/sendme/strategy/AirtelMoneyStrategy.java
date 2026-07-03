@@ -7,8 +7,8 @@ import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Stratégie concrète pour les transferts Airtel Money.
@@ -18,6 +18,10 @@ import java.util.UUID;
  *
  * En production, utiliserait l'API Airtel Money
  * (https://developers.airtel.africa) avec OAuth2.
+ *
+ * En mode simulation (strategy.simulation-mode=true) :
+ * - Délai entre 500ms et 2 secondes (non-bloquant via CompletableFuture)
+ * - Taux d'échec configurable via strategy.failure-rate (défaut: 0%)
  */
 @Component("AIRTEL_MONEY")
 @Slf4j
@@ -34,10 +38,10 @@ public class AirtelMoneyStrategy extends BaseTransferStrategy {
         log.info("[AIRTEL_MONEY] Debut du transfert vers : {}", maskPhone(phoneNumber));
 
         try {
-            simulateProcessingDelay(500, 2000);
+            simulateProcessingDelay(500, 2000).get(5, TimeUnit.SECONDS);
 
-            if (random.nextInt(100) < 5) {
-                log.warn("[AIRTEL_MONEY] Transfert rejete par Airtel Money");
+            if (shouldSimulateFailure()) {
+                log.warn("[AIRTEL_MONEY] Transfert rejete par Airtel Money (simulation)");
                 return TransferResult.failure("Compte Airtel Money inactif ou reseau indisponible");
             }
 
@@ -47,6 +51,9 @@ public class AirtelMoneyStrategy extends BaseTransferStrategy {
 
         } catch (InterruptedException e) {
             return handleInterruption("AIRTEL_MONEY");
+        } catch (Exception e) {
+            log.error("[AIRTEL_MONEY] Erreur lors du transfert : {}", e.getMessage());
+            return TransferResult.failure("Erreur technique Airtel Money : " + e.getMessage());
         }
     }
 }

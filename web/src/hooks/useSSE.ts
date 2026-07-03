@@ -1,85 +1,63 @@
 import { useEffect, useRef } from 'react';
 import type { Notification, NotificationType } from '@/types';
+import { notificationService } from '@/services/notificationService';
 
 type SSEEventHandler = (notification: Notification) => void;
 
 /**
  * Hook gérant la connexion SSE (Server-Sent Events) vers
- * /api/notifications/stream.
+ * /api/notifications/stream via fetch() avec Authorization header.
  *
- * Reconnexion automatique : EventSource reconnecte nativement
+ * Utilise notificationService.connectSSE() qui envoie le token JWT
+ * dans le header Authorization (sécurisé, pas de token dans l'URL).
  *
+ * Reconnexion automatique en cas de coupure.
  *
- * en cas de coupure (comportement natif du navigateur),
- * sauf si le composant est démonté (cleanup ferme la connexion).
- *
- * @param url        URL du flux SSE (avec token en query param)
- * @param onMessage  callback appelé pour CHAQUE type d'événement reçu
+ * @param onMessage  callback appelé pour chaque notification reçue
  * @param enabled    si false, ne se connecte pas (ex: utilisateur non authentifié)
- *
- * @example
- * useSSE(notificationService.getStreamUrl(), (notif) => {
- *   addNotification(notif);
- *   showToast(notif.message, 'info');
- * }, isAuthenticated);
  */
-export function useSSE(url: string, onMessage: SSEEventHandler, enabled = true) {
-    const eventSourceRef = useRef<EventSource | null>(null);
+export function useSSE(onMessage: SSEEventHandler, enabled = true) {
+    const abortRef = useRef<AbortController | null>(null);
+    const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Garde la dernière version du callback sans recréer la connexion
     const handlerRef = useRef(onMessage);
     handlerRef.current = onMessage;
 
-    const ALL_EVENT_TYPES: NotificationType[] = [
-        'TRANSFER_INITIATED',
-        'TRANSFER_PROCESSING',
-        'TRANSFER_COMPLETED',
-        'TRANSFER_FAILED',
-        'TRANSFER_REFUNDED',
-        'PAYMENT_CONFIRMED',
-        'PAYMENT_FAILED',
-        'ACCOUNT_CREATED',
-        'ACCOUNT_DISABLED',
-        'ACCOUNT_REACTIVATED',
-        'SECURITY_LOGIN',
-        'SECURITY_PASSWORD_CHANGED',
-        'SECURITY_SUSPICIOUS_LOGIN',
-        'INFO',
-        'MAINTENANCE',
-        'FEE_UPDATE',
-    ];
-
     useEffect(() => {
         if (!enabled) return;
 
-        const eventSource = new EventSource(url);
-        eventSourceRef.current = eventSource;
+        let isCancelled = false;
 
-        // Événement de confirmation de connexion (envoyé par SseEmitterService)
-        eventSource.addEventListener('CONNECTED', () => {
-            console.debug('[SSE] Connexion établie');
-        });
+        const connect = () => {
+            if (isCancelled) return;
 
-        // Un addEventListener par type de notification métier
-        // (le backend envoie .name(type.name()) — voir SseEmitterService.sendToUser)
-        ALL_EVENT_TYPES.forEach((type) => {
-            eventSource.addEventListener(type, (event: MessageEvent) => {
-                try {
-                    const notification: Notification = JSON.parse(event.data);
+            const abortCtrl = notificationService.connectSSE(
+                (notification) => {
                     handlerRef.current(notification);
-                } catch (err) {
-                    console.error('[SSE] Erreur de parsing', err);
+                },
+                (error) => {
+                    console.warn('[SSE] Erreur de connexion — reconnexion dans 5s', error);
+                    if (!isCancelled) {
+                        reconnectTimeoutRef.current = setTimeout(connect, 5000);
+                    }
                 }
-            });
-        });
-
-        eventSource.onerror = () => {
-            console.warn('[SSE] Erreur de connexion — tentative de reconnexion automatique');
+            );
+            abortRef.current = abortCtrl;
         };
+
+        connect();
 
         return () => {
-            eventSource.close();
-            eventSourceRef.current = null;
+            isCancelled = true;
+            if (abortRef.current) {
+                abortRef.current.abort();
+                abortRef.current = null;
+            }
+            if (reconnectTimeoutRef.current) {
+                clearTimeout(reconnectTimeoutRef.current);
+                reconnectTimeoutRef.current = null;
+            }
         };
-    }, [url, enabled]);
+    }, [enabled]);
 }

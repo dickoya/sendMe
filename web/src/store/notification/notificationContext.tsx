@@ -56,10 +56,8 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   }, [fetchAll]);
 
   // ── Connexion SSE temps réel ─────────────────────────────────────────────
-  const streamUrl = notificationService.getStreamUrl();
-
+  // Utilise fetch() avec Authorization header (sécurisé, pas de token dans l'URL)
   useSSE(
-    streamUrl,
     (notification) => {
       // Ajouter la nouvelle notification en tête de liste
       setNotifications((prev) => [notification, ...prev]);
@@ -68,12 +66,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       // 1. Générer la fonction 't' liée au namespace 'notifications'
       const t = i18n.getFixedT(null, 'notifications');
 
-// 2. Reconstruire le message traduit
+      // 2. Reconstruire le message traduit
       const message = getNotificationMessage(notification, t);
 
-// 3. Afficher le toast avec le bon message
+      // 3. Afficher le toast avec le bon message
       showToast(message, toastTypeForNotification(notification.type));
-
     },
     isAuthenticated
   );

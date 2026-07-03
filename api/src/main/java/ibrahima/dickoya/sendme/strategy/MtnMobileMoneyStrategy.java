@@ -7,19 +7,18 @@ import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Stratégie concrète pour les transferts MTN Mobile Money (MoMo).
  *
- * Simule l'appel vers l'API MTN MoMo.
  * En production, utiliserait l'API officielle MTN MoMo
  * (https://momodeveloper.mtn.com) avec clé API et sandbox/production.
  *
- * Simulation :
- * - Délai entre 500ms et 2 secondes
- * - 5% de chance d'échec
+ * En mode simulation (strategy.simulation-mode=true) :
+ * - Délai entre 500ms et 2 secondes (non-bloquant via CompletableFuture)
+ * - Taux d'échec configurable via strategy.failure-rate (défaut: 0%)
  */
 @Component("MTN_MOBILE_MONEY")
 @Slf4j
@@ -36,10 +35,10 @@ public class MtnMobileMoneyStrategy extends BaseTransferStrategy {
         log.info("[MTN_MOMO] Debut du transfert vers : {}", maskPhone(phoneNumber));
 
         try {
-            simulateProcessingDelay(500, 2000);
+            simulateProcessingDelay(500, 2000).get(5, TimeUnit.SECONDS);
 
-            if (random.nextInt(100) < 5) {
-                log.warn("[MTN_MOMO] Transfert rejete par MTN MoMo");
+            if (shouldSimulateFailure()) {
+                log.warn("[MTN_MOMO] Transfert rejete par MTN MoMo (simulation)");
                 return TransferResult.failure("Compte MTN MoMo inactif ou reseau indisponible");
             }
 
@@ -49,6 +48,9 @@ public class MtnMobileMoneyStrategy extends BaseTransferStrategy {
 
         } catch (InterruptedException e) {
             return handleInterruption("MTN_MOBILE_MONEY");
+        } catch (Exception e) {
+            log.error("[MTN_MOMO] Erreur lors du transfert : {}", e.getMessage());
+            return TransferResult.failure("Erreur technique MTN MoMo : " + e.getMessage());
         }
     }
 }

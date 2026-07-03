@@ -15,12 +15,12 @@ import ibrahima.dickoya.sendme.repository.*;
 import ibrahima.dickoya.sendme.strategy.TransferResult;
 import ibrahima.dickoya.sendme.strategy.TransferStrategy;
 import ibrahima.dickoya.sendme.utils.CurrencyByCountry;
+import ibrahima.dickoya.sendme.utils.MessageUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import jakarta.annotation.PostConstruct;
@@ -41,15 +41,18 @@ import static ibrahima.dickoya.sendme.enums.NotificationType.TRANSFER_FAILED;
  * 1. Vérification idempotence (RG-06)
  * 2. Validation bénéficiaire
  * 3. Simulation frais + taux de change
- * 4. Débit carte via Stripe API (RG-01)
+ * 4. Débit carte via Stripe API (RG-01) — HORS transaction BDD
  * 5. Création transaction PENDING + notification TRANSFER_INITIATED
  * 6. Exécution de la stratégie (Strategy Pattern)
  * 7a. Succès → COMPLETED + notification TRANSFER_COMPLETED
  * 7b. Échec → remboursement Stripe + notification TRANSFER_FAILED (RG-04)
+ *
+ * ⚠️ Les appels Stripe sont effectués EN DEHORS des transactions BDD
+ * pour éviter les deadlocks MySQL (gap locks InnoDB) causés par
+ * des transactions longues contenant des appels réseau.
  */
 @Service
 @Slf4j
-
 public class TransferService {
 
         private final TransactionRepository transactionRepository;
@@ -74,22 +77,6 @@ public class TransferService {
 
         /** Compteur atomique pour générer les références uniques (RG-05). */
         private final AtomicInteger counter = new AtomicInteger(1);
-
-        /**
-         * Initialise le compteur de références à partir de la base de données.
-         * Évite les conflits de duplication après un redémarrage du serveur.
-         * Exécuté automatiquement après l'injection des dépendances.
-         */
-        @PostConstruct
-        public void initCounter() {
-                Long maxSeq = transactionRepository.findMaxReferenceSequence();
-                if (maxSeq != null) {
-                        counter.set(maxSeq.intValue() + 1);
-                        log.info("Compteur de references initialise a {}", counter.get());
-                } else {
-                        log.info("Aucune transaction existante, compteur demarre a 1");
-                }
-        }
 
         /**
          * Service email pour notifier l'utilisateur
@@ -118,6 +105,13 @@ public class TransferService {
         private final TransactionTemplate transactionTemplate;
 
         /**
+         * Utilitaire de messages internationalisés.
+         * Remplace les chaînes en dur par des messages externalisés
+         * dans messages_fr.properties / messages_en.properties.
+         */
+        private final MessageUtils messageUtils;
+
+        /**
          * Constructeur pour initialiser TransactionTemplate avec le transaction
          * manager.
          */
@@ -131,7 +125,8 @@ public class TransferService {
                         EmailService emailService,
                         ReferralService referralService,
                         TransactionPersistenceService transactionPersistenceService,
-                        PlatformTransactionManager transactionManager) {
+                        PlatformTransactionManager transactionManager,
+                        MessageUtils messageUtils) {
                 this.transactionRepository = transactionRepository;
                 this.beneficiaryRepository = beneficiaryRepository;
                 this.userRepository = userRepository;
@@ -143,30 +138,39 @@ public class TransferService {
                 this.referralService = referralService;
                 this.transactionPersistenceService = transactionPersistenceService;
                 this.transactionTemplate = new TransactionTemplate(transactionManager);
+                this.messageUtils = messageUtils;
+        }
+
+        /**
+         * Initialise le compteur de références à partir de la base de données.
+         * Évite les conflits de duplication après un redémarrage du serveur.
+         * Exécuté automatiquement après l'injection des dépendances.
+         */
+        @PostConstruct
+        public void initCounter() {
+                Long maxSeq = transactionRepository.findMaxReferenceSequence();
+                if (maxSeq != null) {
+                        counter.set(maxSeq.intValue() + 1);
+                        log.info("Compteur de references initialise a {}", counter.get());
+                } else {
+                        log.info("Aucune transaction existante, compteur demarre a 1");
+                }
         }
 
         /**
          * Orchestre le transfert complet avec paiement Stripe et notifications.
          *
-         * Les opérations BDD sont gérées via TransactionTemplate pour éviter
-         * les deadlocks MySQL. Les échecs Stripe sont persistés dans une
-         * transaction séparée (REQUIRES_NEW) sans conflit de lock.
-         *
-         * @Transactional assure que toutes les opérations BDD sont atomiques.
-         *                En cas d'exception non catchée, toutes les modifications sont
-         *                rollbackées.
+         * ⚠️ PAS de @Transactional sur cette méthode :
+         * Les appels Stripe (réseau) sont effectués EN DEHORS des transactions BDD.
+         * Les opérations BDD sont gérées via TransactionTemplate programmatique
+         * pour éviter les deadlocks MySQL (gap locks InnoDB).
          *
          * @param request   données du transfert avec paymentMethodId Stripe
          * @param userEmail email de l'utilisateur connecté (extrait du JWT)
          * @return TransactionResponse résultat complet de la transaction
          */
-        @Transactional
         public TransactionResponse processTransfer(TransferRequest request, String userEmail) {
 
-                /**
-                 * Service email pour notifier l'utilisateur
-                 * à chaque étape du cycle de vie du transfert.
-                 */
                 log.info("=== DEBUT TRANSFERT pour {} ===", userEmail);
 
                 // ── ÉTAPE 1 : Vérification idempotence ──────────────────────────────
@@ -182,16 +186,18 @@ public class TransferService {
                 // ── ÉTAPE 2 : Récupérer l'utilisateur et le bénéficiaire ────────────
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Utilisateur non trouve : " + userEmail));
+                                                messageUtils.get("error.user.notfound", userEmail)));
 
                 Beneficiary beneficiary = beneficiaryRepository
                                 .findById(request.getBeneficiaryId())
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Beneficiaire non trouve : " + request.getBeneficiaryId()));
+                                                messageUtils.get("error.beneficiary.notfound",
+                                                                request.getBeneficiaryId())));
 
                 // Vérifier que le bénéficiaire appartient bien à l'utilisateur connecté
                 if (!beneficiary.getUser().getId().equals(user.getId())) {
-                        throw new TransferException("Ce beneficiaire ne vous appartient pas");
+                        throw new TransferException(
+                                        messageUtils.get("error.beneficiary.access.denied"));
                 }
 
                 // ── ÉTAPE 3 : Déterminer le canal de réception ─────────────────────
@@ -203,7 +209,7 @@ public class TransferService {
                                         .filter(ch -> ch.getId().equals(request.getChannelId()))
                                         .findFirst()
                                         .orElseThrow(() -> new TransferException(
-                                                        "Canal de reception non trouve pour ce beneficiaire"));
+                                                        messageUtils.get("error.channel.notfound")));
                 } else {
                         selectedChannel = beneficiary.getChannels().stream()
                                         .filter(BeneficiaryChannel::getIsPrimary)
@@ -225,7 +231,6 @@ public class TransferService {
                                 user.getId());
 
                 // Montant total à débiter = montant envoyé + frais - réduction (si applicable)
-                // Exemple : 200 EUR + 3 EUR (1.5%) - 5€ (réduction) = 198 EUR
                 var totalToDebit = simulation.getTotalDebited();
 
                 // ── ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING ───────
@@ -250,6 +255,7 @@ public class TransferService {
                 log.info("Transaction sauvegardee : {}", transaction.getReference());
 
                 // ── ÉTAPE 5 : Débiter la carte via Stripe ───────────────────────────
+                // ⚠️ Appel réseau Stripe — HORS transaction BDD
                 log.info("[STRIPE] Debit de {} {} sur la carte", totalToDebit, request.getCurrency());
 
                 PaymentIntent paymentIntent;
@@ -262,18 +268,14 @@ public class TransferService {
                         // Paiement refusé par Stripe (carte invalide, fonds insuffisants...)
                         log.error("[STRIPE] Paiement refuse : {}", e.getMessage());
                         // Marquer la transaction comme FAILED dans une transaction séparée
-                        // pour éviter le rollback de @Transactional
-                        // La méthode retourne la nouvelle entité FAILED persistée
                         Transaction failedTransaction = transactionPersistenceService
                                         .saveFailedTransaction(transaction, "failed", e.getMessage());
 
                         // Notifier l'utilisateur
                         notificationService.createAndSend(
                                         user,
-                                        String.format(
-                                                        "Transfert %s echoue — paiement refuse par la banque : %s",
-                                                        transaction.getReference(),
-                                                        e.getMessage()),
+                                        messageUtils.get("notification.transfer.failed.payment",
+                                                        transaction.getReference(), e.getMessage()),
                                         NotificationType.TRANSFER_FAILED,
                                         failedTransaction);
                         emailService.sendTransferFailedEmail(user, failedTransaction, e.getMessage());
@@ -283,24 +285,19 @@ public class TransferService {
                 // Vérifier que Stripe a bien confirmé le paiement
                 if (!stripePaymentService.isPaymentSucceeded(paymentIntent)) {
                         log.error("[STRIPE] Statut inattendu : {}", paymentIntent.getStatus());
-                        // Marquer la transaction comme FAILED dans une transaction séparée
                         Transaction failedTransaction = transactionPersistenceService
                                         .saveFailedTransaction(transaction, paymentIntent.getId(),
                                                         paymentIntent.getStatus());
 
-                        // Notifier l'utilisateur
                         notificationService.createAndSend(
                                         user,
-                                        String.format(
-                                                        "Transfert %s echoue — statut Stripe inattendu : %s",
-                                                        transaction.getReference(),
-                                                        paymentIntent.getStatus()),
+                                        messageUtils.get("notification.transfer.failed.stripe",
+                                                        transaction.getReference(), paymentIntent.getStatus()),
                                         NotificationType.TRANSFER_FAILED,
                                         failedTransaction);
                         emailService.sendTransferFailedEmail(user, failedTransaction,
                                         "Paiement non confirme par Stripe. Statut : " + paymentIntent.getStatus());
                         return toResponse(failedTransaction);
-
                 }
 
                 log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}",
@@ -312,18 +309,14 @@ public class TransferService {
                 transactionRepository.save(transaction);
 
                 // ── NOTIFICATION 1 : Transfert initié ───────────────────────────────
-                // Envoyée dès que la transaction est créée et le paiement confirmé
-                // L'utilisateur voit immédiatement que son transfert est en cours
                 notificationService.createAndSend(
                                 user,
-                                String.format(
-                                                "Transfert %s initie — traitement en cours vers %s %s...",
+                                messageUtils.get("notification.transfer.initiated",
                                                 transaction.getReference(),
                                                 beneficiary.getFirstName(),
                                                 beneficiary.getLastName()),
                                 NotificationType.TRANSFER_INITIATED,
                                 transaction);
-                // Email de confirmation d'initiation en arrière-plan
                 emailService.sendTransferInitiatedEmail(user, transaction);
 
                 // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
@@ -331,18 +324,15 @@ public class TransferService {
                 transactionRepository.save(transaction);
 
                 // Sélectionner la bonne stratégie via la Map (Strategy Pattern)
-                // Spring IoC a injecté toutes les stratégies automatiquement
-                // On utilise le canal sélectionné (pas forcément le canal par défaut)
                 String channelName = selectedChannel.getChannel().name();
                 TransferStrategy strategy = strategyMap.get(channelName);
 
                 if (strategy == null) {
-                        // Aucune stratégie trouvée pour ce canal — ne devrait jamais arriver
                         return refundStripeAndFail(
                                         paymentIntent.getId(),
                                         transaction,
                                         user,
-                                        "Canal non supporte : " + channelName);
+                                        messageUtils.get("error.transfer.channel.unsupported", channelName));
                 }
 
                 log.info("Execution de la strategie : {} pour le canal {}", channelName, selectedChannel.getId());
@@ -357,28 +347,20 @@ public class TransferService {
                         log.info("=== TRANSFERT COMPLETE : {} ===", transaction.getReference());
 
                         // ── NOTIFICATION 2 : Transfert complété ─────────────────────────
-                        // L'utilisateur reçoit la confirmation avec le montant exact reçu
                         notificationService.createAndSend(
                                         user,
-                                        String.format(
-                                                        "Transfert %s complete ! %s %s a recu %s %s.",
+                                        messageUtils.get("notification.transfer.completed",
                                                         transaction.getReference(),
-                                                        beneficiary.getFirstName(),
-                                                        beneficiary.getLastName(),
                                                         transaction.getAmountReceived(),
                                                         transaction.getCurrencyReceived()),
                                         NotificationType.TRANSFER_COMPLETED,
                                         transaction);
-                        // Email de confirmation de complétion en arrière-plan
                         emailService.sendTransferCompletedEmail(user, transaction);
 
                         // ── PARRAINAGE : Marquer le coupon comme utilisé ──────────────
-                        // Si une réduction a été appliquée via un coupon, on le marque utilisé
                         useReferralCouponIfApplicable(user, request.getCurrency(), transaction, simulation);
 
                         // ── PARRAINAGE : Récompenser le premier transfert du filleul ──
-                        // Si l'utilisateur a été parrainé, des coupons de réduction
-                        // sont générés pour lui et son parrain
                         try {
                                 referralService.rewardFirstTransfer(user, transaction);
                         } catch (Exception e) {
@@ -386,12 +368,9 @@ public class TransferService {
                         }
 
                 } else {
-
                         // Transfert échoué → Rembourser Stripe + notifier (RG-04)
                         log.error("Strategie echouee : {}. Remboursement en cours...",
                                         result.getMessage());
-
-                        // On passe l'utilisateur à refundStripeAndFail pour la notification
                         return refundStripeAndFail(
                                         paymentIntent.getId(),
                                         transaction,
@@ -400,7 +379,6 @@ public class TransferService {
                 }
 
                 return toResponse(transaction);
-
         }
 
         /**
@@ -410,7 +388,8 @@ public class TransferService {
          * le débit carte est automatiquement annulé/remboursé ET
          * l'utilisateur est notifié en temps réel via SSE.
          *
-         * @Transactional assure que les mises à jour de statut sont atomiques.
+         * ⚠️ PAS de @Transactional : les opérations BDD sont gérées
+         * via TransactionTemplate pour éviter les deadlocks.
          *
          * @param paymentIntentId l'ID Stripe à rembourser
          * @param transaction     la transaction à marquer REFUNDED ou FAILED
@@ -418,7 +397,6 @@ public class TransferService {
          * @param reason          la raison de l'échec (affichée dans la notification)
          * @return TransactionResponse la transaction mise à jour
          */
-        @Transactional
         private TransactionResponse refundStripeAndFail(
                         String paymentIntentId,
                         Transaction transaction,
@@ -434,8 +412,7 @@ public class TransferService {
                         // Notification SSE : remboursement réussi
                         notificationService.createAndSend(
                                         user,
-                                        String.format(
-                                                        "Transfert %s echoue : %s. Le montant de %s %s a ete rembourse sur votre carte.",
+                                        messageUtils.get("notification.transfer.refunded.success",
                                                         transaction.getReference(),
                                                         reason,
                                                         transaction.getAmountSent().add(transaction.getFees()),
@@ -443,7 +420,6 @@ public class TransferService {
                                         TRANSFER_FAILED,
                                         transaction);
 
-                        // Email remboursement confirmé
                         emailService.sendTransferRefundedEmail(user, transaction);
 
                 } catch (com.stripe.exception.StripeException e) {
@@ -453,14 +429,12 @@ public class TransferService {
                         // Notification SSE : échec du remboursement
                         notificationService.createAndSend(
                                         user,
-                                        String.format(
-                                                        "Transfert %s echoue : %s. Attention : le remboursement automatique a echoue. Veuillez contacter le support.",
+                                        messageUtils.get("notification.transfer.refunded.failed",
                                                         transaction.getReference(),
                                                         reason),
                                         TRANSFER_FAILED,
                                         transaction);
 
-                        // Email transfert échoué sans remboursement
                         emailService.sendTransferFailedEmail(user, transaction, reason);
                 }
 
@@ -477,7 +451,7 @@ public class TransferService {
         public Page<TransactionResponse> getHistory(String userEmail, Pageable pageable) {
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Utilisateur non trouve : " + userEmail));
+                                                messageUtils.get("error.user.notfound", userEmail)));
 
                 return transactionRepository
                                 .findBySenderIdOrderByCreatedAtDesc(user.getId(), pageable)
@@ -495,15 +469,16 @@ public class TransferService {
         public TransactionResponse getById(Long id, String userEmail) {
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Utilisateur non trouve : " + userEmail));
+                                                messageUtils.get("error.user.notfound", userEmail)));
 
                 Transaction transaction = transactionRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Transaction non trouvee : " + id));
+                                                messageUtils.get("error.transaction.notfound", id)));
 
                 // Sécurité : vérifier que la transaction appartient à l'utilisateur
                 if (!transaction.getSender().getId().equals(user.getId())) {
-                        throw new TransferException("Acces refuse a cette transaction");
+                        throw new TransferException(
+                                        messageUtils.get("error.transaction.access.denied"));
                 }
 
                 return toResponse(transaction);
@@ -544,14 +519,15 @@ public class TransferService {
 
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Utilisateur non trouve : " + userEmail));
+                                                messageUtils.get("error.user.notfound", userEmail)));
 
                 Transaction transaction = transactionRepository.findById(id)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Transaction non trouvee : " + id));
+                                                messageUtils.get("error.transaction.notfound", id)));
 
                 if (!transaction.getSender().getId().equals(user.getId())) {
-                        throw new TransferException("Acces refuse a cette transaction");
+                        throw new TransferException(
+                                        messageUtils.get("error.transaction.access.denied"));
                 }
 
                 return transaction;
@@ -570,16 +546,17 @@ public class TransferService {
 
                 User user = userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Utilisateur non trouve : " + userEmail));
+                                                messageUtils.get("error.user.notfound", userEmail)));
 
                 Transaction transaction = transactionRepository
                                 .findByReference(reference)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                "Transaction non trouvee : " + reference));
+                                                messageUtils.get("error.transaction.notfound", reference)));
 
                 // Sécurité : vérifier que la transaction appartient à l'utilisateur
                 if (!transaction.getSender().getId().equals(user.getId())) {
-                        throw new TransferException("Acces refuse a cette transaction");
+                        throw new TransferException(
+                                        messageUtils.get("error.transaction.access.denied"));
                 }
 
                 return transaction;

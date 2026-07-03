@@ -26,10 +26,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        // Utilisation de la nouvelle méthode d'extraction hybride (Header ou Query Param)
+        // Utilisation de la nouvelle méthode d'extraction hybride (Header ou Query
+        // Param)
         final String jwt = extractToken(request);
         final String userEmail;
 
@@ -42,7 +42,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
 
-            // Si un utilisateur est trouvé et qu'il n'est pas encore authentifié dans le contexte
+            // Si un utilisateur est trouvé et qu'il n'est pas encore authentifié dans le
+            // contexte
             if (userEmail != null &&
                     SecurityContextHolder.getContext().getAuthentication() == null) {
 
@@ -57,7 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Token invalide ou expiré — on laisse Spring Security gérer la suite (ex: renvoyer un 401/403)
+            // Token invalide ou expiré — on laisse Spring Security gérer la suite (ex:
+            // renvoyer un 401/403)
         }
 
         filterChain.doFilter(request, response);
@@ -65,25 +67,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     /**
      * Extrait le token JWT de la requête.
-     * * Pour la majorité des routes : header "Authorization: Bearer <token>"
-     * Pour /api/notifications/stream : query param "?token=<token>"
-     * (nécessaire car EventSource ne supporte pas les headers personnalisés)
-     * * @param request la requête HTTP
+     * Uniquement depuis le header "Authorization: Bearer <token>".
+     * 
+     * Le token n'est PLUS accepté en query param pour des raisons de sécurité :
+     * - Les URLs sont loggées par les serveurs proxy, reverse proxies, load
+     * balancers
+     * - Les URLs sont stockées dans l'historique du navigateur
+     * - Le token peut fuiter via le Referer header
+     * 
+     * La connexion SSE utilise désormais fetch() avec le header Authorization
+     * standard au lieu d'EventSource (qui ne supporte pas les headers
+     * personnalisés).
+     * 
+     * @param request la requête HTTP
      * @return le token JWT, ou null si absent
      */
     private String extractToken(HttpServletRequest request) {
-        // 1. Tenter le header Authorization standard
+        // Uniquement le header Authorization standard
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
-        }
-
-        // 2. Fallback pour SSE — token en query param
-        if ("/api/notifications/stream".equals(request.getRequestURI())) {
-            String tokenParam = request.getParameter("token");
-            if (tokenParam != null && !tokenParam.isEmpty()) {
-                return tokenParam;
-            }
         }
 
         return null;

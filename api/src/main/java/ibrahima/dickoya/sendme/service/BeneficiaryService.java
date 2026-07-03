@@ -8,6 +8,7 @@ import ibrahima.dickoya.sendme.exception.ResourceNotFoundException;
 import ibrahima.dickoya.sendme.exception.TransferException;
 import ibrahima.dickoya.sendme.repository.*;
 import ibrahima.dickoya.sendme.utils.CurrencyByCountry;
+import ibrahima.dickoya.sendme.utils.MessageUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,6 +43,7 @@ public class BeneficiaryService {
 
     private final BeneficiaryRepository beneficiaryRepository;
     private final UserRepository userRepository;
+    private final MessageUtils messageUtils;
 
     /**
      * Crée un nouveau bénéficiaire pour l'utilisateur connecté.
@@ -52,7 +54,7 @@ public class BeneficiaryService {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouve : " + userEmail));
+                        messageUtils.get("error.user.notfound", userEmail)));
 
         // Valider les canaux
         validateChannels(request.getChannels());
@@ -81,7 +83,7 @@ public class BeneficiaryService {
     public Page<BeneficiaryResponse> findAllByUser(String userEmail, int page, int size) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouve : " + userEmail));
+                        messageUtils.get("error.user.notfound", userEmail)));
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         return beneficiaryRepository.findByUserId(user.getId(), pageable)
@@ -93,14 +95,15 @@ public class BeneficiaryService {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouve : " + userEmail));
+                        messageUtils.get("error.user.notfound", userEmail)));
 
         Beneficiary beneficiary = beneficiaryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Beneficiaire non trouve avec l'id : " + id));
+                        messageUtils.get("error.beneficiary.notfound", id)));
 
         if (!beneficiary.getUser().getId().equals(user.getId())) {
-            throw new TransferException("Acces refuse : ce beneficiaire ne vous appartient pas");
+            throw new TransferException(
+                    messageUtils.get("error.beneficiary.access.denied"));
         }
 
         // Valider les canaux
@@ -126,14 +129,15 @@ public class BeneficiaryService {
     public void delete(Long id, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Utilisateur non trouve : " + userEmail));
+                        messageUtils.get("error.user.notfound", userEmail)));
 
         Beneficiary beneficiary = beneficiaryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "Beneficiaire non trouve avec l'id : " + id));
+                        messageUtils.get("error.beneficiary.notfound", id)));
 
         if (!beneficiary.getUser().getId().equals(user.getId())) {
-            throw new TransferException("Acces refuse : ce beneficiaire ne vous appartient pas");
+            throw new TransferException(
+                    messageUtils.get("error.beneficiary.access.denied"));
         }
 
         beneficiaryRepository.delete(beneficiary);
@@ -148,25 +152,29 @@ public class BeneficiaryService {
      */
     private void validateChannels(List<BeneficiaryChannelRequest> channels) {
         if (channels == null || channels.isEmpty()) {
-            throw new TransferException("Au moins un canal de reception est requis");
+            throw new TransferException(
+                    messageUtils.get("error.channel.required"));
         }
 
         boolean hasPrimary = false;
         for (BeneficiaryChannelRequest ch : channels) {
             if (ch.getChannel() == ChannelType.BANK_TRANSFER) {
                 if (ch.getBankName() == null || ch.getBankName().isBlank()) {
-                    throw new TransferException("Le nom de la banque est obligatoire pour un virement bancaire");
+                    throw new TransferException(
+                            messageUtils.get("error.channel.bankname.required"));
                 }
                 if (ch.getIban() == null || ch.getIban().isBlank()) {
-                    throw new TransferException("L'IBAN est obligatoire pour un virement bancaire");
+                    throw new TransferException(
+                            messageUtils.get("error.channel.iban.required"));
                 }
                 if (ch.getBic() == null || ch.getBic().isBlank()) {
-                    throw new TransferException("Le BIC est obligatoire pour un virement bancaire");
+                    throw new TransferException(
+                            messageUtils.get("error.channel.bic.required"));
                 }
             } else {
                 if (ch.getPhoneNumber() == null || ch.getPhoneNumber().isBlank()) {
                     throw new TransferException(
-                            "Le numero de telephone est obligatoire pour le canal " + ch.getChannel());
+                            messageUtils.get("error.channel.phone.required", ch.getChannel()));
                 }
             }
             if (ch.isPrimary()) {
@@ -175,7 +183,8 @@ public class BeneficiaryService {
         }
 
         if (!hasPrimary) {
-            throw new TransferException("Un canal doit etre defini comme principal (isPrimary=true)");
+            throw new TransferException(
+                    messageUtils.get("error.channel.primary.required"));
         }
     }
 

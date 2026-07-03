@@ -41,17 +41,89 @@ export const notificationService = {
     },
 
     /**
-     * Construit l'URL du flux SSE avec le token JWT en query param.
+     * Établit une connexion SSE (Server-Sent Events) en utilisant fetch()
+     * avec le header Authorization: Bearer standard.
      *
-     * Note : EventSource ne supporte pas les headers personnalisés
-     * (impossible d'envoyer Authorization: Bearer ...). Le token
-     * doit donc être passé en query param, et le backend doit
-     * accepter ce mode d'authentification pour /notifications/stream.
+     * Contrairement à EventSource, fetch() permet d'envoyer des headers
+     * personnalisés, ce qui évite de passer le token JWT en query param
+     * (faille de sécurité : URLs loggées, historique navigateur, Referer header).
      *
-     * GET /api/notifications/stream?token=...
+     * @param onNotification callback appelée à chaque notification reçue
+     * @param onError        callback appelée en cas d'erreur de connexion
+     * @returns AbortController pour fermer la connexion
      */
-    getStreamUrl(): string {
+    connectSSE(
+        onNotification: (notification: Notification) => void,
+        onError?: (error: Error) => void
+    ): AbortController {
         const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-        return `${API_BASE_URL}/notifications/stream?token=${token}`;
+        const abortController = new AbortController();
+
+        const connect = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/notifications/stream`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'text/event-stream',
+                    },
+                    signal: abortController.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`SSE connection failed: ${response.status}`);
+                }
+
+                const reader = response.body?.getReader();
+                if (!reader) {
+                    throw new Error('ReadableStream not supported');
+                }
+
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // Parser les événements SSE
+                    const lines = buffer.split('\n');
+                    buffer = '';
+
+                    let currentEvent = '';
+                    let currentData = '';
+
+                    for (const line of lines) {
+                        if (line.startsWith('event: ')) {
+                            currentEvent = line.slice(7).trim();
+                        } else if (line.startsWith('data: ')) {
+                            currentData = line.slice(6).trim();
+                        } else if (line === '' && currentData) {
+                            // Fin d'un événement SSE
+                            try {
+                                const notification = JSON.parse(currentData) as Notification;
+                                onNotification(notification);
+                            } catch {
+                                // Ignorer les événements non-JSON (ex: CONNECTED)
+                            }
+                            currentEvent = '';
+                            currentData = '';
+                        }
+                    }
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error && error.name === 'AbortError') {
+                    return; // Fermeture volontaire
+                }
+                if (onError && error instanceof Error) {
+                    onError(error);
+                }
+            }
+        };
+
+        connect();
+
+        return abortController;
     },
 };

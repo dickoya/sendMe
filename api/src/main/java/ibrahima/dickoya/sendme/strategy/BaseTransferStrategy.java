@@ -2,20 +2,26 @@ package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.utils.DataMaskingUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Classe abstraite de base pour toutes les stratégies de transfert.
  * 
  * Centralise le code commun partagé par toutes les implémentations :
  * - Génération de nombres aléatoires pour les simulations
- * - Délai de traitement simulé
+ * - Délai de traitement simulé (non-bloquant via CompletableFuture)
  * - Masquage des données sensibles (IBAN, téléphone)
  * - Gestion uniforme des InterruptedException
  * 
- * Chaque stratégie concrète hérite de cette classe et implémente
- * uniquement la logique spécifique à son canal.
+ * MODE SIMULATION :
+ * Les stratégies peuvent fonctionner en mode simulation (pour le développement)
+ * ou en mode production (appels API réels). Le mode est configurable via :
+ * - strategy.simulation-mode=true/false (défaut: false)
+ * - strategy.failure-rate=5 (pourcentage d'échecs simulés, défaut: 0)
  */
 @Slf4j
 public abstract class BaseTransferStrategy implements TransferStrategy {
@@ -27,30 +33,72 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
     protected final Random random = new Random();
 
     /**
-     * Simule un délai de traitement réseau/API.
+     * Active ou désactive le mode simulation.
+     * En production (false), les appels API réels sont utilisés.
+     * En simulation (true), des délais et échecs aléatoires sont simulés.
+     */
+    @Value("${strategy.simulation-mode:false}")
+    private boolean simulationMode;
+
+    /**
+     * Taux d'échec simulé en pourcentage (0-100).
+     * Utilisé uniquement en mode simulation.
+     * 0 = jamais d'échec simulé, 5 = 5% d'échecs, 100 = toujours en échec.
+     */
+    @Value("${strategy.failure-rate:0}")
+    private int failureRate;
+
+    /**
+     * Simule un délai de traitement réseau/API de manière non-bloquante.
      * 
-     * ⚠️ SIMULATION SEULEMENT - En production, cette méthode sera remplacée
-     * par de vrais appels HTTP asynchrones vers les APIs des opérateurs.
+     * Utilise CompletableFuture.delayedExecutor() au lieu de Thread.sleep()
+     * pour ne pas bloquer le thread du pool Tomcat.
      * 
-     * Thread.sleep() bloque le thread actuel, ce qui n'est pas idéal en production.
-     * En production, les appels HTTP (avec RestTemplate, WebClient, ou HttpClient)
-     * sont naturellement asynchrones et ne bloquent pas.
-     * 
-     * TODO PRODUCTION: Remplacer par vrais appels HTTP asynchrones
-     * - Option 1: WebClient (Spring WebFlux) - non bloquant
-     * - Option 2: RestTemplate avec @Async
-     * - Option 3: CompletableFuture avec HTTP client
+     * En mode production, cette méthode est remplacée par de vrais appels HTTP
+     * asynchrones (WebClient, RestTemplate async, ou CompletableFuture).
      * 
      * @param minMs délai minimum en millisecondes
      * @param maxMs délai maximum en millisecondes
-     * @throws InterruptedException si le thread est interrompu pendant le délai
+     * @return CompletableFuture qui se complète après le délai
      */
-    protected void simulateProcessingDelay(int minMs, int maxMs)
-            throws InterruptedException {
-        // ⚠️ Thread.sleep() utilisé uniquement pour simulation
-        // En production: appel HTTP réel vers API opérateur
+    protected CompletableFuture<Void> simulateProcessingDelay(int minMs, int maxMs) {
+        if (!simulationMode) {
+            // En production : pas de délai simulé, retour immédiat
+            return CompletableFuture.completedFuture(null);
+        }
         int delay = minMs + random.nextInt(maxMs - minMs);
-        Thread.sleep(delay);
+        log.debug("[SIMULATION] Delai de traitement simule : {} ms", delay);
+        return CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }, CompletableFuture.delayedExecutor(0, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * Vérifie si un échec doit être simulé selon le taux configuré.
+     * 
+     * @return true si un échec doit être simulé
+     */
+    protected boolean shouldSimulateFailure() {
+        if (!simulationMode) {
+            return false; // Pas d'échec simulé en production
+        }
+        if (failureRate <= 0) {
+            return false; // Taux à 0 = jamais d'échec
+        }
+        return random.nextInt(100) < failureRate;
+    }
+
+    /**
+     * Vérifie si le mode simulation est actif.
+     * 
+     * @return true si le mode simulation est activé
+     */
+    protected boolean isSimulationMode() {
+        return simulationMode;
     }
 
     /**

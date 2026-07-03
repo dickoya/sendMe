@@ -33,16 +33,14 @@ import java.util.Map;
 @Tag(name = "Notifications", description = """
                         Gestion des notifications en temps réel via SSE (Server-Sent Events).
 
-                        **Connexion SSE :**
+                        **Connexion SSE (via fetch avec Authorization header) :**
                 ```javascript
-                        const eventSource = new EventSource(
-                            'http://localhost:8080/api/notifications/stream',
-                            { headers: { Authorization: `Bearer ${token}` } }
+                        const { connectSSE } = await import('@/services/notificationService');
+                        const abortCtrl = connectSSE(
+                            (notification) => showToast(notification.message),
+                            (error) => console.error('SSE error', error)
                         );
-                        eventSource.addEventListener('TRANSFER_COMPLETED', (e) => {
-                            const notif = JSON.parse(e.data);
-                            showToast(notif.message);
-                        });
+                        // Pour fermer : abortCtrl.abort()
                 ```
 
                         **Événements disponibles :**
@@ -68,6 +66,9 @@ public class NotificationController {
                         """)
         public SseEmitter stream(
                         @AuthenticationPrincipal UserDetails userDetails) {
+                if (userDetails == null) {
+                        throw new org.springframework.security.access.AccessDeniedException("Authentication required");
+                }
                 var user = userRepository.findByEmail(userDetails.getUsername())
                                 .orElseThrow();
                 return sseEmitterService.createEmitter(user.getId());
