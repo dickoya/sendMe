@@ -24,6 +24,10 @@ import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import Avatar from '@/components/ui/Avatar';
+import Alert from '@/components/ui/Alert';
+import EmptyState from '@/components/ui/EmptyState';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import Modal from '@/components/ui/Modal';
 import { useAuth } from '@/store/auth/authContext';
 import { useTheme } from '@/store/theme/themeContext';
@@ -304,9 +308,7 @@ function Profile() {
             {/* En-tête du profil */}
             <div className="rounded-2xl bg-gradient-to-br from-brand-600 to-brand-400 p-6 text-white shadow-[0_4px_15px_rgba(33,97,140,0.3)] dark:from-brand-700 dark:to-brand-500 dark:shadow-[0_0_30px_rgba(90,159,224,0.15)]">
                 <div className="flex items-center gap-4">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-bold">
-                        {profile?.firstName?.[0]}{profile?.lastName?.[0]}
-                    </div>
+                    <Avatar firstName={profile?.firstName ?? ''} lastName={profile?.lastName ?? ''} size="xl" className="ring-2 ring-white/30" />
                     <div>
                         <h2 className="text-xl font-bold">
                             {profile?.firstName} {profile?.lastName}
@@ -478,10 +480,10 @@ function Profile() {
                     {isLoadingCoupons ? (
                         <Spinner size="sm" />
                     ) : coupons.length === 0 ? (
-                        <div className="flex flex-col items-center gap-2 py-6 text-center">
-                            <Ticket size={24} className="text-gray-400" />
-                            <p className="text-sm text-gray-500">{t('referralCoupons.empty', 'Aucun coupon de réduction pour le moment')}</p>
-                        </div>
+                        <EmptyState
+                            icon={<Ticket size={24} />}
+                            title={t('referralCoupons.empty', 'Aucun coupon de réduction pour le moment')}
+                        />
                     ) : (
                         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                             {coupons.map((coupon) => (
@@ -527,10 +529,10 @@ function Profile() {
                     {isLoadingHistory ? (
                         <Spinner size="sm" />
                     ) : loginHistory.length === 0 ? (
-                        <div className="flex flex-col items-center gap-2 py-6 text-center">
-                            <Clock size={24} className="text-gray-400" />
-                            <p className="text-sm text-gray-500">{t('loginHistory.empty')}</p>
-                        </div>
+                        <EmptyState
+                            icon={<Clock size={24} />}
+                            title={t('loginHistory.empty')}
+                        />
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm">
@@ -601,51 +603,36 @@ function Profile() {
             </div>
 
             {/* ── Modal de confirmation de suppression ──────────────────────── */}
-            <Modal
+            <ConfirmDialog
                 isOpen={showDeleteModal}
                 onClose={() => {
                     setShowDeleteModal(false);
                     setDeletePassword('');
                 }}
+                onConfirm={handleDeleteAccount}
                 title={t('deleteAccount.confirmTitle')}
-                size="sm"
-                footer={
-                    <div className="flex gap-2">
-                        <Button
-                            variant="secondary"
-                            onClick={() => {
-                                setShowDeleteModal(false);
-                                setDeletePassword('');
-                            }}
-                        >
-                            {tCommon('actions.cancel')}
-                        </Button>
-                        <Button
-                            variant="danger"
-                            loading={isDeleting}
-                            onClick={handleDeleteAccount}
-                        >
-                            {tCommon('actions.confirm')}
-                        </Button>
+                message={
+                    <div className="flex flex-col gap-4">
+                        <Alert
+                            type="warning"
+                            message={t('deleteAccount.confirmMessage')}
+                        />
+                        <Input
+                            label={t('deleteAccount.confirmLabel')}
+                            type="password"
+                            value={deletePassword}
+                            onChange={(e) => setDeletePassword(e.target.value)}
+                            placeholder="••••••••"
+                            icon={<Lock size={16} />}
+                            required
+                        />
                     </div>
                 }
-            >
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-sm text-danger-600 dark:bg-danger-900/20 dark:text-danger-400">
-                        <AlertTriangle size={16} className="flex-shrink-0" />
-                        <p>{t('deleteAccount.confirmMessage')}</p>
-                    </div>
-                    <Input
-                        label={t('deleteAccount.confirmLabel')}
-                        type="password"
-                        value={deletePassword}
-                        onChange={(e) => setDeletePassword(e.target.value)}
-                        placeholder="••••••••"
-                        icon={<Lock size={16} />}
-                        required
-                    />
-                </div>
-            </Modal>
+                confirmLabel={tCommon('actions.confirm')}
+                cancelLabel={tCommon('actions.cancel')}
+                variant="danger"
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

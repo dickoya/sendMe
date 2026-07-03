@@ -11,8 +11,8 @@ export const notificationService = {
      * GET /api/notifications
      */
     async getAll(): Promise<Notification[]> {
-        const { data } = await api.get<ApiResponse<Notification[]>>('/notifications');
-        return data.data;
+        const { data } = await api.get<ApiResponse<{ content: Notification[] }>>('/notifications');
+        return data.data.content;
     },
 
     /**

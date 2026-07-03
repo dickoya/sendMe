@@ -1,9 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Send, Users, ArrowRight, Wallet, TrendingUp, PiggyBank, DollarSign, Gift, Copy, Check } from 'lucide-react';
+import { Send, Users, Wallet, TrendingUp, PiggyBank, DollarSign, Gift } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
+import Avatar from '@/components/ui/Avatar';
+import EmptyState from '@/components/ui/EmptyState';
+import CopyToClipboard from '@/components/ui/CopyToClipboard';
 import TransactionStatusBadge from '@/components/transfer/TransactionStatusBadge';
 import StatsCard from '@/components/dashboard/StatsCard';
 import TransferEvolutionChart from '@/components/dashboard/TransferEvolutionChart';
@@ -37,7 +40,6 @@ function Dashboard() {
     const { t } = useTranslation('dashboard');
     const { t: tCommon } = useTranslation('common');
     const { user } = useAuth();
-    const [copied, setCopied] = useState(false);
     const { beneficiaries, isLoading: beneficiariesLoading } = useBeneficiary();
     const { transactions, isLoading: transactionsLoading } = useTransferHistory(5);
     const {
@@ -87,19 +89,7 @@ function Dashboard() {
                                 <code className="rounded-lg bg-white/15 px-3 py-1.5 text-sm font-bold tracking-wider text-white">
                                     {user.referralCode}
                                 </code>
-                                <button
-                                    onClick={() => {
-                                        if (user?.referralCode) {
-                                            navigator.clipboard.writeText(user.referralCode);
-                                            setCopied(true);
-                                            setTimeout(() => setCopied(false), 2000);
-                                        }
-                                    }}
-                                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15 text-white transition-all hover:bg-white/25"
-                                    title="Copier le code"
-                                >
-                                    {copied ? <Check size={16} /> : <Copy size={16} />}
-                                </button>
+                                <CopyToClipboard text={user.referralCode} size="sm" />
                             </div>
                         </div>
                     )}
@@ -194,17 +184,15 @@ function Dashboard() {
                     ) : beneficiaries.length === 0 ? (
                         <EmptyState
                             icon={<Users size={20} />}
-                            text={t('empty.noBeneficiaries')}
+                            title={t('empty.noBeneficiaries')}
                             actionLabel={t('empty.addBeneficiary')}
-                            actionTo="/beneficiaries"
+                            onAction={() => {}}
                         />
                     ) : (
                         <div className="flex flex-col gap-3">
                             {beneficiaries.slice(0, 3).map((b) => (
                                 <div key={b.id} className="flex items-center gap-3">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700">
-                                        {b.firstName[0]}{b.lastName[0]}
-                                    </div>
+                                    <Avatar firstName={b.firstName} lastName={b.lastName} size="sm" />
                                     <div className="min-w-0">
                                         <p className="truncate text-sm font-medium text-gray-900">
                                             {b.firstName} {b.lastName}
@@ -234,9 +222,9 @@ function Dashboard() {
                     ) : transactions.length === 0 ? (
                         <EmptyState
                             icon={<Wallet size={20} />}
-                            text={t('empty.noTransactions')}
+                            title={t('empty.noTransactions')}
                             actionLabel={t('empty.makeTransfer')}
-                            actionTo="/transfer"
+                            onAction={() => {}}
                         />
                     ) : (
                         <div className="flex flex-col divide-y divide-gray-100">
@@ -278,33 +266,6 @@ function Dashboard() {
                 onSkip={onSkip}
                 onFinish={onFinish}
             />
-        </div>
-    );
-}
-
-/**
- * État vide réutilisable pour les cartes du dashboard.
- */
-function EmptyState({
-                        icon,
-                        text,
-                        actionLabel,
-                        actionTo,
-                    }: {
-    icon: React.ReactNode;
-    text: string;
-    actionLabel: string;
-    actionTo: string;
-}) {
-    return (
-        <div className="flex flex-col items-center gap-2 py-6 text-center">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-                {icon}
-            </div>
-            <p className="text-sm text-gray-500">{text}</p>
-            <Link to={actionTo} className="flex items-center gap-1 text-sm font-medium text-brand-600 hover:underline">
-                {actionLabel} <ArrowRight size={14} />
-            </Link>
         </div>
     );
 }

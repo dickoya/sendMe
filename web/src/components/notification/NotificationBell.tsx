@@ -29,7 +29,8 @@ function NotificationBell() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const recentNotifications = notifications.slice(0, 5);
+    const notificationList = Array.isArray(notifications) ? notifications : [];
+    const recentNotifications = notificationList.slice(0, 5);
 
     return (
         <div className="relative" ref={ref}>

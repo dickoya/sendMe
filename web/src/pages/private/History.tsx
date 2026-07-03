@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { History as HistoryIcon } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Spinner from '@/components/ui/Spinner';
+import EmptyState from '@/components/ui/EmptyState';
 import Pagination from '@/components/ui/Pagination';
 import StatusFilter from '@/components/transfer/StatusFilter';
 import TransactionRow from '@/components/transfer/TransactionRow';
@@ -10,7 +12,6 @@ import { useTransferHistory } from '@/hooks/useTransfer';
 import { useToast } from '@/store/notification/toastContext';
 import { transferService } from '@/services/transferService';
 import { getErrorMessage } from '@/lib/utils';
-import { History as HistoryIcon } from 'lucide-react';
 import type { Transaction } from '@/types';
 
 /**
@@ -70,7 +71,8 @@ function History() {
                     {isLoading ? (
                         <Spinner label={tCommon('states.loading')} />
                     ) : transactions.length === 0 ? (
-                        <EmptyHistory
+                        <EmptyState
+                            icon={<HistoryIcon size={22} />}
                             title={t('empty.title')}
                             message={statusFilter === 'ALL' ? t('empty.message') : t('empty.filteredMessage')}
                         />
@@ -102,18 +104,6 @@ function History() {
                 isDownloading={selected ? downloadingId === selected.id : false}
                 isPreviewing={selected ? previewingId === selected.id : false}
             />
-        </div>
-    );
-}
-
-function EmptyHistory({ title, message }: { title: string; message: string }) {
-    return (
-        <div className="flex flex-col items-center gap-2 py-12 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-                <HistoryIcon size={22} />
-            </div>
-            <p className="font-medium text-gray-900">{title}</p>
-            <p className="text-sm text-gray-500">{message}</p>
         </div>
     );
 }

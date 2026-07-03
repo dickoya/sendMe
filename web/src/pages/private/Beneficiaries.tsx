@@ -5,6 +5,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import Spinner from '@/components/ui/Spinner';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import Pagination from '@/components/ui/Pagination';
 import BeneficiaryList from '@/components/beneficiary/BeneficiaryList';
 import BeneficiaryForm from '@/components/forms/BeneficiaryForm';
@@ -118,27 +119,17 @@ function Beneficiaries() {
             </Modal>
 
             {/* Modale confirmation suppression */}
-            <Modal
+            <ConfirmDialog
                 isOpen={!!deleting}
                 onClose={() => setDeleting(null)}
+                onConfirm={confirmDelete}
                 title={t('modals.deleteTitle')}
-                footer={
-                    <>
-                        <Button variant="outline" onClick={() => setDeleting(null)}>
-                            {tCommon('actions.cancel')}
-                        </Button>
-                        <Button variant="danger" loading={isDeleting} onClick={confirmDelete}>
-                            {tCommon('actions.delete')}
-                        </Button>
-                    </>
-                }
-            >
-                <p className="text-sm text-gray-600">
-                    {t('modals.deleteMessage', {
-                        name: deleting ? `${deleting.firstName} ${deleting.lastName}` : '',
-                    })}
-                </p>
-            </Modal>
+                message={t('modals.deleteMessage', {
+                    name: deleting ? `${deleting.firstName} ${deleting.lastName}` : '',
+                })}
+                variant="danger"
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

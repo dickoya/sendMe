@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import PageHeader from '@/components/ui/PageHeader';
 import ReferralCard from '@/components/referral/ReferralCard';
 
 /**
@@ -11,14 +12,10 @@ export default function ReferralPage() {
     return (
         <div className="max-w-2xl mx-auto space-y-6">
             {/* En-tête de page */}
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {t('pageTitle', 'Parrainage')}
-                </h1>
-                <p className="text-gray-500 dark:text-gray-300 mt-1">
-                    {t('pageSubtitle', 'Invitez vos proches et gagnez 5€ de réduction chacun')}
-                </p>
-            </div>
+            <PageHeader
+                title={t('pageTitle', 'Parrainage')}
+                subtitle={t('pageSubtitle', 'Invitez vos proches et gagnez 5€ de réduction chacun')}
+            />
 
             {/* Carte de parrainage */}
             <ReferralCard />

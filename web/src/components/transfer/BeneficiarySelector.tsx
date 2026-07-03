@@ -1,8 +1,10 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Plus, Smartphone, Landmark, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Smartphone, Landmark, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Avatar from '@/components/ui/Avatar';
+import SearchInput from '@/components/ui/SearchInput';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import type { Beneficiary } from '@/types';
 
@@ -72,22 +74,14 @@ function BeneficiarySelector({ beneficiaries, value, onChange }: BeneficiarySele
             <label className="text-sm font-medium text-gray-700">{t('form.beneficiaryLabel')}</label>
 
             {/* Barre de recherche */}
-            <div className="relative">
-                <Search
-                    size={16}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-                />
-                <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setShowAll(false); // Réinitialiser l'affichage quand on cherche
-                    }}
-                    placeholder={t('form.searchBeneficiary')}
-                    className="w-full rounded-xl border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 placeholder-gray-400 outline-none transition-all focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                />
-            </div>
+            <SearchInput
+                value={search}
+                onChange={(value) => {
+                    setSearch(value);
+                    setShowAll(false);
+                }}
+                placeholder={t('form.searchBeneficiary')}
+            />
 
             {/* Liste filtrée */}
             <div className="flex flex-col gap-2">
@@ -111,9 +105,7 @@ function BeneficiarySelector({ beneficiaries, value, onChange }: BeneficiarySele
                                             : 'border-gray-200 bg-white hover:border-gray-300'
                                     )}
                                 >
-                                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700">
-                                        {b.firstName[0]}{b.lastName[0]}
-                                    </div>
+                                    <Avatar firstName={b.firstName} lastName={b.lastName} size="sm" />
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate text-sm font-medium text-gray-900">
                                             {b.firstName} {b.lastName}

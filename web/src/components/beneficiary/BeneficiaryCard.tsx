@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2, Landmark, Smartphone, Globe } from 'lucide-react';
+import Avatar from '@/components/ui/Avatar';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import type { Beneficiary, BeneficiaryChannel } from '@/types';
 
@@ -22,10 +23,7 @@ function BeneficiaryCard({ beneficiary, onEdit, onDelete }: BeneficiaryCardProps
     return (
         <div className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 dark:border-[#2a2a2a] p-4 transition-shadow hover:shadow-sm dark:hover:shadow-none dark:hover:border-[#333333]">
             <div className="flex items-start gap-3 min-w-0 flex-1">
-                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-900/30 text-lg font-semibold text-brand-700 dark:text-brand-400">
-                    {beneficiary.firstName[0]}
-                    {beneficiary.lastName[0]}
-                </div>
+                <Avatar firstName={beneficiary.firstName} lastName={beneficiary.lastName} size="md" />
 
                 <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-gray-900 dark:text-[#EDEEF0]">
