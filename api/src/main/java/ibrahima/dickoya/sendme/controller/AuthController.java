@@ -33,6 +33,11 @@ public class AuthController {
 
         /**
          * Inscription d'un nouvel utilisateur.
+         * 
+         * Après inscription, un email de vérification est envoyé.
+         * L'utilisateur doit cliquer sur le lien pour activer son compte.
+         * Aucun token JWT n'est retourné — l'utilisateur doit d'abord vérifier son
+         * email.
          */
         @PostMapping("/register")
         @Operation(summary = "Inscription d'un nouvel utilisateur", description = """
@@ -42,15 +47,19 @@ public class AuthController {
                         1. Validation des données (format email, longueur mot de passe)
                         2. Vérification de l'unicité de l'email
                         3. Hachage du mot de passe avec BCrypt
-                        4. Création du compte
-                        5. Retour des tokens JWT (access + refresh)
+                        4. Création du compte (email_non_vérifié)
+                        5. Envoi d'un email de vérification
+                        6. Retour des infos utilisateur (sans tokens JWT)
+
+                        **Important :** L'utilisateur doit vérifier son email
+                        avant de pouvoir se connecter.
 
                         **Règles de validation :**
                         - Email : format valide et unique
                         - Mot de passe : minimum 8 caractères
                         """, security = @SecurityRequirement(name = ""))
         @ApiResponses({
-                        @ApiResponse(responseCode = "201", description = "Compte créé avec succès — tokens JWT retournés", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
+                        @ApiResponse(responseCode = "201", description = "Compte créé avec succès — email de vérification envoyé", content = @Content(schema = @Schema(implementation = AuthResponse.class))),
                         @ApiResponse(responseCode = "409", description = "Email déjà utilisé par un autre compte"),
                         @ApiResponse(responseCode = "400", description = "Données invalides (format email, mot de passe trop court)")
         })
@@ -59,7 +68,8 @@ public class AuthController {
                 var response = authService.register(request);
                 return ResponseEntity.status(HttpStatus.CREATED)
                                 .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
-                                                .success("Compte cree avec succes", response));
+                                                .success("Compte cree avec succes. Un email de verification vous a ete envoye.",
+                                                                response));
         }
 
         /**
@@ -143,6 +153,60 @@ public class AuthController {
                 return ResponseEntity.ok(
                                 ibrahima.dickoya.sendme.dto.response.ApiResponse
                                                 .success("Tokens rafraichis avec succes", response));
+        }
+
+        /**
+         * Vérifie l'adresse email d'un utilisateur à partir d'un token.
+         * 
+         * L'utilisateur clique sur le lien reçu par email, ce qui appelle cet endpoint.
+         * Si le token est valide et non expiré, l'email est marqué comme vérifié
+         * et l'utilisateur reçoit ses tokens JWT pour être connecté automatiquement.
+         * 
+         * Test : GET http://localhost:8080/api/auth/verify-email?token=uuid
+         */
+        @GetMapping("/verify-email")
+        @Operation(summary = "Vérifier l'adresse email", description = """
+                        Valide l'adresse email d'un utilisateur via le token reçu par email.
+                        Si le token est valide, l'utilisateur est automatiquement connecté
+                        et reçoit ses tokens JWT.
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Email vérifié avec succès — tokens JWT retournés"),
+                        @ApiResponse(responseCode = "400", description = "Token invalide ou expiré")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<AuthResponse>> verifyEmail(
+                        @RequestParam String token) {
+                var response = authService.verifyEmail(token);
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Email verifie avec succes. Vous etes maintenant connecte.",
+                                                                response));
+        }
+
+        /**
+         * Renvoie l'email de vérification à un utilisateur.
+         * 
+         * Utilisé quand l'utilisateur n'a pas reçu l'email de vérification
+         * ou si le lien a expiré.
+         * 
+         * Test : POST http://localhost:8080/api/auth/resend-verification
+         * Body : { "email": "user@example.com" }
+         */
+        @PostMapping("/resend-verification")
+        @Operation(summary = "Renvoyer l'email de vérification", description = """
+                        Renvoie un nouvel email de vérification à l'utilisateur.
+                        Un nouveau token est généré et le précédent est invalidé.
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Email de vérification renvoyé"),
+                        @ApiResponse(responseCode = "400", description = "Email déjà vérifié ou compte introuvable")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>> resendVerificationEmail(
+                        @Valid @RequestBody ResendVerificationRequest request) {
+                authService.resendVerificationEmail(request.getEmail());
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Un nouvel email de verification vous a ete envoye.", null));
         }
 
         /**

@@ -52,6 +52,7 @@ export interface AuthResponse {
     lastName: string;
     role: Role;
     referralCode?: string;
+    emailVerified?: boolean;
 }
 
 export interface User {

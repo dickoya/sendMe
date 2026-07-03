@@ -13,6 +13,8 @@ import AdminRoute from './AdminRoute';
 import Home from '@/pages/public/Home';
 import Login from '@/pages/public/Login';
 import Register from '@/pages/public/Register';
+import EmailVerification from '@/pages/public/EmailVerification';
+import VerificationSent from '@/pages/public/VerificationSent';
 
 // Pages privées
 import Dashboard from '@/pages/private/Dashboard';
@@ -37,17 +39,21 @@ import NotFound from '@/pages/NotFound';
  * Arborescence des routes de l'application.
  *
  * Structure :
- * - "/" → redirige vers /dashboard
+ * - "/"  redirige vers /dashboard
  * - Routes publiques (Login, Register) → PublicLayout, accessibles sans JWT
- * - Routes privées (/dashboard, /transfer, ...) → PrivateLayout, protégées par PrivateRoute
+ * - Routes privées (/dashboard, /transfer, ...)  PrivateLayout, protégées par PrivateRoute
  * - Routes admin (/admin/*) → AdminLayout, protégées par AdminRoute (ROLE_ADMIN)
- * - "*" → page 404
+ * - "*"  page 404
  */
 function AppRoutes() {
     return (
         <Routes>
             {/* ── Page d'accueil publique ──────────────────────────────────── */}
             <Route path="/" element={<Home />} />
+
+            {/* ── Routes de vérification d'email (pages autonomes, sans layout) ── */}
+            <Route path="/verify-email" element={<EmailVerification />} />
+            <Route path="/verify-email-sent" element={<VerificationSent />} />
 
             {/* ── Routes publiques (Login, Register) ────────────────────────── */}
             <Route element={<PublicLayout />}>

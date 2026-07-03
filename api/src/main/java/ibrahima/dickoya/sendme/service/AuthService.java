@@ -6,6 +6,7 @@ import ibrahima.dickoya.sendme.entity.LoginHistory;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.exception.EmailAlreadyExistsException;
+import ibrahima.dickoya.sendme.exception.EmailNotVerifiedException;
 import ibrahima.dickoya.sendme.exception.RateLimitExceededException;
 import ibrahima.dickoya.sendme.repository.LoginHistoryRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
@@ -21,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -44,7 +47,7 @@ public class AuthService {
     private final Map<String, Integer> loginAttempts = new ConcurrentHashMap<>();
 
     // ── Exponential backoff par IP ───────────────────────────────────────────
-    private static final int BACKOFF_THRESHOLD = 3; // Délai progressif après 3 échecs
+    private static final int BACKOFF_THRESHOLD = 3;
     private final Map<String, Integer> ipFailedAttempts = new ConcurrentHashMap<>();
     private final Map<String, Instant> ipLastFailedTime = new ConcurrentHashMap<>();
 
@@ -52,6 +55,9 @@ public class AuthService {
     private static final int MAX_REFRESH_PER_MINUTE = 5;
     private final Map<String, Integer> refreshCounts = new ConcurrentHashMap<>();
     private final Map<String, Instant> refreshWindowStart = new ConcurrentHashMap<>();
+
+    // ── Durée de validité du token de vérification email (48h) ──────────────
+    private static final long EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 48;
 
     // ── Inscription ──────────────────────────────────────────────────────────
     public AuthResponse register(RegisterRequest request) {
@@ -63,6 +69,9 @@ public class AuthService {
         // Générer un code de parrainage unique
         String referralCode = referralService.generateReferralCode();
 
+        // Générer un token de vérification email unique
+        String verificationToken = UUID.randomUUID().toString();
+
         var user = User.builder()
                 .referralCode(referralCode)
                 .firstName(request.getFirstName())
@@ -72,6 +81,9 @@ public class AuthService {
                 .phoneNumber(request.getPhoneNumber())
                 .role(Role.ROLE_USER)
                 .isActive(true)
+                .emailVerified(false)
+                .emailVerificationToken(verificationToken)
+                .emailVerificationTokenExpiresAt(LocalDateTime.now().plusHours(EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS))
                 .build();
 
         userRepository.save(user);
@@ -81,14 +93,69 @@ public class AuthService {
             referralService.applyReferralCode(user, request.getReferralCode());
         }
 
-        log.info("Nouvel utilisateur enregistre : {} (code parrainage: {})", user.getEmail(), referralCode);
+        log.info("Nouvel utilisateur enregistre : {} (code parrainage: {}, email non vérifié)", user.getEmail(),
+                referralCode);
 
+        // Envoyer l'email de vérification (au lieu de l'email de bienvenue)
         try {
-            emailService.sendWelcomeEmail(user);
+            emailService.sendEmailVerificationEmail(user, verificationToken);
         } catch (Exception e) {
-            log.error("[EMAIL] Impossible d'envoyer l'email de bienvenue : {}", e.getMessage());
+            log.error("[EMAIL] Impossible d'envoyer l'email de vérification : {}", e.getMessage());
         }
 
+        // Retourner une réponse sans tokens JWT — l'utilisateur doit d'abord vérifier
+        // son email
+        return AuthResponse.builder()
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .role(user.getRole().name())
+                .referralCode(user.getReferralCode())
+                .emailVerified(false)
+                .build();
+    }
+
+    // ── Vérification d'email ─────────────────────────────────────────────────
+    /**
+     * Valide l'email d'un utilisateur à partir d'un token de vérification.
+     *
+     * @param token le token de vérification envoyé par email
+     * @return AuthResponse avec les tokens JWT si la validation réussit
+     * @throws IllegalArgumentException si le token est invalide ou expiré
+     */
+    public AuthResponse verifyEmail(String token) {
+        var user = userRepository.findByEmailVerificationToken(token)
+                .orElseThrow(() -> new IllegalArgumentException("Token de vérification invalide."));
+
+        // Vérifier si le token a expiré
+        if (user.getEmailVerificationTokenExpiresAt() == null ||
+                user.getEmailVerificationTokenExpiresAt().isBefore(LocalDateTime.now())) {
+            log.warn("[AUTH] Token de vérification expiré pour : {}", user.getEmail());
+            throw new IllegalArgumentException("Le lien de vérification a expiré. Veuillez demander un nouveau lien.");
+        }
+
+        // Vérifier que le compte n'est pas déjà vérifié
+        if (user.getEmailVerified()) {
+            log.info("[AUTH] Email déjà vérifié pour : {}", user.getEmail());
+            // Générer quand même les tokens pour connecter l'utilisateur
+        } else {
+            // Marquer l'email comme vérifié
+            user.setEmailVerified(true);
+            user.setEmailVerificationToken(null);
+            user.setEmailVerificationTokenExpiresAt(null);
+            userRepository.save(user);
+
+            log.info("[AUTH] Email vérifié avec succès pour : {}", user.getEmail());
+
+            // Envoyer l'email de bienvenue après validation
+            try {
+                emailService.sendWelcomeEmail(user);
+            } catch (Exception e) {
+                log.error("[EMAIL] Impossible d'envoyer l'email de bienvenue : {}", e.getMessage());
+            }
+        }
+
+        // Générer les tokens JWT pour connecter automatiquement l'utilisateur
         var userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         var accessToken = jwtService.generateToken(userDetails);
         var refreshToken = jwtService.generateRefreshToken(userDetails);
@@ -103,7 +170,40 @@ public class AuthService {
                 .lastName(user.getLastName())
                 .role(user.getRole().name())
                 .referralCode(user.getReferralCode())
+                .emailVerified(true)
                 .build();
+    }
+
+    // ── Renvoi de l'email de vérification ────────────────────────────────────
+    /**
+     * Renvoie l'email de vérification à un utilisateur dont l'email n'est pas
+     * encore vérifié.
+     *
+     * @param email l'adresse email de l'utilisateur
+     */
+    public void resendVerificationEmail(String email) {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Aucun compte trouvé avec cet email."));
+
+        if (user.getEmailVerified()) {
+            throw new IllegalArgumentException("Cet email est déjà vérifié. Vous pouvez vous connecter.");
+        }
+
+        // Générer un nouveau token
+        String newToken = UUID.randomUUID().toString();
+        user.setEmailVerificationToken(newToken);
+        user.setEmailVerificationTokenExpiresAt(LocalDateTime.now().plusHours(EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS));
+        userRepository.save(user);
+
+        log.info("[AUTH] Nouveau token de vérification généré pour : {}", email);
+
+        // Envoyer l'email
+        try {
+            emailService.sendEmailVerificationEmail(user, newToken);
+        } catch (Exception e) {
+            log.error("[EMAIL] Impossible d'envoyer l'email de vérification : {}", e.getMessage());
+            throw new RuntimeException("Erreur lors de l'envoi de l'email de vérification.");
+        }
     }
 
     // ── Connexion ────────────────────────────────────────────────────────────
@@ -128,19 +228,28 @@ public class AuthService {
                 throw new DisabledException("Compte desactive. Contactez l'administrateur.");
             }
 
+            // 4. Vérifier que l'email a été vérifié
+            if (!user.getEmailVerified()) {
+                log.warn("[AUTH] Tentative de connexion pour un email non vérifié : {}", user.getEmail());
+                throw new EmailNotVerifiedException(
+                        "Veuillez vérifier votre adresse email avant de vous connecter. " +
+                                "Un email de vérification vous a été envoyé lors de l'inscription.",
+                        user.getEmail());
+            }
+
             // Réinitialiser les compteurs d'échecs
             loginAttempts.remove(request.getEmail());
             ipFailedAttempts.remove(ipAddress);
             ipLastFailedTime.remove(ipAddress);
 
-            // 4. Génération des jetons JWT
+            // 5. Génération des jetons JWT
             var userDetails = userDetailsService.loadUserByUsername(user.getEmail());
             var accessToken = jwtService.generateToken(userDetails);
             var refreshToken = jwtService.generateRefreshToken(userDetails);
 
             log.info("Connexion reussie pour : {} depuis IP : {}", user.getEmail(), ipAddress);
 
-            // 5. Enregistrer l'historique de connexion
+            // 6. Enregistrer l'historique de connexion
             try {
                 String userAgent = httpRequest.getHeader("User-Agent");
                 LoginHistory loginHistory = LoginHistory.builder()
@@ -154,7 +263,7 @@ public class AuthService {
                 log.error("[AUTH] Échec de l'enregistrement de l'historique de connexion : {}", e.getMessage());
             }
 
-            // 6. Envoi sécurisé de l'alerte e-mail
+            // 7. Envoi sécurisé de l'alerte e-mail
             try {
                 final String finalIpAddress = ipAddress;
                 emailService.sendLoginAlertEmail(user, finalIpAddress);
@@ -172,6 +281,7 @@ public class AuthService {
                     .lastName(user.getLastName())
                     .role(user.getRole().name())
                     .referralCode(user.getReferralCode())
+                    .emailVerified(true)
                     .build();
 
         } catch (BadCredentialsException e) {
@@ -246,27 +356,17 @@ public class AuthService {
                 .lastName(user.getLastName())
                 .role(user.getRole().name())
                 .referralCode(user.getReferralCode())
+                .emailVerified(user.getEmailVerified())
                 .build();
     }
 
     // ── Exponential Backoff ──────────────────────────────────────────────────
-    /**
-     * Applique un délai progressif (exponential backoff) basé sur le nombre
-     * d'échecs consécutifs depuis une même IP.
-     * <p>
-     * Après 3 échecs : délai de 1s
-     * Après 4 échecs : délai de 2s
-     * Après 5 échecs : délai de 4s
-     * Après 6+ échecs : délai de 8s
-     */
     private void applyExponentialBackoff(String ipAddress) {
         Integer failedCount = ipFailedAttempts.get(ipAddress);
         if (failedCount == null || failedCount < BACKOFF_THRESHOLD) {
-            return; // Pas de délai en dessous du seuil
+            return;
         }
 
-        // Calculer le délai : 2^(failedCount - BACKOFF_THRESHOLD) secondes
-        // Plafonné à 8 secondes max
         int delaySeconds = Math.min(
                 (int) Math.pow(2, failedCount - BACKOFF_THRESHOLD),
                 8);
@@ -287,31 +387,22 @@ public class AuthService {
         }
     }
 
-    /**
-     * Enregistre un échec pour une IP et met à jour le timestamp.
-     */
     private void recordIpFailure(String ipAddress) {
         ipFailedAttempts.merge(ipAddress, 1, Integer::sum);
         ipLastFailedTime.put(ipAddress, Instant.now());
     }
 
     // ── Refresh Rate Limiting ────────────────────────────────────────────────
-    /**
-     * Vérifie que le nombre de refresh par minute pour un email ne dépasse pas
-     * la limite autorisée (5/min).
-     */
     private void checkRefreshRateLimit(String email) {
         Instant now = Instant.now();
         Instant windowStart = refreshWindowStart.get(email);
 
-        // Réinitialiser la fenêtre si elle est expirée (plus d'une minute)
         if (windowStart == null || java.time.Duration.between(windowStart, now).getSeconds() >= 60) {
             refreshWindowStart.put(email, now);
             refreshCounts.put(email, 1);
             return;
         }
 
-        // Incrémenter le compteur dans la fenêtre actuelle
         int count = refreshCounts.merge(email, 1, Integer::sum);
 
         if (count > MAX_REFRESH_PER_MINUTE) {
@@ -324,9 +415,6 @@ public class AuthService {
     }
 
     // ── Utilitaires ──────────────────────────────────────────────────────────
-    /**
-     * Extrait l'adresse IP réelle du client en tenant compte des proxys.
-     */
     private String extractIpAddress(jakarta.servlet.http.HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {

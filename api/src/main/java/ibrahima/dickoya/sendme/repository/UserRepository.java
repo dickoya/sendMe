@@ -43,4 +43,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return liste des utilisateurs actifs
      */
     List<User> findByIsActiveTrue();
+
+    /**
+     * Recherche un utilisateur par son token de vérification email.
+     * Utilisé lors de la validation de l'email après inscription.
+     *
+     * @param emailVerificationToken le token de vérification unique
+     * @return Optional<User>
+     */
+    Optional<User> findByEmailVerificationToken(String emailVerificationToken);
 }

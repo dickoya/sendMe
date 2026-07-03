@@ -117,10 +117,56 @@ public class EmailService {
         }
 
         /**
-         * Envoie l'email de bienvenue après l'inscription.
+         * Envoie l'email de vérification après l'inscription.
          *
          * Déclenché automatiquement par AuthService.register()
          * après la sauvegarde du compte en base de données.
+         * L'utilisateur doit cliquer sur le lien pour activer son compte.
+         *
+         * Variables Thymeleaf utilisées dans email-verification.html :
+         * - firstName : prénom de l'utilisateur
+         * - verificationLink : lien complet de validation (token UUID)
+         *
+         * @param user              l'utilisateur qui vient de s'inscrire
+         * @param verificationToken le token de vérification unique
+         */
+        @Async
+        public void sendEmailVerificationEmail(User user, String verificationToken) {
+                try {
+                        log.info("[EMAIL] Envoi email de vérification à : {}", user.getEmail());
+
+                        // Construire le lien de vérification
+                        String verificationLink = "http://localhost:5173/verify-email?token=" + verificationToken;
+
+                        // Préparer le contexte avec les variables du template
+                        Context context = new Context();
+                        context.setVariable("firstName", user.getFirstName());
+                        context.setVariable("verificationLink", verificationLink);
+
+                        // Générer le HTML depuis le template Thymeleaf
+                        String htmlContent = templateEngine.process(
+                                        "emails/email-verification", context);
+
+                        // Envoyer l'email
+                        sendHtmlEmail(
+                                        user.getEmail(),
+                                        "✅ SendMe — Vérifiez votre adresse email",
+                                        htmlContent);
+
+                        log.info("[EMAIL] Email de vérification envoyé à : {}", user.getEmail());
+
+                } catch (Exception e) {
+                        // On ne bloque jamais l'inscription si l'email échoue
+                        log.error("[EMAIL] Échec email vérification pour {} : {}",
+                                        user.getEmail(), e.getMessage());
+                }
+        }
+
+        /**
+         * Envoie l'email de bienvenue après la validation de l'email.
+         *
+         * Déclenché par AuthService.verifyEmail() après
+         * que l'utilisateur a cliqué sur le lien de validation.
          *
          * Variables Thymeleaf utilisées dans welcome.html :
          * - firstName : prénom seul pour le titre de bienvenue
@@ -128,7 +174,7 @@ public class EmailService {
          * - email : email de connexion du nouvel utilisateur
          * - referralCode : code de parrainage personnel de l'utilisateur
          *
-         * @param user l'utilisateur qui vient de s'inscrire
+         * @param user l'utilisateur dont l'email vient d'être vérifié
          */
         @Async
         public void sendWelcomeEmail(User user) {

@@ -45,6 +45,27 @@ export const authService = {
         const { data } = await api.post<ApiResponse<AuthResponse>>('/auth/refresh', { refreshToken });
         return data.data;
     },
+
+    /**
+     * Vérifie l'adresse email d'un utilisateur à partir d'un token.
+     * GET /api/auth/verify-email?token=xxx
+     * Retourne l'ApiResponse complète car elle contient les tokens JWT.
+     */
+    async verifyEmail(token: string): Promise<ApiResponse<AuthResponse>> {
+        const { data } = await api.get<ApiResponse<AuthResponse>>('/auth/verify-email', {
+            params: { token },
+        });
+        return data;
+    },
+
+    /**
+     * Renvoie l'email de vérification à un utilisateur.
+     * POST /api/auth/resend-verification
+     */
+    async resendVerification(email: string): Promise<ApiResponse<void>> {
+        const { data } = await api.post<ApiResponse<void>>('/auth/resend-verification', { email });
+        return data;
+    },
 };
 
 

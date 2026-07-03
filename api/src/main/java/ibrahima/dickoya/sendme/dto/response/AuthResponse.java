@@ -18,4 +18,6 @@ public class AuthResponse {
     private String lastName;
     private String role;
     private String referralCode;
+    @Builder.Default
+    private Boolean emailVerified = false;
 }

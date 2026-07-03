@@ -29,6 +29,15 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage()));
         }
 
+        // Email non vérifié — 403
+        @ExceptionHandler(EmailNotVerifiedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(
+                        EmailNotVerifiedException ex) {
+                log.warn("Email non vérifié : {}", ex.getEmail());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                .body(ApiResponse.error(ex.getMessage()));
+        }
+
         // Mauvais identifiants — 401
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ApiResponse<Void>> handleBadCredentials(

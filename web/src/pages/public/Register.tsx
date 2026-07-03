@@ -62,7 +62,8 @@ function Register() {
         setIsSubmitting(true);
         try {
             await register({ firstName, lastName, email, password, phoneNumber, referralCode: referralCode || undefined });
-            navigate('/dashboard');
+            // Rediriger vers la page de confirmation de vérification d'email
+            navigate('/verify-email-sent', { state: { email } });
         } catch (err) {
             setError(mapRegisterError(err, t));
         } finally {
