@@ -376,13 +376,12 @@ public class AuthService {
             Instant now = Instant.now();
             long elapsedSeconds = java.time.Duration.between(lastFailed, now).getSeconds();
             if (elapsedSeconds < delaySeconds) {
-                long waitMs = (delaySeconds - elapsedSeconds) * 1000;
-                log.debug("[BACKOFF] IP {} : attente de {}ms avant nouvelle tentative", ipAddress, waitMs);
-                try {
-                    Thread.sleep(waitMs);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
+                long retryAfterSeconds = delaySeconds - elapsedSeconds;
+                log.warn("[BACKOFF] IP {} : trop de tentatives. Reessayez dans {} secondes", ipAddress,
+                        retryAfterSeconds);
+                throw new RateLimitExceededException(
+                        "Trop de tentatives de connexion. Veuillez réessayer dans " + retryAfterSeconds + " secondes.",
+                        retryAfterSeconds);
             }
         }
     }

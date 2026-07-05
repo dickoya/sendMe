@@ -23,5 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
+# Fichiers d'environnement (contenant de vraies clés)
 .env
-*.env
+.env.*
+!.env.example

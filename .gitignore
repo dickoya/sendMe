@@ -13,8 +13,10 @@ target/
 .springBeans
 .sts4-cache
 
+# Fichiers d'environnement (contenant de vraies clés)
 .env
-*.env
+.env.*
+!.env.example
 .idea/
 
 
@@ -36,10 +38,6 @@ build/
 
 ### VS Code ###
 .vscode/
-
-# Fichiers de configuration locaux sensibles
-
-**/application-local.properties
 
 #documentations
 docs/

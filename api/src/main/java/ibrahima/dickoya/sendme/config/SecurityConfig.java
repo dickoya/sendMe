@@ -54,12 +54,6 @@ public class SecurityConfig {
             // ── Stripe Webhook ────────────────────────────────────────────────
             "/api/webhooks/**",
 
-            // ── Debug taux de change ──────────────────────────────────────────
-            "/api/debug/**",
-
-            // ── Repair (à supprimer en production) ────────────────────────────
-            "/api/repair/**",
-
             // ── Swagger UI / OpenAPI / Actuator ───────────────────────────────
             "/swagger-ui.html",
             "/swagger-ui/**",
