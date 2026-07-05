@@ -18,7 +18,8 @@
       "users": "Utilisateurs",
       "transactions": "Transactions",
       "logs": "Logs d'activité",
-      "settings": "Paramètres"
+      "settings": "Paramètres",
+      "paymentChannels": "Canaux de paiement"
     },
     "logout": "Déconnexion",
     "backToSite": "Retour au site",

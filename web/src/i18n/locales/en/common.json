@@ -18,7 +18,8 @@
       "users": "Users",
       "transactions": "Transactions",
       "logs": "Activity logs",
-      "settings": "Settings"
+      "settings": "Settings",
+      "paymentChannels": "Payment channels"
     },
     "logout": "Logout",
     "backToSite": "Back to site",

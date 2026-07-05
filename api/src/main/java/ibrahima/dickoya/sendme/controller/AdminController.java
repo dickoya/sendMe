@@ -1,12 +1,14 @@
 package ibrahima.dickoya.sendme.controller;
 
 import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
+import ibrahima.dickoya.sendme.dto.request.PaymentChannelRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
 import ibrahima.dickoya.sendme.service.AdminAuditLogService;
 import ibrahima.dickoya.sendme.service.AdminService;
 import ibrahima.dickoya.sendme.service.ExchangeRateService;
+import ibrahima.dickoya.sendme.service.PaymentChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -69,6 +71,7 @@ public class AdminController {
         private final AdminService adminService;
         private final ExchangeRateService exchangeRateService;
         private final AdminAuditLogService adminAuditLogService;
+        private final PaymentChannelService paymentChannelService;
 
         /**
          * Retourne le tableau de bord avec toutes les statistiques.
@@ -414,5 +417,64 @@ public class AdminController {
                                 action, adminEmail, dateFrom, dateTo, pageable);
                 return ResponseEntity.ok(
                                 ApiResponse.success("Logs d'activité", logs));
+        }
+
+        // ── GESTION DES CANAUX DE PAIEMENT ────────────────────────────────────
+
+        /**
+         * Liste tous les canaux de paiement (actifs et inactifs).
+         * Réservé à l'administration.
+         *
+         * GET /api/admin/payment-channels
+         *
+         * @return 200 OK avec la liste des canaux
+         */
+        @GetMapping("/payment-channels")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Liste des canaux de paiement", description = "Retourne tous les canaux de paiement (actifs et inactifs) pour la gestion admin.")
+        public ResponseEntity<ApiResponse<List<PaymentChannelResponse>>> getAllPaymentChannels() {
+                List<PaymentChannelResponse> channels = paymentChannelService.getAllChannels();
+                return ResponseEntity.ok(
+                                ApiResponse.success("Liste des canaux de paiement", channels));
+        }
+
+        /**
+         * Ajoute un nouveau canal de paiement.
+         *
+         * POST /api/admin/payment-channels
+         *
+         * @param request les informations du nouveau canal
+         * @return 200 OK avec le canal créé
+         */
+        @PostMapping("/payment-channels")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Ajouter un canal de paiement", description = "Ajoute un nouveau canal de paiement. Le type doit être unique.")
+        public ResponseEntity<ApiResponse<PaymentChannelResponse>> addPaymentChannel(
+                        @Valid @RequestBody PaymentChannelRequest request) {
+                PaymentChannelResponse channel = paymentChannelService.addChannel(request);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Canal de paiement ajouté : " + channel.getDisplayName(), channel));
+        }
+
+        /**
+         * Active ou désactive un canal de paiement.
+         *
+         * PUT /api/admin/payment-channels/{id}/toggle
+         *
+         * @param id identifiant du canal
+         * @return 200 OK avec le canal mis à jour
+         */
+        @PutMapping("/payment-channels/{id}/toggle")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Activer / Désactiver un canal", description = "Inverse le statut isActive d'un canal de paiement. "
+                        +
+                        "Un canal désactivé n'est plus visible par les utilisateurs.")
+        public ResponseEntity<ApiResponse<PaymentChannelResponse>> togglePaymentChannel(
+                        @PathVariable Long id) {
+                PaymentChannelResponse channel = paymentChannelService.toggleChannel(id);
+                String message = channel.isActive()
+                                ? "Canal de paiement activé"
+                                : "Canal de paiement désactivé";
+                return ResponseEntity.ok(ApiResponse.success(message, channel));
         }
 }

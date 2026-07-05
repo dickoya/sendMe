@@ -32,6 +32,7 @@ import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminTransactions from '@/pages/admin/AdminTransactions';
 import AdminLogs from '@/pages/admin/AdminLogs';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import AdminPaymentChannels from '@/pages/admin/AdminPaymentChannels';
 
 // Divers
 import NotFound from '@/pages/NotFound';
@@ -84,6 +85,7 @@ function AppRoutes() {
                     <Route path="/admin/transactions" element={<AdminTransactions />} />
                     <Route path="/admin/logs" element={<AdminLogs />} />
                     <Route path="/admin/settings" element={<AdminSettings />} />
+                    <Route path="/admin/payment-channels" element={<AdminPaymentChannels />} />
                 </Route>
             </Route>
 
