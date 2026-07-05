@@ -16,12 +16,16 @@ Projet réalisé dans le cadre d'un Travail de Fin d'Études (TFE).
 |---|---|
 | Backend | Java 21, Spring Boot 3.2.5, Maven, Flyway, MySQL |
 | Frontend | React 19 + TypeScript 6, Vite 8, Tailwind CSS v4 |
-| Paiement | Stripe (mode Sandbox) |
-| Emails | Spring Mail + Thymeleaf + Mailtrap (Sandbox) |
+| Paiement | Stripe (mode Sandbox) — SDK Java 25.3.0 |
+| Emails | Spring Mail + Thymeleaf + Mailtrap/Brevo (Sandbox) |
 | Temps réel | Server-Sent Events (SSE) |
-| PDF | iText7 |
+| PDF | iText7 (itext7-core 7.2.5) |
 | Taux de change | OpenExchangeRates API |
-| Rate Limiting | Bucket4j + Caffeine |
+| Rate Limiting | Bucket4j 8.7.0 + Caffeine |
+| Cache | Spring Cache + Caffeine |
+| Documentation API | SpringDoc OpenAPI (Swagger UI) |
+| Tests | JUnit 5, Mockito, AssertJ (backend) — Vitest, Testing Library (frontend) |
+| Internationalisation | i18next (frontend, 13 namespaces FR/EN) — Spring MessageSource (backend, FR/EN) |
 
 ---
 
@@ -29,10 +33,59 @@ Projet réalisé dans le cadre d'un Travail de Fin d'Études (TFE).
 
 ```
 sendMe/
-├── api/         Backend Spring Boot — voir api/README.md
-├── web/         Frontend React + TypeScript — voir web/README.md
-├── docs/        Documentation technique détaillée
-└── mobile/      Application mobile (à venir)
+├── api/              Backend Spring Boot — voir api/README.md
+│   ├── src/main/java/ibrahima/dickoya/sendme/
+│   │   ├── config/        # 8 configurations (Security, Stripe, Swagger, Currency, etc.)
+│   │   ├── controller/    # 13 contrôleurs REST
+│   │   ├── dto/           # Request/Response DTOs
+│   │   ├── entity/        # 11 entités JPA
+│   │   ├── enums/         # 4 énumérations (ChannelType, TransactionStatus, NotificationType, Role)
+│   │   ├── exception/     # 7 exceptions personnalisées + GlobalExceptionHandler
+│   │   ├── repository/    # 11 interfaces Spring Data JPA
+│   │   ├── security/      # JWT, RateLimitingFilter, UserDetailsServiceImpl
+│   │   ├── service/       # 16 services métier
+│   │   ├── strategy/      # TransferStrategy + 6 implémentations + BaseTransferStrategy
+│   │   └── utils/         # 3 utilitaires (CurrencyByCountry, DataMaskingUtils, MessageUtils)
+│   ├── src/main/resources/
+│   │   ├── db/migration/  # 22 migrations Flyway (V1–V22)
+│   │   ├── templates/     # 14 templates email Thymeleaf
+│   │   ├── static/        # Logos des opérateurs Mobile Money
+│   │   ├── messages_fr.properties / messages_en.properties
+│   │   └── application.properties
+│   └── http/              # Fichiers de test HTTP (REST Client)
+├── web/              Frontend React + TypeScript — voir web/README.md
+│   ├── src/
+│   │   ├── components/   # 50+ composants UI réutilisables
+│   │   ├── pages/        # 17 pages (publiques, privées, admin)
+│   │   ├── layouts/      # 3 layouts (Public, Private, Admin)
+│   │   ├── routes/       # AppRoutes, PrivateRoute, AdminRoute
+│   │   ├── services/     # 11 services API (Axios)
+│   │   ├── hooks/        # 10 hooks personnalisés
+│   │   ├── store/        # 4 Context API (auth, notification, theme, transfer)
+│   │   ├── i18n/         # 26 fichiers de traduction FR/EN (13 namespaces)
+│   │   ├── types/        # Types TypeScript complets
+│   │   └── utils/        # Helpers (dates, devises, notifications, export CSV)
+│   └── public/           # favicon.svg, icons.svg
+├── docs/             Documentation technique détaillée
+│   ├── architecture.md   # Architecture générale, Strategy Pattern, flux, sécurité
+│   ├── database.md       # Schéma BDD, migrations Flyway V1–V22
+│   ├── diagrams/         # 13 diagrammes techniques (Mermaid + PlantUML)
+│   │   ├── context-diagram.md
+│   │   ├── component-architecture.md
+│   │   ├── deployment-diagram.md
+│   │   ├── navigation-flow.md
+│   │   ├── use-case-complete.md
+│   │   ├── use-case-diagram.md
+│   │   ├── sequence-transfer-flow.md
+│   │   ├── sequence-auth-flow.md
+│   │   ├── sequence-referral-flow.md
+│   │   ├── activity-transfer-lifecycle.md
+│   │   ├── class-diagram.md
+│   │   ├── business-logic.md
+│   │   └── transaction-flow.mmd / .puml
+│   ├── Rapport_TFE_SendMe.docx
+│   └── SendMe_Presentation_Soutenance.pptx
+└── mobile/           Application mobile (à venir)
 ```
 
 ---
@@ -42,14 +95,9 @@ sendMe/
 | Document | Description |
 |---|---|
 | [`docs/README.md`](./docs/README.md) | Index de la documentation technique |
-| [`docs/architecture.md`](./docs/architecture.md) | Architecture générale, Strategy Pattern, flux de transfert, sécurité, multi-devises, parrainage |
-| [`docs/api-reference.md`](./docs/api-reference.md) | Référence complète des endpoints REST |
-| [`docs/database.md`](./docs/database.md) | Schéma de base de données, migrations Flyway V1–V14 |
-| [`docs/notifications.md`](./docs/notifications.md) | Système de notifications (SSE + emails) |
-| [`docs/i18n.md`](./docs/i18n.md) | Internationalisation FR/EN |
-| [`docs/progress.md`](./docs/progress.md) | État d'avancement détaillé |
-| [`docs/web-architecture.md`](./docs/web-architecture.md) | Architecture frontend (React, composants, hooks) |
-| [`docs/web-setup.md`](./docs/web-setup.md) | Installation et configuration du frontend |
+| [`docs/architecture.md`](./docs/architecture.md) | Architecture générale, Strategy Pattern, flux de transfert, sécurité, multi-devises, parrainage, audit |
+| [`docs/database.md`](./docs/database.md) | Schéma de base de données, migrations Flyway V1–V22, entités, devises supportées |
+| [`docs/diagrams/README.md`](./docs/diagrams/README.md) | Index des diagrammes techniques |
 | [`api/README.md`](./api/README.md) | Guide d'installation et de démarrage du backend |
 | [`web/README.md`](./web/README.md) | Guide d'installation et de démarrage du frontend |
 
@@ -82,30 +130,35 @@ L'application est disponible sur `http://localhost:5173`.
 
 ## Canaux supportés
 
-- Virement bancaire (SEPA/SWIFT)
-- Orange Money
-- MTN Mobile Money
-- Wave
-- Moov Money
-- Airtel Money
+| Canal | Type | Icône |
+|---|---|---|
+| Virement bancaire (SEPA/SWIFT) | `BANK_TRANSFER`
+| Orange Money | `ORANGE_MONEY` | |
+| MTN Mobile Money | `MTN_MOBILE_MONEY` |  |
+| Wave | `WAVE` |
+| Moov Money | `MOOV_MONEY` |  |
+| Airtel Money | `AIRTEL_MONEY` | |
 
 ---
 
 ## Fonctionnalités principales
 
-- **Authentification JWT** — inscription, connexion, refresh token, déconnexion
-- **Bénéficiaires** — CRUD avec champs contextuels selon le canal (RG-02)
-- **Transferts** — simulation temps réel, tunnel 4 étapes, paiement Stripe, routage multi-canaux
+- **Authentification JWT** — inscription, connexion, refresh token, déconnexion, validation d'email (V20)
+- **Bénéficiaires** — CRUD avec champs contextuels selon le canal (RG-02), multi-canaux par bénéficiaire (V15)
+- **Transferts** — simulation temps réel, tunnel 4 étapes, paiement Stripe, routage multi-canaux (Strategy Pattern)
 - **Multi-devises** — 5 devises d'envoi (EUR, USD, GBP, CAD, CHF), 8 devises de réception (XOF, XAF, GNF, NGN, GHS, ZAR, MAD, TND)
 - **Dashboard utilisateur** — statistiques personnelles, évolution des transferts, taux de change en direct
-- **Profil** — modification, changement de mot de passe, historique des connexions, suppression de compte
-- **Parrainage** — code unique, coupons de réduction (5€), statistiques
-- **Notifications** — temps réel (SSE) + emails (13 templates)
-- **Administration** — dashboard, gestion utilisateurs, transactions, configuration frais, maintenance
-- **Internationalisation** — interface entièrement bilingue français/anglais (13 namespaces)
-- **Sécurité** — rate limiting (Bucket4j), exponential backoff, blocage IP, JWT stateless
+- **Profil** — modification, changement de mot de passe, historique des connexions (V19), suppression de compte
+- **Parrainage** — code unique (format `SENDME-XXXXXXXXXXXX`), coupons de réduction (5€), statistiques
+- **Notifications** — temps réel (SSE) + emails (14 templates), pagination, marquage lu/non lu
+- **Administration** — dashboard, gestion utilisateurs (filtres, batch), transactions, configuration frais, maintenance, logs d'audit (V21), gestion dynamique des canaux de paiement (V22)
+- **Internationalisation** — interface entièrement bilingue français/anglais (13 namespaces frontend + backend Spring MessageSource)
+- **Sécurité** — rate limiting (Bucket4j), exponential backoff, blocage IP persistant (V11), JWT stateless, validation d'email
 - **Onboarding** — tour guidé pour les nouveaux utilisateurs
 - **Thème clair/sombre**
+- **Reçus PDF** — génération de reçus professionnels avec iText7 (téléchargement + prévisualisation)
+- **Pays et devises** — API REST publique pour la liste des pays/devises supportés
+- **Logs d'audit admin** — traçage AOP de toutes les actions sensibles (V21)
 
 ---
 
@@ -117,14 +170,26 @@ L'application est disponible sur `http://localhost:5173`.
 | RG-02 | Champs contextuels selon le canal (IBAN/BIC vs téléphone) |
 | RG-03 | Application automatique des frais et du taux de change |
 | RG-04 | Échec opérateur → remboursement automatique Stripe |
+| RG-05 | Référence unique et immuable (format `TXN-YYYYMMDD-XXXX`) |
+| RG-06 | Protection idempotence via `Idempotency-Key` (évite les doubles débits) |
 
 ---
 
 ## Comptes par défaut
 
-| Rôle | Email | Mot de passe |
-|---|---|---|
-| Admin | `admin@sendme.com` | `Admin@sendme2025` |
+| Rôle | Email                         | Mot de passe  |
+|---|-------------------------------|---------------|
+| Admin | `dickoyaservices@outlook.com` | `P@ssword123` |
+
+---
+
+## Cartes de test Stripe (mode Sandbox)
+
+| Carte | Résultat |
+|---|---|
+| `4242 4242 4242 4242` | Paiement réussi |
+| `4000 0000 0000 0002` | Paiement refusé |
+| `4000 0025 0000 3155` | 3D Secure requis |
 
 ---
 
@@ -142,8 +207,8 @@ L'application est disponible sur `http://localhost:5173`.
 ## Auteur
 
 **Ibrahima Dickoya**  
-TFE — [Nom de ton école]  
-Année académique 2024–2025
+TFE - Institut des Carrières Commerciales 
+Année académique 2025–2026
 
 ---
 
