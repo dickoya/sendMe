@@ -36,7 +36,7 @@ public class StripePaymentService {
          * Devise par défaut pour les paiements Stripe.
          * Injectée depuis application.properties.
          */
-        @Value("${stripe.currency}")
+        @Value("${stripe.currency:EUR}")
         private String defaultCurrency;
 
         /**

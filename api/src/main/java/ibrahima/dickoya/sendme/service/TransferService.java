@@ -158,6 +158,29 @@ public class TransferService {
         }
 
         /**
+         * Vérifie au démarrage que tous les types de canaux (ChannelType) ont
+         * une stratégie de transfert associée dans la map.
+         * 
+         * Si un canal est ajouté en base de données mais qu'aucune stratégie
+         * n'a été implémentée, l'application log une erreur au démarrage
+         * pour éviter des échecs silencieux à l'exécution.
+         */
+        @PostConstruct
+        public void validateStrategies() {
+                for (ibrahima.dickoya.sendme.enums.ChannelType channelType : ibrahima.dickoya.sendme.enums.ChannelType
+                                .values()) {
+                        String channelName = channelType.name();
+                        if (!strategyMap.containsKey(channelName)) {
+                                log.error("AUCUNE STRATEGIE pour le canal : {}. " +
+                                                "Ajoutez une implementation de TransferStrategy " +
+                                                "avec @Component(\"{}\")", channelName, channelName);
+                        } else {
+                                log.debug("Strategie trouvee pour le canal : {}", channelName);
+                        }
+                }
+        }
+
+        /**
          * Orchestre le transfert complet avec paiement Stripe et notifications.
          *
          * ⚠️ PAS de @Transactional sur cette méthode :
@@ -364,7 +387,9 @@ public class TransferService {
                         try {
                                 referralService.rewardFirstTransfer(user, transaction);
                         } catch (Exception e) {
-                                log.error("[PARRAINAGE] Erreur lors de la récompense : {}", e.getMessage());
+                                log.error("[PARRAINAGE] Erreur lors de la récompense du premier transfert", e);
+                                throw new ibrahima.dickoya.sendme.exception.ReferralException(
+                                                "Erreur lors de la récompense de parrainage", e);
                         }
 
                 } else {
@@ -388,7 +413,7 @@ public class TransferService {
          * le débit carte est automatiquement annulé/remboursé ET
          * l'utilisateur est notifié en temps réel via SSE.
          *
-         * ⚠️ PAS de @Transactional : les opérations BDD sont gérées
+         * PAS de @Transactional : les opérations BDD sont gérées
          * via TransactionTemplate pour éviter les deadlocks.
          *
          * @param paymentIntentId l'ID Stripe à rembourser

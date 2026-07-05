@@ -28,6 +28,7 @@ public class TransferRequest {
      * Doit être strictement positif.
      */
     @NotNull(message = "Le montant est obligatoire")
+    @Positive(message = "Le montant doit etre strictement positif")
     @DecimalMin(value = "1.00", message = "Le montant minimum est de 1.00")
     @Digits(integer = 10, fraction = 2, message = "Format de montant invalide")
     private BigDecimal amount;

@@ -25,12 +25,14 @@ public class BeneficiaryRequest {
      * Prénom du bénéficiaire — obligatoire.
      */
     @NotBlank(message = "Le prenom est obligatoire")
+    @Size(min = 1, max = 100, message = "Le prenom doit contenir entre 1 et 100 caracteres")
     private String firstName;
 
     /**
      * Nom du bénéficiaire — obligatoire.
      */
     @NotBlank(message = "Le nom est obligatoire")
+    @Size(min = 1, max = 100, message = "Le nom doit contenir entre 1 et 100 caracteres")
     private String lastName;
 
     /**
