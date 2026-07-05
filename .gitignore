@@ -17,11 +17,9 @@ target/
 .env
 .env.*
 !.env.example
-.idea/
-
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -41,4 +39,17 @@ build/
 
 #documentations
 docs/
+
+### Logs ###
 api/api.log
+*.log
+
+### Dossiers vides ###
+mobile/
+
+
+### Scripts temporaires ###
+web/scripts/
+.claude/
+
+### Rapp
