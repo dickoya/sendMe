@@ -8,7 +8,7 @@
 --
 -- country_code détermine la devise de réception (ex: GIN → GNF, SEN → XOF, FRA → EUR)
 
-CREATE TABLE beneficiary_channels (
+CREATE TABLE IF NOT EXISTS beneficiary_channels (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     beneficiary_id BIGINT NOT NULL,
     channel ENUM('BANK_TRANSFER', 'ORANGE_MONEY', 'MTN_MOBILE_MONEY', 'WAVE', 'MOOV_MONEY', 'AIRTEL_MONEY') NOT NULL,
@@ -23,33 +23,29 @@ CREATE TABLE beneficiary_channels (
     CONSTRAINT fk_channel_beneficiary FOREIGN KEY (beneficiary_id) REFERENCES beneficiaries(id) ON DELETE CASCADE
 );
 
--- Index pour retrouver rapidement les canaux d'un bénéficiaire
-CREATE INDEX idx_beneficiary_channels_beneficiary_id ON beneficiary_channels(beneficiary_id);
+-- Index pour retrouver rapidement les canaux d'un bénéficiaire (si pas déjà présent)
+SET @exist_idx := (SELECT COUNT(*) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'beneficiary_channels' AND INDEX_NAME = 'idx_beneficiary_channels_beneficiary_id');
+SET @sql_idx = IF(@exist_idx = 0,
+    'CREATE INDEX idx_beneficiary_channels_beneficiary_id ON beneficiary_channels(beneficiary_id)',
+    'SELECT ''idx_beneficiary_channels_beneficiary_id already exists''');
+PREPARE stmt FROM @sql_idx;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
--- Migrer les données existantes de bank_details vers beneficiary_channels
-INSERT INTO beneficiary_channels (beneficiary_id, channel, bank_name, iban, bic, is_primary, created_at, updated_at)
-SELECT
-    bd.beneficiary_id,
-    'BANK_TRANSFER',
-    bd.bank_name,
-    bd.iban,
-    bd.bic,
-    TRUE,
-    b.created_at,
-    b.updated_at
-FROM bank_details bd
-JOIN beneficiaries b ON b.id = bd.beneficiary_id
-WHERE b.channel = 'BANK_TRANSFER';
+-- Migrer les données existantes de bank_details vers beneficiary_channels (si la table source existe)
+SET @exist_bank_details := (SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'bank_details');
+SET @sql_migrate_bank = IF(@exist_bank_details > 0,
+    'INSERT INTO beneficiary_channels (beneficiary_id, channel, bank_name, iban, bic, is_primary, created_at, updated_at) SELECT bd.beneficiary_id, ''BANK_TRANSFER'', bd.bank_name, bd.iban, bd.bic, TRUE, b.created_at, b.updated_at FROM bank_details bd JOIN beneficiaries b ON b.id = bd.beneficiary_id WHERE b.channel = ''BANK_TRANSFER''',
+    'SELECT ''bank_details table does not exist, skipping migration''');
+PREPARE stmt FROM @sql_migrate_bank;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
--- Migrer les données existantes de mobile_money_details vers beneficiary_channels
-INSERT INTO beneficiary_channels (beneficiary_id, channel, phone_number, is_primary, created_at, updated_at)
-SELECT
-    mmd.beneficiary_id,
-    b.channel,
-    mmd.phone_number,
-    TRUE,
-    b.created_at,
-    b.updated_at
-FROM mobile_money_details mmd
-JOIN beneficiaries b ON b.id = mmd.beneficiary_id
-WHERE b.channel != 'BANK_TRANSFER';
+-- Migrer les données existantes de mobile_money_details vers beneficiary_channels (si la table source existe)
+SET @exist_mmd := (SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'mobile_money_details');
+SET @sql_migrate_mmd = IF(@exist_mmd > 0,
+    'INSERT INTO beneficiary_channels (beneficiary_id, channel, phone_number, is_primary, created_at, updated_at) SELECT mmd.beneficiary_id, b.channel, mmd.phone_number, TRUE, b.created_at, b.updated_at FROM mobile_money_details mmd JOIN beneficiaries b ON b.id = mmd.beneficiary_id WHERE b.channel != ''BANK_TRANSFER''',
+    'SELECT ''mobile_money_details table does not exist, skipping migration''');
+PREPARE stmt FROM @sql_migrate_mmd;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

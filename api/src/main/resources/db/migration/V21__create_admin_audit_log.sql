@@ -10,7 +10,7 @@
 --   - L'adresse IP et le timestamp
 -- ============================================================
 
-CREATE TABLE admin_audit_log (
+CREATE TABLE IF NOT EXISTS admin_audit_log (
     id              BIGINT AUTO_INCREMENT PRIMARY KEY,
 
     -- Admin qui a effectué l'action

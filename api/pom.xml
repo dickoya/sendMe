@@ -197,6 +197,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-maven-plugin</artifactId>
 		</plugin>
+		<plugin>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-maven-plugin</artifactId>
+			<version>9.22.3</version>
+			<configuration>
+				<url>jdbc:mysql://localhost:3306/sendme_db?useSSL=false&amp;serverTimezone=UTC&amp;allowPublicKeyRetrieval=true</url>
+				<user>root</user>
+				<password></password>
+			</configuration>
+		</plugin>
 	</plugins>
 </build>
 

@@ -1,7 +1,7 @@
 -- Migration V19: Création de la table login_history pour l'historique des connexions
 -- Cette table stocke toutes les tentatives de connexion (réussies ou échouées)
 
-CREATE TABLE login_history (
+CREATE TABLE IF NOT EXISTS login_history (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     ip_address VARCHAR(45) NOT NULL COMMENT 'Adresse IP (support IPv4 et IPv6)',
