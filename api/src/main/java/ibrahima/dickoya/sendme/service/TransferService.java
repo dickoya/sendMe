@@ -9,6 +9,7 @@ import ibrahima.dickoya.sendme.dto.response.TransactionResponse;
 import ibrahima.dickoya.sendme.entity.*;
 import ibrahima.dickoya.sendme.enums.NotificationType;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
+import ibrahima.dickoya.sendme.exception.MissingStrategyException;
 import ibrahima.dickoya.sendme.exception.ResourceNotFoundException;
 import ibrahima.dickoya.sendme.exception.TransferException;
 import ibrahima.dickoya.sendme.repository.*;
@@ -171,12 +172,12 @@ public class TransferService {
                                 .values()) {
                         String channelName = channelType.name();
                         if (!strategyMap.containsKey(channelName)) {
-                                log.error("AUCUNE STRATEGIE pour le canal : {}. " +
-                                                "Ajoutez une implementation de TransferStrategy " +
-                                                "avec @Component(\"{}\")", channelName, channelName);
-                        } else {
-                                log.debug("Strategie trouvee pour le canal : {}", channelName);
+                                throw new MissingStrategyException(
+                                                "Aucune stratégie trouvée pour le canal : " + channelName +
+                                                                ". Ajoutez une implémentation de TransferStrategy " +
+                                                                "avec @Component(\"" + channelName + "\")");
                         }
+                        log.debug("Strategie trouvee pour le canal : {}", channelName);
                 }
         }
 
