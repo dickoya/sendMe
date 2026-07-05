@@ -1,3 +1,4 @@
+
 package ibrahima.dickoya.sendme.strategy;
 
 import ibrahima.dickoya.sendme.entity.Beneficiary;
@@ -46,7 +47,6 @@ class MoovMoneyStrategyTest {
                 .id(1L)
                 .firstName("Mamadou")
                 .lastName("Barry")
-                .channel(ChannelType.MOOV_MONEY)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())

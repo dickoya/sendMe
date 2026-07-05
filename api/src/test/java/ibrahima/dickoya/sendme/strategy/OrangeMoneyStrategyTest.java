@@ -46,7 +46,6 @@ class OrangeMoneyStrategyTest {
                 .id(1L)
                 .firstName("Amadou")
                 .lastName("Diallo")
-                .channel(ChannelType.ORANGE_MONEY)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())

@@ -46,7 +46,6 @@ class WaveStrategyTest {
                 .id(1L)
                 .firstName("Aissatou")
                 .lastName("Sow")
-                .channel(ChannelType.WAVE)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())

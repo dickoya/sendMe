@@ -48,7 +48,6 @@ class BankTransferStrategyTest {
                 .id(1L)
                 .firstName("Fatou")
                 .lastName("Kone")
-                .channel(ChannelType.BANK_TRANSFER)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())

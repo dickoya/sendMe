@@ -46,7 +46,6 @@ class AirtelMoneyStrategyTest {
                 .id(1L)
                 .firstName("Kadiatou")
                 .lastName("Camara")
-                .channel(ChannelType.AIRTEL_MONEY)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())

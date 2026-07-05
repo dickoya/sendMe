@@ -46,7 +46,6 @@ class MtnMobileMoneyStrategyTest {
                 .id(1L)
                 .firstName("Mariam")
                 .lastName("Bah")
-                .channel(ChannelType.MTN_MOBILE_MONEY)
                 .user(user)
                 .channels(List.of(channel))
                 .createdAt(LocalDateTime.now())
