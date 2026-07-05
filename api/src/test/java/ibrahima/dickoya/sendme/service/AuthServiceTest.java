@@ -13,18 +13,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -53,8 +50,17 @@ class AuthServiceTest {
     @Mock
     private UserDetails userDetails;
 
+    @Mock
+    private ReferralService referralService;
+
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private AuthService authService;
+
+    @Captor
+    private ArgumentCaptor<User> userCaptor;
 
     private RegisterRequest registerRequest;
     private LoginRequest loginRequest;
@@ -62,8 +68,6 @@ class AuthServiceTest {
     private final String EMAIL = "ibrahima@sendme.com";
     private final String PASSWORD = "P@ssword123";
     private final String ENCODED_PASSWORD = "encodedPassword123";
-    private final String ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
-    private final String REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh...";
 
     @BeforeEach
     void setUp() {
@@ -97,36 +101,32 @@ class AuthServiceTest {
     class RegisterTests {
 
         @Test
-        @DisplayName("Inscription avec succès - Doit retourner AuthResponse avec tokens")
+        @DisplayName("Inscription avec succès - Doit retourner AuthResponse sans tokens")
         void register_ShouldReturnAuthResponse_WhenSuccessful() {
             // Arrange
             when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
             when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
             when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
 
             // Act
             AuthResponse response = authService.register(registerRequest);
 
             // Assert
             assertThat(response).isNotNull();
-            assertThat(response.getAccessToken()).isEqualTo(ACCESS_TOKEN);
-            assertThat(response.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
-            assertThat(response.getTokenType()).isEqualTo("Bearer");
-            assertThat(response.getExpiresIn()).isEqualTo(86400000L);
+            assertThat(response.getAccessToken()).isNull();
+            assertThat(response.getRefreshToken()).isNull();
             assertThat(response.getEmail()).isEqualTo(EMAIL);
             assertThat(response.getFirstName()).isEqualTo("Ibrahim");
             assertThat(response.getLastName()).isEqualTo("Dickoya");
             assertThat(response.getRole()).isEqualTo(Role.ROLE_USER.name());
+            assertThat(response.getEmailVerified()).isFalse();
 
             verify(userRepository).existsByEmail(EMAIL);
             verify(passwordEncoder).encode(PASSWORD);
+            verify(referralService).generateReferralCode();
             verify(userRepository).save(any(User.class));
-            verify(userDetailsService).loadUserByUsername(EMAIL);
-            verify(jwtService).generateToken(userDetails);
-            verify(jwtService).generateRefreshToken(userDetails);
+            verify(emailService).sendEmailVerificationEmail(any(User.class), anyString());
         }
 
         @Test
@@ -142,7 +142,7 @@ class AuthServiceTest {
 
             verify(userRepository).existsByEmail(EMAIL);
             verify(userRepository, never()).save(any(User.class));
-            verify(jwtService, never()).generateToken(any());
+            verify(emailService, never()).sendEmailVerificationEmail(any(), anyString());
         }
 
         @Test
@@ -151,19 +151,15 @@ class AuthServiceTest {
             // Arrange
             when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
             when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
             when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
 
             // Act
             authService.register(registerRequest);
 
             // Assert
             verify(passwordEncoder).encode(PASSWORD);
-            verify(userRepository).save(argThat(savedUser ->
-                    ENCODED_PASSWORD.equals(savedUser.getPasswordHash())
-            ));
+            verify(userRepository).save(argThat(savedUser -> ENCODED_PASSWORD.equals(savedUser.getPasswordHash())));
         }
 
         @Test
@@ -172,22 +168,24 @@ class AuthServiceTest {
             // Arrange
             when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
             when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
             when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
 
             // Act
             authService.register(registerRequest);
 
             // Assert
-            verify(userRepository).save(argThat(savedUser -> {
+            verify(userRepository).save(argThat((User savedUser) -> {
                 assertThat(savedUser.getFirstName()).isEqualTo("Ibrahim");
                 assertThat(savedUser.getLastName()).isEqualTo("Dickoya");
                 assertThat(savedUser.getEmail()).isEqualTo(EMAIL);
                 assertThat(savedUser.getPhoneNumber()).isEqualTo("+224620000000");
                 assertThat(savedUser.getRole()).isEqualTo(Role.ROLE_USER);
                 assertThat(savedUser.getIsActive()).isTrue();
+                assertThat(savedUser.getEmailVerified()).isFalse();
+                assertThat(savedUser.getReferralCode()).isEqualTo("SENDME-ABC123");
+                assertThat(savedUser.getEmailVerificationToken()).isNotNull();
+                assertThat(savedUser.getEmailVerificationTokenExpiresAt()).isNotNull();
                 return true;
             }));
         }
@@ -199,201 +197,83 @@ class AuthServiceTest {
             registerRequest.setPhoneNumber(null);
             when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
             when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
             when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
 
             // Act
             AuthResponse response = authService.register(registerRequest);
 
             // Assert
             assertThat(response).isNotNull();
-            verify(userRepository).save(argThat(savedUser ->
-                    savedUser.getPhoneNumber() == null
-            ));
+            verify(userRepository).save(argThat(savedUser -> savedUser.getPhoneNumber() == null));
         }
-    }
-
-    /*@Nested
-    @DisplayName("Tests de connexion (login)")
-    class LoginTests {
 
         @Test
-        @DisplayName("Connexion avec succès - Doit retourner AuthResponse avec tokens")
-        void login_ShouldReturnAuthResponse_WhenSuccessful() {
+        @DisplayName("Inscription - Doit envoyer l'email de vérification")
+        void register_ShouldSendVerificationEmail_WhenSuccessful() {
             // Arrange
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
+            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
+            when(userRepository.save(any(User.class))).thenReturn(user);
 
             // Act
-            AuthResponse response = authService.login(loginRequest);
+            authService.register(registerRequest);
+
+            // Assert
+            verify(emailService).sendEmailVerificationEmail(any(User.class), anyString());
+        }
+
+        @Test
+        @DisplayName("Inscription - Ne doit pas planter si l'email de vérification échoue")
+        void register_ShouldNotThrow_WhenVerificationEmailFails() {
+            // Arrange
+            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+            doThrow(new RuntimeException("SMTP error"))
+                    .when(emailService).sendEmailVerificationEmail(any(User.class), anyString());
+
+            // Act (ne doit pas lever d'exception)
+            AuthResponse response = authService.register(registerRequest);
 
             // Assert
             assertThat(response).isNotNull();
-            assertThat(response.getAccessToken()).isEqualTo(ACCESS_TOKEN);
-            assertThat(response.getRefreshToken()).isEqualTo(REFRESH_TOKEN);
-            assertThat(response.getTokenType()).isEqualTo("Bearer");
-            assertThat(response.getExpiresIn()).isEqualTo(86400000L);
             assertThat(response.getEmail()).isEqualTo(EMAIL);
-            assertThat(response.getFirstName()).isEqualTo("Ibrahim");
-            assertThat(response.getLastName()).isEqualTo("Dickoya");
-            assertThat(response.getRole()).isEqualTo(Role.ROLE_USER.name());
-
-            verify(authenticationManager).authenticate(
-                    new UsernamePasswordAuthenticationToken(EMAIL, PASSWORD)
-            );
-            verify(userRepository).findByEmail(EMAIL);
-            verify(userDetailsService).loadUserByUsername(EMAIL);
-            verify(jwtService).generateToken(userDetails);
-            verify(jwtService).generateRefreshToken(userDetails);
         }
 
         @Test
-        @DisplayName("Connexion avec email inexistant - Doit lancer RuntimeException")
-        void login_ShouldThrowRuntimeException_WhenEmailNotFound() {
+        @DisplayName("Inscription avec code de parrainage - Doit appliquer le code")
+        void register_ShouldApplyReferralCode_WhenProvided() {
             // Arrange
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.empty());
-
-            // Act & Assert
-            assertThatThrownBy(() -> authService.login(loginRequest))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Utilisateur non trouve");
-
-            verify(authenticationManager).authenticate(
-                    new UsernamePasswordAuthenticationToken(EMAIL, PASSWORD)
-            );
-            verify(userRepository).findByEmail(EMAIL);
-            verify(jwtService, never()).generateToken(any());
-        }
-
-        @Test
-        @DisplayName("Connexion avec mot de passe incorrect - Doit lancer BadCredentialsException")
-        void login_ShouldThrowBadCredentialsException_WhenPasswordIsWrong() {
-            // Arrange
-            doThrow(new BadCredentialsException("Bad credentials"))
-                    .when(authenticationManager)
-                    .authenticate(any(UsernamePasswordAuthenticationToken.class));
-
-            // Act & Assert
-            assertThatThrownBy(() -> authService.login(loginRequest))
-                    .isInstanceOf(BadCredentialsException.class);
-
-            verify(authenticationManager).authenticate(any());
-            verify(userRepository, never()).findByEmail(any());
-            verify(jwtService, never()).generateToken(any());
-        }
-
-        @Test
-        @DisplayName("Connexion avec compte désactivé - Doit lancer RuntimeException")
-        void login_ShouldThrowRuntimeException_WhenAccountIsDisabled() {
-            // Arrange
-            user.setIsActive(false);
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-
-            // Act & Assert
-            assertThatThrownBy(() -> authService.login(loginRequest))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Compte desactive. Contactez l'administrateur.");
-
-            verify(authenticationManager).authenticate(
-                    new UsernamePasswordAuthenticationToken(EMAIL, PASSWORD)
-            );
-            verify(userRepository).findByEmail(EMAIL);
-            verify(jwtService, never()).generateToken(any());
-        }
-
-        @Test
-        @DisplayName("Connexion avec authenticationManager qui échoue - Doit propager l'exception")
-        void login_ShouldPropagateAuthenticationException_WhenAuthenticationFails() {
-            // Arrange
-            doThrow(new DisabledException("User is disabled"))
-                    .when(authenticationManager)
-                    .authenticate(any(UsernamePasswordAuthenticationToken.class));
-
-            // Act & Assert
-            assertThatThrownBy(() -> authService.login(loginRequest))
-                    .isInstanceOf(DisabledException.class);
-
-            verify(authenticationManager).authenticate(any());
-            verify(userRepository, never()).findByEmail(any());
-            verify(jwtService, never()).generateToken(any());
-        }
-
-        @Test
-        @DisplayName("Connexion - Doit générer des tokens avec les bons paramètres")
-        void login_ShouldGenerateTokensWithCorrectUserDetails_WhenSuccessful() {
-            // Arrange
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
+            registerRequest.setReferralCode("REF-CODE-123");
+            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
+            when(userRepository.save(any(User.class))).thenReturn(user);
 
             // Act
-            authService.login(loginRequest);
+            authService.register(registerRequest);
 
             // Assert
-            verify(jwtService).generateToken(userDetails);
-            verify(jwtService).generateRefreshToken(userDetails);
+            verify(referralService).applyReferralCode(any(User.class), eq("REF-CODE-123"));
+        }
+
+        @Test
+        @DisplayName("Inscription sans code de parrainage - Ne doit pas appliquer de code")
+        void register_ShouldNotApplyReferralCode_WhenNotProvided() {
+            // Arrange
+            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
+            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
+            when(referralService.generateReferralCode()).thenReturn("SENDME-ABC123");
+            when(userRepository.save(any(User.class))).thenReturn(user);
+
+            // Act
+            authService.register(registerRequest);
+
+            // Assert
+            verify(referralService, never()).applyReferralCode(any(), anyString());
         }
     }
-
-    @Nested
-    @DisplayName("Tests de sécurité et validation")
-    class SecurityValidationTests {
-
-        @Test
-        @DisplayName("Les tokens de register doivent être de type Bearer")
-        void registerTokens_ShouldBeBearerType() {
-            // Arrange
-            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
-            when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
-
-            // Act
-            AuthResponse response = authService.register(registerRequest);
-
-            // Assert
-            assertThat(response.getTokenType()).isEqualTo("Bearer");
-        }
-
-        @Test
-        @DisplayName("Les tokens de login doivent être de type Bearer")
-        void loginTokens_ShouldBeBearerType() {
-            // Arrange
-            when(userRepository.findByEmail(EMAIL)).thenReturn(Optional.of(user));
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
-
-            // Act
-            AuthResponse response = authService.login(loginRequest);
-
-            // Assert
-            assertThat(response.getTokenType()).isEqualTo("Bearer");
-        }
-
-        @Test
-        @DisplayName("La date d'expiration des tokens doit être de 86400000 ms (24h)")
-        void tokenExpiration_ShouldBe24Hours() {
-            // Arrange
-            when(userRepository.existsByEmail(EMAIL)).thenReturn(false);
-            when(passwordEncoder.encode(PASSWORD)).thenReturn(ENCODED_PASSWORD);
-            when(userRepository.save(any(User.class))).thenReturn(user);
-            when(userDetailsService.loadUserByUsername(EMAIL)).thenReturn(userDetails);
-            when(jwtService.generateToken(userDetails)).thenReturn(ACCESS_TOKEN);
-            when(jwtService.generateRefreshToken(userDetails)).thenReturn(REFRESH_TOKEN);
-
-            // Act
-            AuthResponse response = authService.register(registerRequest);
-
-            // Assert
-            assertThat(response.getExpiresIn()).isEqualTo(86400000L);
-        }
-    }*/
 }
