@@ -1,8 +1,10 @@
 package ibrahima.dickoya.sendme.exception;
 
 import ibrahima.dickoya.sendme.dto.response.ApiResponse;
+import ibrahima.dickoya.sendme.utils.MessageUtils;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,8 +19,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
+
+        private final MessageUtils messageUtils;
 
         // Email deja utilise — 409
         @ExceptionHandler(EmailAlreadyExistsException.class)
@@ -38,12 +43,12 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage()));
         }
 
-        // Mauvais identifiants — 401
+        // Invalid credentials — 401
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ApiResponse<Void>> handleBadCredentials(
                         BadCredentialsException ex) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(ApiResponse.error("Email ou mot de passe incorrect"));
+                                .body(ApiResponse.error(messageUtils.get("auth.credentials.invalid")));
         }
 
         // Ressource non trouvee — 404
@@ -63,9 +68,9 @@ public class GlobalExceptionHandler {
         }
 
         /**
-         * Erreurs de validation des @RequestBody (DTOs) — 400
-         * Déclenchée par @Valid sur les paramètres @RequestBody des contrôleurs.
-         * Retourne la liste des champs invalides avec leurs messages d'erreur.
+         * Validation errors for @RequestBody (DTOs) — 400
+         * Triggered by @Valid on @RequestBody parameters in controllers.
+         * Returns the list of invalid fields with their error messages.
          */
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleValidationErrors(
@@ -76,15 +81,15 @@ public class GlobalExceptionHandler {
                         String message = error.getDefaultMessage();
                         errors.put(fieldName, message);
                 });
-                log.warn("Erreurs de validation DTO : {}", errors);
+                log.warn("DTO validation errors : {}", errors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, "Erreurs de validation", errors));
+                                .body(new ApiResponse<>(false, messageUtils.get("error.validation.failed"), errors));
         }
 
         /**
-         * Erreurs de validation des @RequestParam et @PathVariable — 400
-         * Déclenchée par les annotations de validation (ex: @NotBlank String date)
-         * sur les paramètres de requête ou les variables de chemin.
+         * Validation errors for @RequestParam and @PathVariable — 400
+         * Triggered by validation annotations (e.g. @NotBlank String date)
+         * on request parameters or path variables.
          */
         @ExceptionHandler(ConstraintViolationException.class)
         public ResponseEntity<ApiResponse<Map<String, String>>> handleConstraintViolation(
@@ -94,35 +99,36 @@ public class GlobalExceptionHandler {
                                                 cv -> cv.getPropertyPath().toString(),
                                                 ConstraintViolation::getMessage,
                                                 (msg1, msg2) -> msg1));
-                log.warn("Erreurs de validation parametres : {}", errors);
+                log.warn("Parameter validation errors : {}", errors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(new ApiResponse<>(false, "Erreurs de validation des parametres", errors));
+                                .body(new ApiResponse<>(false, messageUtils.get("error.validation.parameters"),
+                                                errors));
         }
 
         /**
-         * JSON malformé ou type de données incorrect — 400
-         * Exemple : envoyer une chaîne là où un nombre est attendu,
-         * ou un JSON syntaxiquement invalide.
+         * Malformed JSON or incorrect data type — 400
+         * Example: sending a string where a number is expected,
+         * or syntactically invalid JSON.
          */
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
                         HttpMessageNotReadableException ex) {
-                log.warn("JSON malforme : {}", ex.getMessage());
+                log.warn("Malformed JSON : {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.error("Format de requete invalide. Verifiez le JSON envoye."));
+                                .body(ApiResponse.error(messageUtils.get("error.request.invalid.format")));
         }
 
         /**
-         * Type de paramètre incompatible — 400
-         * Exemple : envoyer une chaîne pour un @PathVariable Long
+         * Incompatible parameter type — 400
+         * Example: sending a string for a @PathVariable Long
          */
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
         public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatch(
                         MethodArgumentTypeMismatchException ex) {
-                String message = "Le parametre '" + ex.getName() + "' est invalide. " +
-                                "Valeur attendue : "
-                                + (ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "inconnue");
-                log.warn("Type de parametre invalide : {}", message);
+                String message = messageUtils.get("error.parameter.invalid",
+                                ex.getName(),
+                                ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "?");
+                log.warn("Invalid parameter type : {}", message);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(ApiResponse.error(message));
         }
@@ -146,11 +152,11 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage()));
         }
 
-        // Erreur generique — 500
+        // Generic error — 500
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception ex) {
-                log.error("Erreur interne : ", ex);
+                log.error("Internal error : ", ex);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(ApiResponse.error("Une erreur interne est survenue"));
+                                .body(ApiResponse.error(messageUtils.get("general.error")));
         }
 }
