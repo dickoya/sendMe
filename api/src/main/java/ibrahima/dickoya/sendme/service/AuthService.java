@@ -7,11 +7,9 @@ import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.exception.EmailAlreadyExistsException;
 import ibrahima.dickoya.sendme.exception.EmailNotVerifiedException;
-import ibrahima.dickoya.sendme.exception.RateLimitExceededException;
 import ibrahima.dickoya.sendme.repository.LoginHistoryRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
 import ibrahima.dickoya.sendme.security.JwtService;
-import ibrahima.dickoya.sendme.security.RateLimitingFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,11 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -38,23 +33,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final EmailService emailService;
-    private final RateLimitingFilter rateLimitingFilter;
     private final LoginHistoryRepository loginHistoryRepository;
     private final ReferralService referralService;
-
-    // ── Compteurs de tentatives (email) ──────────────────────────────────────
-    private static final int MAX_LOGIN_ATTEMPTS = 5;
-    private final Map<String, Integer> loginAttempts = new ConcurrentHashMap<>();
-
-    // ── Exponential backoff par IP ───────────────────────────────────────────
-    private static final int BACKOFF_THRESHOLD = 3;
-    private final Map<String, Integer> ipFailedAttempts = new ConcurrentHashMap<>();
-    private final Map<String, Instant> ipLastFailedTime = new ConcurrentHashMap<>();
-
-    // ── Rate limiting pour le refresh token ──────────────────────────────────
-    private static final int MAX_REFRESH_PER_MINUTE = 5;
-    private final Map<String, Integer> refreshCounts = new ConcurrentHashMap<>();
-    private final Map<String, Instant> refreshWindowStart = new ConcurrentHashMap<>();
+    private final LoginAttemptService loginAttemptService;
+    private final IpBlockingService ipBlockingService;
+    private final RefreshTokenService refreshTokenService;
 
     // ── Durée de validité du token de vérification email (48h) ──────────────
     private static final long EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 48;
@@ -211,7 +194,7 @@ public class AuthService {
         String ipAddress = extractIpAddress(httpRequest);
 
         // 1. Vérifier l'exponential backoff avant même de tenter l'auth
-        applyExponentialBackoff(ipAddress);
+        ipBlockingService.applyBackoff(ipAddress);
 
         try {
             // 2. Authentification Spring Security
@@ -238,9 +221,8 @@ public class AuthService {
             }
 
             // Réinitialiser les compteurs d'échecs
-            loginAttempts.remove(request.getEmail());
-            ipFailedAttempts.remove(ipAddress);
-            ipLastFailedTime.remove(ipAddress);
+            loginAttemptService.resetAttempts(request.getEmail());
+            ipBlockingService.resetForIp(ipAddress);
 
             // 5. Génération des jetons JWT
             var userDetails = userDetailsService.loadUserByUsername(user.getEmail());
@@ -285,30 +267,12 @@ public class AuthService {
                     .build();
 
         } catch (BadCredentialsException e) {
-            // Enregistrer l'échec pour l'IP (exponential backoff)
-            recordIpFailure(ipAddress);
+            // Enregistrer l'échec pour l'IP (exponential backoff + blocage IP)
+            ipBlockingService.recordFailure(ipAddress);
 
-            // Signaler l'échec au RateLimitingFilter pour blocage IP si seuil atteint
-            rateLimitingFilter.recordFailedAttempt(ipAddress);
-
+            // Compteur par email (5 tentatives max) + alerte email si seuil atteint
             if (request.getEmail() != null) {
-                // Compteur par email (5 tentatives max)
-                int currentAttempts = loginAttempts.merge(request.getEmail(), 1, Integer::sum);
-                log.warn("Tentative de connexion echouee pour : {} — tentative n°{} depuis IP : {}",
-                        request.getEmail(), currentAttempts, ipAddress);
-
-                // Alerte email si seuil atteint
-                if (currentAttempts >= MAX_LOGIN_ATTEMPTS) {
-                    final String finalIpForSuspicious = ipAddress;
-                    try {
-                        userRepository.findByEmail(request.getEmail())
-                                .ifPresent(user -> emailService.sendSuspiciousLoginEmail(user, finalIpForSuspicious,
-                                        currentAttempts));
-                    } catch (Exception ex) {
-                        log.error("[EMAIL] Impossible d'envoyer l'alerte de sécurité : {}", ex.getMessage());
-                    }
-                    loginAttempts.put(request.getEmail(), 0);
-                }
+                loginAttemptService.recordFailedAttempt(request.getEmail(), ipAddress);
             }
             throw new BadCredentialsException("Email ou mot de passe incorrect");
         }
@@ -320,7 +284,7 @@ public class AuthService {
         String email = jwtService.extractUsername(refreshToken);
 
         // 2. Rate limiting : max 5 refresh par minute par email
-        checkRefreshRateLimit(email);
+        refreshTokenService.checkRateLimit(email);
 
         // 3. Charger l'utilisateur
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
@@ -360,60 +324,8 @@ public class AuthService {
                 .build();
     }
 
-    // ── Exponential Backoff ──────────────────────────────────────────────────
-    private void applyExponentialBackoff(String ipAddress) {
-        Integer failedCount = ipFailedAttempts.get(ipAddress);
-        if (failedCount == null || failedCount < BACKOFF_THRESHOLD) {
-            return;
-        }
-
-        int delaySeconds = Math.min(
-                (int) Math.pow(2, failedCount - BACKOFF_THRESHOLD),
-                8);
-
-        Instant lastFailed = ipLastFailedTime.get(ipAddress);
-        if (lastFailed != null) {
-            Instant now = Instant.now();
-            long elapsedSeconds = java.time.Duration.between(lastFailed, now).getSeconds();
-            if (elapsedSeconds < delaySeconds) {
-                long retryAfterSeconds = delaySeconds - elapsedSeconds;
-                log.warn("[BACKOFF] IP {} : trop de tentatives. Reessayez dans {} secondes", ipAddress,
-                        retryAfterSeconds);
-                throw new RateLimitExceededException(
-                        "Trop de tentatives de connexion. Veuillez réessayer dans " + retryAfterSeconds + " secondes.",
-                        retryAfterSeconds);
-            }
-        }
-    }
-
-    private void recordIpFailure(String ipAddress) {
-        ipFailedAttempts.merge(ipAddress, 1, Integer::sum);
-        ipLastFailedTime.put(ipAddress, Instant.now());
-    }
-
-    // ── Refresh Rate Limiting ────────────────────────────────────────────────
-    private void checkRefreshRateLimit(String email) {
-        Instant now = Instant.now();
-        Instant windowStart = refreshWindowStart.get(email);
-
-        if (windowStart == null || java.time.Duration.between(windowStart, now).getSeconds() >= 60) {
-            refreshWindowStart.put(email, now);
-            refreshCounts.put(email, 1);
-            return;
-        }
-
-        int count = refreshCounts.merge(email, 1, Integer::sum);
-
-        if (count > MAX_REFRESH_PER_MINUTE) {
-            long retryAfter = 60 - java.time.Duration.between(windowStart, now).getSeconds();
-            log.warn("[AUTH] Rate limit de refresh dépassé pour : {} — {} tentatives en 1 min", email, count);
-            throw new RateLimitExceededException(
-                    "Trop de tentatives de rafraîchissement. Veuillez réessayer dans " + retryAfter + " secondes.",
-                    retryAfter);
-        }
-    }
-
     // ── Utilitaires ──────────────────────────────────────────────────────────
+
     private String extractIpAddress(jakarta.servlet.http.HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Power, PowerOff, Loader2, AlertCircle, CreditCard } from 'lucide-react';
+import { Plus, Power, PowerOff, Loader2, CreditCard } from 'lucide-react';
 import { usePaymentChannels } from '@/hooks/usePaymentChannels';
 import PageHeader from '@/components/ui/PageHeader';
 import Alert from '@/components/ui/Alert';
@@ -31,6 +31,8 @@ function AdminPaymentChannels() {
 
     // Confirmation toggle
     const [toggleConfirm, setToggleConfirm] = useState<{ id: number; name: string; active: boolean } | null>(null);
+    const [toggling, setToggling] = useState(false);
+    const [toggleError, setToggleError] = useState<string | null>(null);
 
     const handleAdd = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,8 +61,15 @@ function AdminPaymentChannels() {
 
     const handleToggleConfirm = async () => {
         if (!toggleConfirm) return;
-        await toggleChannel(toggleConfirm.id);
-        setToggleConfirm(null);
+        setToggling(true);
+        setToggleError(null);
+        const success = await toggleChannel(toggleConfirm.id);
+        setToggling(false);
+        if (success) {
+            setToggleConfirm(null);
+        } else {
+            setToggleError("Erreur lors de la modification du canal");
+        }
     };
 
     if (loading) {
@@ -77,7 +86,7 @@ function AdminPaymentChannels() {
                 title="Canaux de paiement"
                 subtitle="Gérez les canaux de réception disponibles sur la plateforme"
                 actions={
-                    <Button onClick={() => setShowAddForm(!showAddForm)}>
+                    <Button type="button" onClick={() => setShowAddForm(!showAddForm)}>
                         <Plus size={16} className="mr-2" />
                         Ajouter un canal
                     </Button>
@@ -175,6 +184,7 @@ function AdminPaymentChannels() {
                             </div>
 
                             <button
+                                type="button"
                                 onClick={() =>
                                     setToggleConfirm({
                                         id: channel.id,
@@ -217,16 +227,31 @@ function AdminPaymentChannels() {
             {/* Dialogue de confirmation */}
             <ConfirmDialog
                 isOpen={!!toggleConfirm}
-                onClose={() => setToggleConfirm(null)}
+                onClose={() => {
+                    if (!toggling) {
+                        setToggleConfirm(null);
+                        setToggleError(null);
+                    }
+                }}
                 title={toggleConfirm?.active ? 'Désactiver le canal' : 'Activer le canal'}
                 message={
-                    toggleConfirm?.active
-                        ? `Êtes-vous sûr de vouloir désactiver "${toggleConfirm?.name}" ? Les utilisateurs ne pourront plus utiliser ce canal pour leurs transferts.`
-                        : `Êtes-vous sûr de vouloir réactiver "${toggleConfirm?.name}" ? Les utilisateurs pourront à nouveau utiliser ce canal.`
+                    <div className="space-y-2">
+                        <p>
+                            {toggleConfirm?.active
+                                ? `Êtes-vous sûr de vouloir désactiver "${toggleConfirm?.name}" ? Les utilisateurs ne pourront plus utiliser ce canal pour leurs transferts.`
+                                : `Êtes-vous sûr de vouloir réactiver "${toggleConfirm?.name}" ? Les utilisateurs pourront à nouveau utiliser ce canal.`}
+                        </p>
+                        {toggleError && (
+                            <div className="rounded-lg bg-danger-50 p-2 text-xs text-danger-600 dark:bg-danger-900/20 dark:text-danger-400">
+                                {toggleError}
+                            </div>
+                        )}
+                    </div>
                 }
                 confirmLabel={toggleConfirm?.active ? 'Désactiver' : 'Activer'}
                 variant={toggleConfirm?.active ? 'danger' : 'primary'}
                 onConfirm={handleToggleConfirm}
+                isLoading={toggling}
             />
         </div>
     );

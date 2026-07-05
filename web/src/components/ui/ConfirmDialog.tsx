@@ -50,10 +50,11 @@ function ConfirmDialog({
             size="sm"
             footer={
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={onClose} disabled={isLoading}>
+                    <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
                         {cancelLabel ?? t('actions.cancel')}
                     </Button>
                     <Button
+                        type="button"
                         variant={variant === 'danger' ? 'danger' : 'primary'}
                         loading={isLoading}
                         onClick={onConfirm}
@@ -67,12 +68,13 @@ function ConfirmDialog({
                 {variant === 'danger' && (
                     <div className="flex items-center gap-2 rounded-lg bg-danger-50 p-3 text-sm text-danger-600 dark:bg-danger-900/20 dark:text-danger-400">
                         <AlertTriangle size={16} className="flex-shrink-0" />
-                        <p>{message}</p>
+                        {typeof message === 'string' ? <p>{message}</p> : message}
                     </div>
                 )}
-                {variant !== 'danger' && (
+                {variant !== 'danger' && typeof message === 'string' && (
                     <p className="text-sm text-gray-600 dark:text-gray-300">{message}</p>
                 )}
+                {variant !== 'danger' && typeof message !== 'string' && message}
             </div>
         </Modal>
     );
