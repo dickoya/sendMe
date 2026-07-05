@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { Role, AuthResponse } from '@/types';
 import { STORAGE_KEYS } from '@/utils/constants';
+import { getErrorMessage as extractMessage } from '@/lib/utils';
 import { authService, type LoginPayload, type RegisterPayload } from '@/services/authService';
 
 export interface AuthUser {
@@ -119,4 +120,3 @@ export function useAuth() {
     return context;
 }
 
-import { getErrorMessage as extractMessage } from '@/lib/utils';

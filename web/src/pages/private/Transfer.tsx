@@ -43,6 +43,7 @@ function Transfer() {
 
     const [step, setStep] = useState<Step>('form');
     const [amount, setAmount] = useState('');
+    const [amountError, setAmountError] = useState<string | undefined>(undefined);
     const [currency] = useState('EUR');
     const [beneficiaryId, setBeneficiaryId] = useState<number | null>(null);
     const [selectedChannelId, setSelectedChannelId] = useState<number | null>(null);
@@ -80,6 +81,18 @@ function Transfer() {
     useEffect(() => {
         setSelectedChannelId(null);
     }, [beneficiaryId]);
+
+    // ── Validation du montant ────────────────────────────────────────────────
+    const MIN_AMOUNT = 20;
+
+    const validateAmount = (value: string): string | undefined => {
+        if (!value || value.trim() === '') return undefined;
+        const num = parseFloat(value);
+        if (isNaN(num)) return t('form.amountErrorInvalid');
+        if (num <= 0) return t('form.amountErrorNegative');
+        if (num < MIN_AMOUNT) return t('form.amountErrorMin');
+        return undefined;
+    };
 
     const debouncedAmount = useDebounce(amount, 400);
     const numericAmount = parseFloat(debouncedAmount);
@@ -220,7 +233,12 @@ function Transfer() {
                             inputMode="decimal"
                             placeholder="0.00"
                             value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setAmount(val);
+                                setAmountError(validateAmount(val));
+                            }}
+                            error={amountError}
                             hint={t('form.amountHint', { currency })}
                             min="1"
                             step="0.01"
@@ -248,7 +266,14 @@ function Transfer() {
                             size="lg"
                             fullWidth
                             disabled={!selectedBeneficiary || !simulation}
-                            onClick={() => setStep('summary')}
+                            onClick={() => {
+                                const err = validateAmount(amount);
+                                if (err) {
+                                    setAmountError(err);
+                                    return;
+                                }
+                                setStep('summary');
+                            }}
                         >
                             {t('form.continueButton')}
                         </Button>
