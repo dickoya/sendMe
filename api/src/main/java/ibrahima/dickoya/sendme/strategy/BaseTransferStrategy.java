@@ -205,12 +205,8 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
         int delay = minMs + random.nextInt(maxMs - minMs);
         log.debug("[SIMULATION] Delai de traitement simule : {} ms", delay);
         return CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }, CompletableFuture.delayedExecutor(0, TimeUnit.MILLISECONDS));
+        },
+                CompletableFuture.delayedExecutor(delay, TimeUnit.MILLISECONDS));
     }
 
     /**
