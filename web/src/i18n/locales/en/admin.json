@@ -30,8 +30,22 @@
       "refunded": "Refunded"
     },
     "channelChart": {
-      "title": "Breakdown by channel"
+      "title": "Breakdown by channel",
+      "noData": "No data available"
     },
+    "volumeChart": {
+      "title": "Daily volume",
+      "noData": "No data available for this period"
+    },
+    "successRateChart": {
+      "title": "Success rate trend",
+      "noData": "No data available for this period"
+    },
+    "periodFilter": {
+      "label": "Period:",
+      "days": "{{count}} days"
+    },
+
     "allExchangeRates": {
       "title": "Exchange rates — all pairs",
       "pair": "Pair",
@@ -71,11 +85,46 @@
     },
     "buttons": {
       "suspend": "Suspend",
-      "reactivate": "Reactivate"
+      "reactivate": "Reactivate",
+      "exportCSV": "Export to CSV",
+      "clearSelection": "Clear selection"
     },
     "toasts": {
       "suspended": "{{name}}'s account has been suspended",
-      "reactivated": "{{name}}'s account has been reactivated"
+      "reactivated": "{{name}}'s account has been reactivated",
+      "exported": "CSV export successful"
+    },
+    "confirm": {
+      "suspendTitle": "Confirm suspension",
+      "suspendMessage": "Are you sure you want to suspend {{count}} account(s)?",
+      "reactivateTitle": "Confirm reactivation",
+      "reactivateMessage": "Are you sure you want to reactivate {{count}} account(s)?"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by name or email...",
+      "allStatuses": "All statuses",
+      "active": "Active",
+      "inactive": "Suspended",
+      "from": "From",
+      "to": "To",
+      "sortNewest": "Newest first",
+      "sortOldest": "Oldest first",
+      "sortNameAsc": "Name A-Z",
+      "sortNameDesc": "Name Z-A",
+      "sortEmailAsc": "Email A-Z",
+      "sortEmailDesc": "Email Z-A",
+      "sortMostTx": "Most transactions",
+      "sortMostVolume": "Highest volume",
+      "clearAll": "Clear filters"
+    },
+    "batchActions": {
+      "selected": "{{count}} selected",
+      "suspend": "Suspend selection",
+      "activate": "Reactivate selection",
+      "confirmSuspend": "Are you sure you want to suspend {{count}} account(s)?",
+      "confirmActivate": "Are you sure you want to reactivate {{count}} account(s)?",
+      "success": "{{count}} account(s) updated successfully",
+      "exportCSV": "Export to CSV"
     }
   },
   "transactions": {
@@ -91,6 +140,9 @@
     "empty": {
       "title": "No transactions",
       "message": "No transactions match this filter."
+    },
+    "export": {
+      "button": "Export to CSV"
     }
   },
   "settings": {
@@ -125,6 +177,33 @@
       "toasts": {
         "success": "Maintenance notification sent to all active users"
       }
+    }
+  },
+  "logs": {
+    "pageTitle": "Activity logs",
+    "subtitle": "History of admin actions",
+    "table": {
+      "action": "Action",
+      "admin": "Administrator",
+      "details": "Details",
+      "date": "Date"
+    },
+    "filters": {
+      "allActions": "All actions",
+      "adminPlaceholder": "Filter by admin email...",
+      "clearAll": "Clear filters"
+    },
+    "actions": {
+      "USER_TOGGLE": "User status",
+      "BATCH_TOGGLE": "Batch action",
+      "USER_DELETE": "User deletion",
+      "FEE_UPDATE": "Fee update",
+      "MAINTENANCE": "Maintenance notification",
+      "LOGIN": "Login"
+    },
+    "empty": {
+      "title": "No logs",
+      "message": "No actions match this filter."
     }
   }
 }

@@ -30,8 +30,22 @@
       "refunded": "Remboursées"
     },
     "channelChart": {
-      "title": "Répartition par canal"
+      "title": "Répartition par canal",
+      "noData": "Aucune donnée disponible"
     },
+    "volumeChart": {
+      "title": "Volume par jour",
+      "noData": "Aucune donnée disponible pour cette période"
+    },
+    "successRateChart": {
+      "title": "Évolution du taux de succès",
+      "noData": "Aucune donnée disponible pour cette période"
+    },
+    "periodFilter": {
+      "label": "Période :",
+      "days": "{{count}} jours"
+    },
+
     "allExchangeRates": {
       "title": "Taux de change — toutes les paires",
       "pair": "Paire",
@@ -71,11 +85,46 @@
     },
     "buttons": {
       "suspend": "Suspendre",
-      "reactivate": "Réactiver"
+      "reactivate": "Réactiver",
+      "exportCSV": "Exporter en CSV",
+      "clearSelection": "Effacer la sélection"
     },
     "toasts": {
       "suspended": "Compte de {{name}} suspendu",
-      "reactivated": "Compte de {{name}} réactivé"
+      "reactivated": "Compte de {{name}} réactivé",
+      "exported": "Export CSV réussi"
+    },
+    "confirm": {
+      "suspendTitle": "Confirmer la suspension",
+      "suspendMessage": "Voulez-vous vraiment suspendre {{count}} compte(s) ?",
+      "reactivateTitle": "Confirmer la réactivation",
+      "reactivateMessage": "Voulez-vous vraiment réactiver {{count}} compte(s) ?"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher par nom ou email...",
+      "allStatuses": "Tous les statuts",
+      "active": "Actif",
+      "inactive": "Suspendu",
+      "from": "Du",
+      "to": "Au",
+      "sortNewest": "Plus récents",
+      "sortOldest": "Plus anciens",
+      "sortNameAsc": "Nom A-Z",
+      "sortNameDesc": "Nom Z-A",
+      "sortEmailAsc": "Email A-Z",
+      "sortEmailDesc": "Email Z-A",
+      "sortMostTx": "Plus de transactions",
+      "sortMostVolume": "Plus gros volume",
+      "clearAll": "Réinitialiser les filtres"
+    },
+    "batchActions": {
+      "selected": "{{count}} sélectionné(s)",
+      "suspend": "Suspendre la sélection",
+      "activate": "Réactiver la sélection",
+      "confirmSuspend": "Voulez-vous vraiment suspendre {{count}} compte(s) ?",
+      "confirmActivate": "Voulez-vous vraiment réactiver {{count}} compte(s) ?",
+      "success": "{{count}} compte(s) mis à jour avec succès",
+      "exportCSV": "Exporter en CSV"
     }
   },
   "transactions": {
@@ -91,6 +140,9 @@
     "empty": {
       "title": "Aucune transaction",
       "message": "Aucune transaction ne correspond à ce filtre."
+    },
+    "export": {
+      "button": "Exporter en CSV"
     }
   },
   "settings": {
@@ -125,6 +177,33 @@
       "toasts": {
         "success": "Notification de maintenance envoyée à tous les utilisateurs actifs"
       }
+    }
+  },
+  "logs": {
+    "pageTitle": "Logs d'activité",
+    "subtitle": "Historique des actions administratives",
+    "table": {
+      "action": "Action",
+      "admin": "Administrateur",
+      "details": "Détails",
+      "date": "Date"
+    },
+    "filters": {
+      "allActions": "Toutes les actions",
+      "adminPlaceholder": "Filtrer par email admin...",
+      "clearAll": "Réinitialiser les filtres"
+    },
+    "actions": {
+      "USER_TOGGLE": "Statut utilisateur",
+      "BATCH_TOGGLE": "Action en masse",
+      "USER_DELETE": "Suppression utilisateur",
+      "FEE_UPDATE": "Mise à jour des frais",
+      "MAINTENANCE": "Notification de maintenance",
+      "LOGIN": "Connexion"
+    },
+    "empty": {
+      "title": "Aucun log",
+      "message": "Aucune action ne correspond à ce filtre."
     }
   }
 }

@@ -8,12 +8,17 @@ import type {
     TransactionStatus,
     ExchangeRateDebug,
     ExchangeRateDebugEntry,
+    VolumeDataPoint,
+    SuccessRateDataPoint,
+    AdminLogEntry,
 } from '@/types';
+import type { AdminLogFilters } from '@/pages/admin/AdminLogs';
 
 export interface FeeConfigPayload {
     feeRate: number;
     reason: string;
 }
+
 
 /**
  * Service administration — appels vers /api/admin/*
@@ -98,4 +103,93 @@ export const adminService = {
             params: { date, duration },
         });
     },
+
+    /**
+     * Liste paginée des utilisateurs avec filtres avancés.
+     * GET /api/admin/users/filter?page=0&size=20&search=...&isActive=...&dateFrom=...&dateTo=...&sort=field,dir
+     */
+    async searchUsers(
+        page = 0,
+        size = 20,
+        filters: {
+            search?: string;
+            status?: 'ALL' | 'ACTIVE' | 'INACTIVE';
+            dateFrom?: string;
+            dateTo?: string;
+            sortBy?: string;
+            sortDir?: 'asc' | 'desc';
+        } = {}
+    ): Promise<Page<UserResponse>> {
+        const isActive =
+            filters.status === 'ACTIVE' ? true : filters.status === 'INACTIVE' ? false : undefined;
+        const sort = `${filters.sortBy || 'createdAt'},${filters.sortDir || 'desc'}`;
+
+        const { data } = await api.get<ApiResponse<Page<UserResponse>>>('/admin/users/filter', {
+            params: {
+                page,
+                size,
+                search: filters.search || undefined,
+                isActive,
+                dateFrom: filters.dateFrom || undefined,
+                dateTo: filters.dateTo || undefined,
+                sort,
+            },
+        });
+        return data.data;
+    },
+
+    /**
+     * Active ou désactive plusieurs utilisateurs en une seule requête.
+     * POST /api/admin/users/batch-toggle
+     */
+    async batchToggleUsers(ids: number[], active: boolean): Promise<void> {
+        await api.post('/admin/users/batch-toggle', { userIds: ids, suspend: !active });
+    },
+
+    /**
+     * Volume de transactions par jour pour une période donnée.
+     * GET /api/admin/analytics/volume?days=30
+     */
+    async getVolumeData(days = 30): Promise<VolumeDataPoint[]> {
+        const { data } = await api.get<ApiResponse<VolumeDataPoint[]>>('/admin/analytics/volume', {
+            params: { days },
+        });
+        return data.data;
+    },
+
+    /**
+     * Évolution du taux de succès par jour pour une période donnée.
+     * GET /api/admin/analytics/success-rate?days=30
+     */
+    async getSuccessRateData(days = 30): Promise<SuccessRateDataPoint[]> {
+        const { data } = await api.get<ApiResponse<SuccessRateDataPoint[]>>('/admin/analytics/success-rate', {
+            params: { days },
+        });
+        return data.data;
+    },
+
+
+    /**
+     * Liste paginée des logs d'activité admin.
+     * GET /api/admin/logs?page=0&size=20&action=...&adminEmail=...&dateFrom=...&dateTo=...
+     */
+    async getLogs(
+        page = 0,
+        size = 20,
+        filters: AdminLogFilters = { action: '', adminEmail: '', dateFrom: '', dateTo: '' }
+    ): Promise<Page<AdminLogEntry>> {
+        const { data } = await api.get<ApiResponse<Page<AdminLogEntry>>>('/admin/logs', {
+            params: {
+                page,
+                size,
+                action: filters.action || undefined,
+                adminEmail: filters.adminEmail || undefined,
+                dateFrom: filters.dateFrom || undefined,
+                dateTo: filters.dateTo || undefined,
+            },
+        });
+        return data.data;
+    },
 };
+
+

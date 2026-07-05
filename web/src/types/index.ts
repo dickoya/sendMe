@@ -261,7 +261,36 @@ export interface ReferralCouponResponse {
     createdAt: string;
 }
 
+// ── Admin Logs ─────────────────────────────────────────────────────────
+export interface AdminLogEntry {
+    id: number;
+    action: string;
+    adminEmail: string;
+    entityType: string;
+    entityId?: number | null;
+    details: string;
+    ipAddress?: string;
+    createdAt: string;
+}
+
+// ── Graphiques Admin ───────────────────────────────────────────────────
+export interface VolumeDataPoint {
+    date: string;
+    volume: number;
+    transactionCount: number;
+}
+
+export interface SuccessRateDataPoint {
+    date: string;
+    successRate: number;
+    total: number;
+    completed: number;
+    failed: number;
+}
+
+
 // ── Erreurs API ────────────────────────────────────────────────────────
+
 /**
  * Format d'erreur retourné par GlobalExceptionHandler du backend.
  */

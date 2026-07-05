@@ -17,6 +17,7 @@
       "dashboard": "Vue d'ensemble",
       "users": "Utilisateurs",
       "transactions": "Transactions",
+      "logs": "Logs d'activité",
       "settings": "Paramètres"
     },
     "logout": "Déconnexion",

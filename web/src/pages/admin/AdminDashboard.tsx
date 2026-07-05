@@ -3,24 +3,35 @@ import { Users, ArrowRightLeft, TrendingUp, Wallet, Wifi, AlertCircle } from 'lu
 import Card from '@/components/ui/Card';
 import Spinner from '@/components/ui/Spinner';
 import StatCard from '@/components/admin/StatCard';
-import ChannelChart from '@/components/admin/ChannelChart';
+import ChannelPieChart from '@/components/admin/ChannelPieChart';
+import VolumeChart from '@/components/admin/VolumeChart';
+import SuccessRateChart from '@/components/admin/SuccessRateChart';
 import { useAdminDashboard } from '@/hooks/useAdminDashboard';
+import { useAdminAnalytics, type PeriodOption } from '@/hooks/useAdminAnalytics';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { cn } from '@/lib/utils';
+
+const PERIOD_OPTIONS: PeriodOption[] = [7, 30, 90];
 
 /**
  * Tableau de bord administrateur.
  *
  * Migration i18n (Phase 11) : namespace "admin" (clés dashboard.*),
  * "common" pour l'état de chargement.
+ *
+ * Étape : ajout des graphiques interactifs (volume,
+ * répartition par canal, taux de succès) avec filtres de période.
  */
 function AdminDashboard() {
     const { t } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
     const { dashboard, exchangeRateDebug, allExchangeRates, isLoading, error } = useAdminDashboard();
+    const { volumeData, successRateData, period, setPeriod, isLoading: isAnalyticsLoading } = useAdminAnalytics(30);
 
     if (isLoading) {
         return <Spinner fullPage label={tCommon('states.loading')} />;
     }
+
 
     if (error || !dashboard) {
         return (
@@ -115,10 +126,39 @@ function AdminDashboard() {
                 </Card>
 
                 {/* ── Répartition par canal ────────────────────────────────────────── */}
-                <Card title={t('dashboard.channelChart.title')}>
-                    <ChannelChart data={dashboard.transactionsByChannel} />
-                </Card>
+                <ChannelPieChart data={dashboard.transactionsByChannel} />
             </div>
+
+            {/* ── Graphiques d'évolution (volume + taux de succès) ────────────────── */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-end gap-2">
+                    <span className="text-sm text-gray-500">{t('dashboard.periodFilter.label')}</span>
+                    {PERIOD_OPTIONS.map((opt) => (
+                        <button
+                            key={opt}
+                            onClick={() => setPeriod(opt)}
+                            className={cn(
+                                'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                                period === opt
+                                    ? 'bg-accent-600 text-white'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                            )}
+                        >
+                            {t('dashboard.periodFilter.days', { count: opt })}
+                        </button>
+                    ))}
+                </div>
+
+                {isAnalyticsLoading ? (
+                    <Spinner label={tCommon('states.loading')} />
+                ) : (
+                    <div className="grid gap-6 lg:grid-cols-2">
+                        <VolumeChart data={volumeData} />
+                        <SuccessRateChart data={successRateData} />
+                    </div>
+                )}
+            </div>
+
 
                 {/* ── Taux de change : toutes les paires ──────────────────────────────── */}
                 {allExchangeRates.length > 0 && (

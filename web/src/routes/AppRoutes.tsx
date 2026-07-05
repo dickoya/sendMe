@@ -30,6 +30,7 @@ import Faq from '@/pages/private/Faq';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
 import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminTransactions from '@/pages/admin/AdminTransactions';
+import AdminLogs from '@/pages/admin/AdminLogs';
 import AdminSettings from '@/pages/admin/AdminSettings';
 
 // Divers
@@ -81,6 +82,7 @@ function AppRoutes() {
                     <Route path="/admin" element={<AdminDashboard />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
                     <Route path="/admin/transactions" element={<AdminTransactions />} />
+                    <Route path="/admin/logs" element={<AdminLogs />} />
                     <Route path="/admin/settings" element={<AdminSettings />} />
                 </Route>
             </Route>

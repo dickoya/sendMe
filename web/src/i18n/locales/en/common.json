@@ -17,6 +17,7 @@
       "dashboard": "Overview",
       "users": "Users",
       "transactions": "Transactions",
+      "logs": "Activity logs",
       "settings": "Settings"
     },
     "logout": "Logout",

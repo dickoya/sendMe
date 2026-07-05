@@ -157,4 +157,38 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Query(value = "SELECT MAX(CAST(SUBSTRING_INDEX(t.reference, '-', -1) AS UNSIGNED)) FROM transactions t", nativeQuery = true)
         Long findMaxReferenceSequence();
 
+        // ── Agrégations pour le dashboard admin ────────────────────────────
+
+        /**
+         * Volume total par jour pour les X derniers jours.
+         * Retourne une liste de tableaux [date, volume, count].
+         */
+        @Query("""
+                        SELECT FUNCTION('DATE', t.createdAt) as date,
+                               SUM(t.amountSent) as volume,
+                               COUNT(t) as cnt
+                        FROM Transaction t
+                        WHERE t.status = 'COMPLETED'
+                          AND t.createdAt >= :since
+                        GROUP BY FUNCTION('DATE', t.createdAt)
+                        ORDER BY FUNCTION('DATE', t.createdAt) ASC
+                        """)
+        List<Object[]> getVolumeByDay(@Param("since") LocalDateTime since);
+
+        /**
+         * Taux de succès par jour pour les X derniers jours.
+         * Retourne une liste de tableaux [date, total, completed, failed].
+         */
+        @Query("""
+                        SELECT FUNCTION('DATE', t.createdAt) as date,
+                               COUNT(t) as total,
+                               SUM(CASE WHEN t.status = 'COMPLETED' THEN 1 ELSE 0 END) as completed,
+                               SUM(CASE WHEN t.status = 'FAILED' THEN 1 ELSE 0 END) as failed
+                        FROM Transaction t
+                        WHERE t.createdAt >= :since
+                        GROUP BY FUNCTION('DATE', t.createdAt)
+                        ORDER BY FUNCTION('DATE', t.createdAt) ASC
+                        """)
+        List<Object[]> getSuccessRateByDay(@Param("since") LocalDateTime since);
+
 }

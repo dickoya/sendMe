@@ -2,7 +2,9 @@ package ibrahima.dickoya.sendme.controller;
 
 import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
+import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
+import ibrahima.dickoya.sendme.service.AdminAuditLogService;
 import ibrahima.dickoya.sendme.service.AdminService;
 import ibrahima.dickoya.sendme.service.ExchangeRateService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +20,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,6 +68,7 @@ public class AdminController {
         /** Service contenant toute la logique métier admin. */
         private final AdminService adminService;
         private final ExchangeRateService exchangeRateService;
+        private final AdminAuditLogService adminAuditLogService;
 
         /**
          * Retourne le tableau de bord avec toutes les statistiques.
@@ -290,5 +295,124 @@ public class AdminController {
                                 ApiResponse.success(
                                                 "Notification de maintenance envoyée à tous les utilisateurs actifs",
                                                 null));
+        }
+
+        // ── NOUVEAUX ENDPOINTS : Filtres, Batch, Volume, Success Rate, Logs ──
+
+        /**
+         * Récupère les utilisateurs avec filtres avancés.
+         * Supporte la recherche textuelle, le filtre par statut/rôle,
+         * la période d'inscription, et le tri.
+         */
+        @GetMapping("/users/filter")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Utilisateurs filtrés", description = "Retourne la liste paginée des utilisateurs avec filtres avancés : "
+                        +
+                        "recherche textuelle, statut, rôle, période d'inscription.")
+        public ResponseEntity<ApiResponse<Page<UserResponse>>> getFilteredUsers(
+                        @RequestParam(required = false) String search,
+                        @RequestParam(required = false) Boolean isActive,
+                        @RequestParam(required = false) Role role,
+                        @RequestParam(required = false) LocalDate dateFrom,
+                        @RequestParam(required = false) LocalDate dateTo,
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "20") int size,
+                        @RequestParam(defaultValue = "createdAt,desc") String sort) {
+
+                String[] sortParams = sort.split(",");
+                Sort sortObj = Sort.by(
+                                sortParams.length > 1 && sortParams[1].equalsIgnoreCase("asc")
+                                                ? Sort.Direction.ASC
+                                                : Sort.Direction.DESC,
+                                sortParams[0]);
+                Pageable pageable = PageRequest.of(page, size, sortObj);
+
+                Page<UserResponse> users = adminService.getFilteredUsers(
+                                search, isActive, role, dateFrom, dateTo, pageable);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Liste filtrée des utilisateurs", users));
+        }
+
+        /**
+         * Active ou désactive plusieurs comptes en une seule opération.
+         * Reçoit une liste d'IDs et une action (suspend/activate).
+         */
+        @PostMapping("/users/batch-toggle")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Actions en masse", description = "Active ou désactive plusieurs comptes utilisateurs en une seule requête.")
+        public ResponseEntity<ApiResponse<Map<String, Object>>> batchToggleUsers(
+                        @RequestBody Map<String, Object> request) {
+
+                @SuppressWarnings("unchecked")
+                List<Integer> userIdsRaw = (List<Integer>) request.get("userIds");
+                boolean suspend = (boolean) request.getOrDefault("suspend", true);
+
+                List<Long> userIds = userIdsRaw.stream()
+                                .map(Integer::longValue)
+                                .collect(java.util.stream.Collectors.toList());
+
+                int count = adminService.batchToggleUsers(userIds, suspend);
+
+                Map<String, Object> result = new HashMap<>();
+                result.put("affected", count);
+                result.put("action", suspend ? "suspended" : "activated");
+
+                return ResponseEntity.ok(
+                                ApiResponse.success(
+                                                count + " compte(s) " + (suspend ? "suspendu(s)" : "activé(s)"),
+                                                result));
+        }
+
+        /**
+         * Volume total par jour pour les X derniers jours.
+         * Utilisé pour le graphique en barres du dashboard.
+         */
+        @GetMapping("/analytics/volume")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Volume par jour", description = "Retourne le volume total des transactions complétées par jour.")
+        public ResponseEntity<ApiResponse<List<VolumeDataPoint>>> getVolumeByDay(
+                        @RequestParam(defaultValue = "30") int days) {
+
+                List<VolumeDataPoint> data = adminService.getVolumeByDay(days);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Volume par jour", data));
+        }
+
+        /**
+         * Taux de succès par jour pour les X derniers jours.
+         * Utilisé pour le graphique en ligne du dashboard.
+         */
+        @GetMapping("/analytics/success-rate")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Taux de succès par jour", description = "Retourne le taux de succès des transactions par jour.")
+        public ResponseEntity<ApiResponse<List<SuccessRateDataPoint>>> getSuccessRateByDay(
+                        @RequestParam(defaultValue = "30") int days) {
+
+                List<SuccessRateDataPoint> data = adminService.getSuccessRateByDay(days);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Taux de succès par jour", data));
+        }
+
+        /**
+         * Récupère les logs d'activité admin avec pagination et filtres.
+         */
+        @GetMapping("/logs")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Logs d'activité", description = "Retourne les logs d'activité des administrateurs avec filtres.")
+        public ResponseEntity<ApiResponse<Page<AdminLogResponse>>> getAdminLogs(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "50") int size,
+                        @RequestParam(required = false) String action,
+                        @RequestParam(required = false) String adminEmail,
+                        @RequestParam(required = false) LocalDate dateFrom,
+                        @RequestParam(required = false) LocalDate dateTo) {
+
+                Pageable pageable = PageRequest.of(page, size,
+                                Sort.by("createdAt").descending());
+
+                Page<AdminLogResponse> logs = adminAuditLogService.getFilteredLogs(
+                                action, adminEmail, dateFrom, dateTo, pageable);
+                return ResponseEntity.ok(
+                                ApiResponse.success("Logs d'activité", logs));
         }
 }

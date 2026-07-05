@@ -10,8 +10,11 @@ import { useAdminTransactions } from '@/hooks/useAdminTransactions';
 import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
-import { ArrowRightLeft } from 'lucide-react';
+import { ArrowRightLeft, Download } from 'lucide-react';
+import { exportCSV } from '@/utils/exportCSV';
+import { useToast } from '@/store/notification/toastContext';
 import type { Transaction } from '@/types';
+
 
 /**
  * Page admin — toutes les transactions de la plateforme.
@@ -36,13 +39,42 @@ function AdminTransactions() {
         isLoading,
     } = useAdminTransactions(20);
 
+    const { showToast } = useToast();
     const [selected, setSelected] = useState<Transaction | null>(null);
+
+    const handleExportCSV = () => {
+        exportCSV(
+            transactions as unknown as Record<string, unknown>[],
+            [
+                { key: 'reference', label: t('transactions.table.reference') },
+                { key: 'channel', label: t('transactions.table.channel') },
+                { key: 'amountSent', label: t('transactions.table.amountSent'), format: (v) => String(v) },
+                { key: 'amountReceived', label: t('transactions.table.amountReceived'), format: (v) => String(v ?? '') },
+                { key: 'status', label: t('transactions.table.status') },
+                { key: 'createdAt', label: t('transactions.table.date'), format: (v) => new Date(v as string).toLocaleDateString() },
+            ],
+            'transactions'
+        );
+        showToast(t('transactions.toasts.exported'), 'success');
+    };
 
     return (
         <Card
             title={t('transactions.pageTitle')}
-            actions={<span className="text-sm text-gray-400">{t('transactions.totalCount', { count: totalElements })}</span>}
+            actions={
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleExportCSV}
+                        className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                    >
+                        <Download size={14} />
+                        {t('transactions.buttons.exportCSV')}
+                    </button>
+                    <span className="text-sm text-gray-400">{t('transactions.totalCount', { count: totalElements })}</span>
+                </div>
+            }
         >
+
             <div className="flex flex-col gap-4">
                 <StatusFilter value={statusFilter} onChange={setStatusFilter} />
 
