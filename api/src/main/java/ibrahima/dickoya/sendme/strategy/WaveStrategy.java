@@ -1,14 +1,8 @@
 package ibrahima.dickoya.sendme.strategy;
 
-import ibrahima.dickoya.sendme.entity.Beneficiary;
-import ibrahima.dickoya.sendme.entity.BeneficiaryChannel;
-import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.enums.ChannelType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Stratégie concrète pour les transferts Wave.
@@ -19,42 +13,45 @@ import java.util.concurrent.TimeUnit;
  * En production, utiliserait l'API Wave Business
  * avec authentification par token Bearer.
  *
- * En mode simulation (strategy.simulation-mode=true) :
- * - Délai entre 300ms et 1.5 secondes (non-bloquant via CompletableFuture)
- * - Taux d'échec configurable via strategy.failure-rate (défaut: 0%)
+ * Le squelette d'exécution est défini dans {@link BaseTransferStrategy}.
+ * Cette classe ne fait que fournir les paramètres spécifiques à Wave.
  */
 @Component("WAVE")
 @Slf4j
 public class WaveStrategy extends BaseTransferStrategy {
 
     @Override
-    public TransferResult execute(Transaction transaction, Beneficiary beneficiary) {
+    protected ChannelType getChannelType() {
+        return ChannelType.WAVE;
+    }
 
-        String phoneNumber = beneficiary.getChannels().stream()
-                .filter(ch -> ch.getChannel() == ChannelType.WAVE)
-                .findFirst()
-                .map(BeneficiaryChannel::getPhoneNumber)
-                .orElse("N/A");
-        log.info("[WAVE] Debut du transfert vers : {}", maskPhone(phoneNumber));
+    @Override
+    protected String getChannelName() {
+        return "WAVE";
+    }
 
-        try {
-            // Wave est généralement plus rapide que les autres opérateurs
-            simulateProcessingDelay(300, 1500).get(5, TimeUnit.SECONDS);
+    @Override
+    protected String getReferencePrefix() {
+        return "WAVE-";
+    }
 
-            if (shouldSimulateFailure()) {
-                log.warn("[WAVE] Transfert rejete par Wave (simulation)");
-                return TransferResult.failure("Compte Wave inactif ou limite depassee");
-            }
+    @Override
+    protected int getDelayMinMs() {
+        return 300;
+    }
 
-            String externalRef = "WAVE-" + UUID.randomUUID().toString().substring(0, 10).toUpperCase();
-            log.info("[WAVE] Transfert reussi. Ref : {}", externalRef);
-            return TransferResult.success(externalRef);
+    @Override
+    protected int getDelayMaxMs() {
+        return 1500;
+    }
 
-        } catch (InterruptedException e) {
-            return handleInterruption("WAVE");
-        } catch (Exception e) {
-            log.error("[WAVE] Erreur lors du transfert : {}", e.getMessage());
-            return TransferResult.failure("Erreur technique Wave : " + e.getMessage());
-        }
+    @Override
+    protected String getFailureMessage() {
+        return "Compte Wave inactif ou limite depassee";
+    }
+
+    @Override
+    protected String getErrorMessage() {
+        return "Erreur technique Wave";
     }
 }
