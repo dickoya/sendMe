@@ -197,54 +197,150 @@ public class TransferService {
                 log.info("=== DEBUT TRANSFERT pour {} ===", userEmail);
 
                 // ── ÉTAPE 1 : Vérification idempotence ──────────────────────────────
-                // Si une transaction avec cette clé existe déjà, on la retourne
-                // sans re-débiter (protection double clic / retry réseau)
-                var existing = transactionRepository
-                                .findByIdempotencyKey(request.getIdempotencyKey());
+                var existing = checkIdempotency(request.getIdempotencyKey());
+                if (existing != null) {
+                        return existing;
+                }
+
+                // ── ÉTAPE 2 : Récupérer l'utilisateur et le bénéficiaire ────────────
+                User user = loadUser(userEmail);
+                Beneficiary beneficiary = loadBeneficiary(request.getBeneficiaryId(), user);
+
+                // ── ÉTAPE 3 : Déterminer le canal et simuler le transfert ───────────
+                BeneficiaryChannel selectedChannel = selectChannel(beneficiary, request.getChannelId());
+                SimulateResponse simulation = simulateTransfer(user, selectedChannel, request);
+                var totalToDebit = simulation.getTotalDebited();
+
+                // ── ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING ───────
+                Transaction transaction = createPendingTransaction(request, user, beneficiary, selectedChannel,
+                                simulation);
+
+                // ── ÉTAPE 5 : Débiter la carte via Stripe ───────────────────────────
+                PaymentIntent paymentIntent = debitCard(totalToDebit, request, transaction, user);
+                if (paymentIntent == null) {
+                        // Le paiement a échoué, la transaction FAILED a déjà été retournée
+                        return null; // Ne devrait pas arriver car debitCard retourne via return
+                }
+
+                // ── NOTIFICATION 1 : Transfert initié ───────────────────────────────
+                notifyTransferInitiated(transaction, user, beneficiary);
+
+                // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
+                transaction.setStatus(TransactionStatus.PROCESSING);
+                transactionRepository.save(transaction);
+
+                TransferStrategy strategy = resolveStrategy(selectedChannel);
+                if (strategy == null) {
+                        return refundStripeAndFail(
+                                        paymentIntent.getId(),
+                                        transaction,
+                                        user,
+                                        messageUtils.get("error.transfer.channel.unsupported",
+                                                        selectedChannel.getChannel().name()));
+                }
+
+                log.info("Execution de la strategie : {} pour le canal {}",
+                                selectedChannel.getChannel().name(), selectedChannel.getId());
+                TransferResult result = strategy.execute(transaction, beneficiary);
+
+                // ── ÉTAPE 7 : Traiter le résultat de la stratégie ───────────────────
+                if (result.isSuccess()) {
+                        return handleSuccessfulStrategy(transaction, user, simulation, request);
+                } else {
+                        log.error("Strategie echouee : {}. Remboursement en cours...", result.getMessage());
+                        return refundStripeAndFail(paymentIntent.getId(), transaction, user, result.getMessage());
+                }
+        }
+
+        // ── Méthodes privées extraites de processTransfer ──────────────────────
+
+        /**
+         * Vérifie l'idempotence : si une transaction avec cette clé existe déjà,
+         * retourne la réponse correspondante sans re-débiter.
+         *
+         * @param idempotencyKey la clé d'idempotence à vérifier
+         * @return TransactionResponse si la transaction existe, null sinon
+         */
+        private TransactionResponse checkIdempotency(String idempotencyKey) {
+                var existing = transactionRepository.findByIdempotencyKey(idempotencyKey);
                 if (existing.isPresent()) {
                         log.warn("Transaction dupliquee detectee. Retour de l'existante.");
                         return toResponse(existing.get());
                 }
+                return null;
+        }
 
-                // ── ÉTAPE 2 : Récupérer l'utilisateur et le bénéficiaire ────────────
-                User user = userRepository.findByEmail(userEmail)
+        /**
+         * Charge l'utilisateur par email.
+         *
+         * @param userEmail l'email de l'utilisateur
+         * @return l'entité User
+         * @throws ResourceNotFoundException si l'utilisateur n'existe pas
+         */
+        private User loadUser(String userEmail) {
+                return userRepository.findByEmail(userEmail)
                                 .orElseThrow(() -> new ResourceNotFoundException(
                                                 messageUtils.get("error.user.notfound", userEmail)));
+        }
 
-                Beneficiary beneficiary = beneficiaryRepository
-                                .findById(request.getBeneficiaryId())
+        /**
+         * Charge le bénéficiaire par ID et vérifie qu'il appartient à l'utilisateur.
+         *
+         * @param beneficiaryId l'ID du bénéficiaire
+         * @param user          l'utilisateur connecté
+         * @return l'entité Beneficiary
+         * @throws ResourceNotFoundException si le bénéficiaire n'existe pas
+         * @throws TransferException         si le bénéficiaire ne appartient pas à
+         *                                   l'utilisateur
+         */
+        private Beneficiary loadBeneficiary(Long beneficiaryId, User user) {
+                Beneficiary beneficiary = beneficiaryRepository.findById(beneficiaryId)
                                 .orElseThrow(() -> new ResourceNotFoundException(
-                                                messageUtils.get("error.beneficiary.notfound",
-                                                                request.getBeneficiaryId())));
+                                                messageUtils.get("error.beneficiary.notfound", beneficiaryId)));
 
-                // Vérifier que le bénéficiaire appartient bien à l'utilisateur connecté
                 if (!beneficiary.getUser().getId().equals(user.getId())) {
                         throw new TransferException(
                                         messageUtils.get("error.beneficiary.access.denied"));
                 }
+                return beneficiary;
+        }
 
-                // ── ÉTAPE 3 : Déterminer le canal de réception ─────────────────────
-                // Si un channelId est fourni, on utilise ce canal spécifique.
-                // Sinon, on utilise le canal principal (isPrimary=true) ou le premier.
-                BeneficiaryChannel selectedChannel;
-                if (request.getChannelId() != null) {
-                        selectedChannel = beneficiary.getChannels().stream()
-                                        .filter(ch -> ch.getId().equals(request.getChannelId()))
+        /**
+         * Sélectionne le canal de réception du bénéficiaire.
+         * Si un channelId est fourni, utilise ce canal spécifique.
+         * Sinon, utilise le canal principal (isPrimary=true) ou le premier.
+         *
+         * @param beneficiary le bénéficiaire
+         * @param channelId   l'ID du canal (optionnel)
+         * @return le canal sélectionné
+         * @throws TransferException si le channelId fourni n'existe pas
+         */
+        private BeneficiaryChannel selectChannel(Beneficiary beneficiary, Long channelId) {
+                if (channelId != null) {
+                        return beneficiary.getChannels().stream()
+                                        .filter(ch -> ch.getId().equals(channelId))
                                         .findFirst()
                                         .orElseThrow(() -> new TransferException(
                                                         messageUtils.get("error.channel.notfound")));
-                } else {
-                        selectedChannel = beneficiary.getChannels().stream()
-                                        .filter(BeneficiaryChannel::getIsPrimary)
-                                        .findFirst()
-                                        .orElse(beneficiary.getChannels().get(0));
                 }
+                return beneficiary.getChannels().stream()
+                                .filter(BeneficiaryChannel::getIsPrimary)
+                                .findFirst()
+                                .orElse(beneficiary.getChannels().get(0));
+        }
 
+        /**
+         * Simule le transfert (frais, taux de change, réduction parrainage).
+         *
+         * @param user            l'utilisateur
+         * @param selectedChannel le canal sélectionné
+         * @param request         la requête de transfert
+         * @return le résultat de la simulation
+         */
+        private SimulateResponse simulateTransfer(User user, BeneficiaryChannel selectedChannel,
+                        TransferRequest request) {
                 String currencyTo = getCurrencyForChannel(selectedChannel.getChannel().name());
-
-                // La simulation prend en compte l'ID utilisateur pour appliquer
-                // automatiquement la réduction de parrainage si un coupon valide existe
-                SimulateResponse simulation = simulatorService.simulate(
+                return simulatorService.simulate(
                                 SimulateRequest.builder()
                                                 .amount(request.getAmount())
                                                 .currencyFrom(request.getCurrency())
@@ -252,12 +348,22 @@ public class TransferService {
                                                 .channel(selectedChannel.getChannel())
                                                 .build(),
                                 user.getId());
+        }
 
-                // Montant total à débiter = montant envoyé + frais - réduction (si applicable)
-                var totalToDebit = simulation.getTotalDebited();
-
-                // ── ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING ───────
-                // Créée AVANT le débit Stripe pour que même les échecs soient tracés
+        /**
+         * Crée une transaction en base de données avec le statut PENDING.
+         * Créée AVANT le débit Stripe pour tracer même les échecs.
+         *
+         * @param request         la requête de transfert
+         * @param user            l'utilisateur émetteur
+         * @param beneficiary     le bénéficiaire
+         * @param selectedChannel le canal sélectionné
+         * @param simulation      le résultat de la simulation
+         * @return la transaction sauvegardée
+         */
+        private Transaction createPendingTransaction(TransferRequest request, User user, Beneficiary beneficiary,
+                        BeneficiaryChannel selectedChannel, SimulateResponse simulation) {
+                String currencyTo = getCurrencyForChannel(selectedChannel.getChannel().name());
                 Transaction transaction = Transaction.builder()
                                 .reference(generateReference())
                                 .amountSent(request.getAmount())
@@ -276,25 +382,62 @@ public class TransferService {
 
                 transaction = transactionRepository.save(transaction);
                 log.info("Transaction sauvegardee : {}", transaction.getReference());
+                return transaction;
+        }
 
-                // ── ÉTAPE 5 : Débiter la carte via Stripe ───────────────────────────
-                // ⚠️ Appel réseau Stripe — HORS transaction BDD
+        /**
+         * Débite la carte via Stripe.
+         * En cas d'échec, marque la transaction comme FAILED, notifie l'utilisateur
+         * et retourne null.
+         *
+         * @param totalToDebit le montant total à débiter
+         * @param request      la requête de transfert
+         * @param transaction  la transaction associée
+         * @param user         l'utilisateur à notifier en cas d'échec
+         * @return le PaymentIntent si réussi, null si échec (transaction déjà gérée)
+         */
+        private PaymentIntent debitCard(BigDecimal totalToDebit, TransferRequest request,
+                        Transaction transaction, User user) {
                 log.info("[STRIPE] Debit de {} {} sur la carte", totalToDebit, request.getCurrency());
 
-                PaymentIntent paymentIntent;
                 try {
-                        paymentIntent = stripePaymentService.createAndConfirmPayment(
+                        PaymentIntent paymentIntent = stripePaymentService.createAndConfirmPayment(
                                         totalToDebit,
                                         request.getPaymentMethodId(),
                                         request.getIdempotencyKey());
+
+                        if (!stripePaymentService.isPaymentSucceeded(paymentIntent)) {
+                                log.error("[STRIPE] Statut inattendu : {}", paymentIntent.getStatus());
+                                Transaction failedTransaction = transactionPersistenceService
+                                                .saveFailedTransaction(transaction, paymentIntent.getId(),
+                                                                paymentIntent.getStatus());
+
+                                notificationService.createAndSend(
+                                                user,
+                                                messageUtils.get("notification.transfer.failed.stripe",
+                                                                transaction.getReference(), paymentIntent.getStatus()),
+                                                NotificationType.TRANSFER_FAILED,
+                                                failedTransaction);
+                                emailService.sendTransferFailedEmail(user, failedTransaction,
+                                                "Paiement non confirme par Stripe. Statut : "
+                                                                + paymentIntent.getStatus());
+                                return null;
+                        }
+
+                        log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}", paymentIntent.getId());
+
+                        // Mettre à jour la transaction avec les infos Stripe
+                        transaction.setStripePaymentIntentId(paymentIntent.getId());
+                        transaction.setStripePaymentStatus(paymentIntent.getStatus());
+                        transactionRepository.save(transaction);
+
+                        return paymentIntent;
+
                 } catch (StripeException e) {
-                        // Paiement refusé par Stripe (carte invalide, fonds insuffisants...)
                         log.error("[STRIPE] Paiement refuse : {}", e.getMessage());
-                        // Marquer la transaction comme FAILED dans une transaction séparée
                         Transaction failedTransaction = transactionPersistenceService
                                         .saveFailedTransaction(transaction, "failed", e.getMessage());
 
-                        // Notifier l'utilisateur
                         notificationService.createAndSend(
                                         user,
                                         messageUtils.get("notification.transfer.failed.payment",
@@ -302,36 +445,18 @@ public class TransferService {
                                         NotificationType.TRANSFER_FAILED,
                                         failedTransaction);
                         emailService.sendTransferFailedEmail(user, failedTransaction, e.getMessage());
-                        return toResponse(failedTransaction);
+                        return null;
                 }
+        }
 
-                // Vérifier que Stripe a bien confirmé le paiement
-                if (!stripePaymentService.isPaymentSucceeded(paymentIntent)) {
-                        log.error("[STRIPE] Statut inattendu : {}", paymentIntent.getStatus());
-                        Transaction failedTransaction = transactionPersistenceService
-                                        .saveFailedTransaction(transaction, paymentIntent.getId(),
-                                                        paymentIntent.getStatus());
-
-                        notificationService.createAndSend(
-                                        user,
-                                        messageUtils.get("notification.transfer.failed.stripe",
-                                                        transaction.getReference(), paymentIntent.getStatus()),
-                                        NotificationType.TRANSFER_FAILED,
-                                        failedTransaction);
-                        emailService.sendTransferFailedEmail(user, failedTransaction,
-                                        "Paiement non confirme par Stripe. Statut : " + paymentIntent.getStatus());
-                        return toResponse(failedTransaction);
-                }
-
-                log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}",
-                                paymentIntent.getId());
-
-                // Mettre à jour la transaction avec les infos Stripe
-                transaction.setStripePaymentIntentId(paymentIntent.getId());
-                transaction.setStripePaymentStatus(paymentIntent.getStatus());
-                transactionRepository.save(transaction);
-
-                // ── NOTIFICATION 1 : Transfert initié ───────────────────────────────
+        /**
+         * Envoie la notification de transfert initié (SSE + email).
+         *
+         * @param transaction la transaction
+         * @param user        l'utilisateur
+         * @param beneficiary le bénéficiaire
+         */
+        private void notifyTransferInitiated(Transaction transaction, User user, Beneficiary beneficiary) {
                 notificationService.createAndSend(
                                 user,
                                 messageUtils.get("notification.transfer.initiated",
@@ -341,66 +466,55 @@ public class TransferService {
                                 NotificationType.TRANSFER_INITIATED,
                                 transaction);
                 emailService.sendTransferInitiatedEmail(user, transaction);
+        }
 
-                // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
-                transaction.setStatus(TransactionStatus.PROCESSING);
+        /**
+         * Résout la stratégie de transfert pour le canal sélectionné.
+         *
+         * @param selectedChannel le canal sélectionné
+         * @return la stratégie correspondante, ou null si aucune stratégie trouvée
+         */
+        private TransferStrategy resolveStrategy(BeneficiaryChannel selectedChannel) {
+                return strategyMap.get(selectedChannel.getChannel().name());
+        }
+
+        /**
+         * Traite le succès de la stratégie : marque COMPLETED, notifie,
+         * gère le parrainage (coupon + récompense premier transfert).
+         *
+         * @param transaction la transaction
+         * @param user        l'utilisateur
+         * @param simulation  la simulation (pour le coupon)
+         * @param request     la requête (pour la devise)
+         * @return TransactionResponse la réponse formatée
+         */
+        private TransactionResponse handleSuccessfulStrategy(Transaction transaction, User user,
+                        SimulateResponse simulation, TransferRequest request) {
+                transaction.setStatus(TransactionStatus.COMPLETED);
                 transactionRepository.save(transaction);
+                log.info("=== TRANSFERT COMPLETE : {} ===", transaction.getReference());
 
-                // Sélectionner la bonne stratégie via la Map (Strategy Pattern)
-                String channelName = selectedChannel.getChannel().name();
-                TransferStrategy strategy = strategyMap.get(channelName);
+                // Notification TRANSFER_COMPLETED
+                notificationService.createAndSend(
+                                user,
+                                messageUtils.get("notification.transfer.completed",
+                                                transaction.getReference(),
+                                                transaction.getAmountReceived(),
+                                                transaction.getCurrencyReceived()),
+                                NotificationType.TRANSFER_COMPLETED,
+                                transaction);
+                emailService.sendTransferCompletedEmail(user, transaction);
 
-                if (strategy == null) {
-                        return refundStripeAndFail(
-                                        paymentIntent.getId(),
-                                        transaction,
-                                        user,
-                                        messageUtils.get("error.transfer.channel.unsupported", channelName));
-                }
+                // Parrainage : marquer le coupon comme utilisé
+                useReferralCouponIfApplicable(user, request.getCurrency(), transaction, simulation);
 
-                log.info("Execution de la strategie : {} pour le canal {}", channelName, selectedChannel.getId());
-                TransferResult result = strategy.execute(transaction, beneficiary);
-
-                // ── ÉTAPE 7 : Traiter le résultat de la stratégie ───────────────────
-                if (result.isSuccess()) {
-
-                        // Transfert réussi → statut COMPLETED
-                        transaction.setStatus(TransactionStatus.COMPLETED);
-                        transactionRepository.save(transaction);
-                        log.info("=== TRANSFERT COMPLETE : {} ===", transaction.getReference());
-
-                        // ── NOTIFICATION 2 : Transfert complété ─────────────────────────
-                        notificationService.createAndSend(
-                                        user,
-                                        messageUtils.get("notification.transfer.completed",
-                                                        transaction.getReference(),
-                                                        transaction.getAmountReceived(),
-                                                        transaction.getCurrencyReceived()),
-                                        NotificationType.TRANSFER_COMPLETED,
-                                        transaction);
-                        emailService.sendTransferCompletedEmail(user, transaction);
-
-                        // ── PARRAINAGE : Marquer le coupon comme utilisé ──────────────
-                        useReferralCouponIfApplicable(user, request.getCurrency(), transaction, simulation);
-
-                        // ── PARRAINAGE : Récompenser le premier transfert du filleul ──
-                        try {
-                                referralService.rewardFirstTransfer(user, transaction);
-                        } catch (Exception e) {
-                                log.error("[PARRAINAGE] Erreur lors de la récompense du premier transfert", e);
-                                throw new ibrahima.dickoya.sendme.exception.ReferralException(
-                                                "Erreur lors de la récompense de parrainage", e);
-                        }
-
-                } else {
-                        // Transfert échoué → Rembourser Stripe + notifier (RG-04)
-                        log.error("Strategie echouee : {}. Remboursement en cours...",
-                                        result.getMessage());
-                        return refundStripeAndFail(
-                                        paymentIntent.getId(),
-                                        transaction,
-                                        user,
-                                        result.getMessage());
+                // Parrainage : récompenser le premier transfert du filleul
+                try {
+                        referralService.rewardFirstTransfer(user, transaction);
+                } catch (Exception e) {
+                        log.error("[PARRAINAGE] Erreur lors de la récompense du premier transfert", e);
+                        throw new ibrahima.dickoya.sendme.exception.ReferralException(
+                                        "Erreur lors de la récompense de parrainage", e);
                 }
 
                 return toResponse(transaction);
