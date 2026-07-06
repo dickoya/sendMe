@@ -68,10 +68,13 @@ export function usePaymentChannels() {
         try {
             setError(null);
             await paymentChannelService.toggle(id);
-            await reloadChannelsSilently();
+            // Rechargement complet avec loader pour forcer la mise à jour
+            await loadChannels();
             return true;
         } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Erreur lors de la modification');
+            const message = err?.response?.data?.message || err?.message || 'Erreur lors de la modification';
+            console.error('[toggleChannel] Erreur:', err);
+            setError(message);
             return false;
         }
     };

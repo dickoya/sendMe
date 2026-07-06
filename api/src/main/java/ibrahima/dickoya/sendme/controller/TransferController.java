@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * Contrôleur REST pour les transferts et l'historique des transactions.
  */
@@ -45,6 +47,7 @@ public class TransferController {
         private final ReceiptPdfService receiptPdfService;
         private final UserRepository userRepository;
         private final JwtService jwtService;
+        private final PaymentChannelService paymentChannelService;
 
         @PostMapping("/api/transfers/simulate")
         @Operation(summary = "Simuler les frais d'un transfert", description = """
@@ -254,5 +257,23 @@ public class TransferController {
                                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
                                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                                 .body(pdfBytes);
+        }
+
+        /**
+         * Retourne la liste des canaux de paiement actifs.
+         * Endpoint public (sans authentification) utilisé par le frontend
+         * pour afficher uniquement les canaux disponibles dans les formulaires
+         * de bénéficiaires et de transferts.
+         *
+         * GET /api/channels/active
+         *
+         * @return 200 OK avec la liste des canaux actifs
+         */
+        @GetMapping("/api/channels/active")
+        @Operation(summary = "Canaux de paiement actifs", description = "Retourne la liste des canaux de paiement actifs. Endpoint public utilisé par les formulaires de bénéficiaires et de transferts.")
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<List<PaymentChannelResponse>>> getActiveChannels() {
+                List<PaymentChannelResponse> channels = paymentChannelService.getActiveChannels();
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse.success("Canaux actifs", channels));
         }
 }

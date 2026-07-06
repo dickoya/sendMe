@@ -53,14 +53,15 @@ function ConfirmDialog({
                     <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
                         {cancelLabel ?? t('actions.cancel')}
                     </Button>
-                    <Button
+                    <button
                         type="button"
-                        variant={variant === 'danger' ? 'danger' : 'primary'}
-                        loading={isLoading}
                         onClick={onConfirm}
+                        disabled={isLoading}
+                        className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 active:scale-[0.97] h-10 px-4 text-sm bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:ring-brand-500 dark:bg-brand-500 dark:hover:bg-brand-400"
                     >
+                        {isLoading && <span className="h-4 w-4 animate-spin border-2 border-white border-t-transparent rounded-full mr-2" />}
                         {confirmLabel ?? t('actions.confirm')}
-                    </Button>
+                    </button>
                 </div>
             }
         >

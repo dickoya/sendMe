@@ -67,8 +67,6 @@ function AdminPaymentChannels() {
         setToggling(false);
         if (success) {
             setToggleConfirm(null);
-        } else {
-            setToggleError("Erreur lors de la modification du canal");
         }
     };
 
@@ -241,9 +239,9 @@ function AdminPaymentChannels() {
                                 ? `Êtes-vous sûr de vouloir désactiver "${toggleConfirm?.name}" ? Les utilisateurs ne pourront plus utiliser ce canal pour leurs transferts.`
                                 : `Êtes-vous sûr de vouloir réactiver "${toggleConfirm?.name}" ? Les utilisateurs pourront à nouveau utiliser ce canal.`}
                         </p>
-                        {toggleError && (
+                        {(toggleError || error) && (
                             <div className="rounded-lg bg-danger-50 p-2 text-xs text-danger-600 dark:bg-danger-900/20 dark:text-danger-400">
-                                {toggleError}
+                                {toggleError || error}
                             </div>
                         )}
                     </div>

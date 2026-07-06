@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 /**
@@ -18,5 +19,7 @@ public class PaymentChannelResponse {
     private String channelType;
     private String displayName;
     private String icon;
+
+    @JsonProperty("isActive")
     private boolean isActive;
 }
