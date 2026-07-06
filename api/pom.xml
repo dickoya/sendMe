@@ -113,6 +113,13 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- H2 — base de données mémoire pour les tests d'intégration -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- Flyway — migrations SQL versionnées -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
