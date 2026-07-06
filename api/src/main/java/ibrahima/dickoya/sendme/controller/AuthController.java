@@ -209,21 +209,4 @@ public class AuthController {
                                                 .success("Un nouvel email de verification vous a ete envoye.", null));
         }
 
-        /**
-         * Endpoint temporaire pour tester la configuration email.
-         * Envoie un email de test vers l'adresse spécifiée.
-         *
-         * À SUPPRIMER après validation de la configuration email.
-         *
-         * Test : POST http://localhost:8080/api/auth/test-email?to=ton@email.com
-         */
-        @PostMapping("/test-email")
-        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>> testEmail(
-                        @RequestParam String to) {
-                emailService.sendTestEmail(to);
-                return ResponseEntity.ok(
-                                ibrahima.dickoya.sendme.dto.response.ApiResponse
-                                                .success("Email de test envoyé vers : " + to, null));
-        }
-
 }

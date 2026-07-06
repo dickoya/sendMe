@@ -18,6 +18,12 @@ target/
 .env.*
 !.env.example
 
+# Fichier de configuration locale Spring Boot (contient des clés API en clair)
+application-local.properties
+application-local.yml
+application-dev.properties
+application-dev.yml
+
 ### IntelliJ IDEA ###
 .idea/
 *.iws
