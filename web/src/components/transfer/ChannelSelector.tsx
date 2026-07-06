@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import { getChannelLabel, getChannelIcon } from '@/utils/constants';
+import { getChannelLabel } from '@/utils/constants';
 import { channelService } from '@/services/channelService';
+import PaymentChannelLogo from '@/components/admin/PaymentChannelLogo';
 import type { ChannelType } from '@/types';
 import type { PaymentChannel } from '@/types/paymentChannel';
 
@@ -28,6 +29,7 @@ export interface ChannelSelectorProps {
  *
  * Récupère dynamiquement la liste des canaux actifs depuis l'API.
  * Si l'appel échoue, utilise une liste statique de secours.
+ * Affiche le vrai logo de chaque opérateur.
  */
 function ChannelSelector({ value, onChange }: ChannelSelectorProps) {
     const { t: tCommon } = useTranslation('common');
@@ -72,10 +74,10 @@ function ChannelSelector({ value, onChange }: ChannelSelectorProps) {
                                 : 'border-gray-200 bg-white hover:border-gray-300'
                         )}
                     >
-                        <span className="text-2xl">{getChannelIcon(channel)}</span>
+                        <PaymentChannelLogo channelType={channel} size={36} />
                         <span className="text-[11px] font-medium leading-tight text-gray-700">
-              {getChannelLabel(channel, tCommon)}
-            </span>
+                            {getChannelLabel(channel, tCommon)}
+                        </span>
                     </button>
                 ))}
             </div>
