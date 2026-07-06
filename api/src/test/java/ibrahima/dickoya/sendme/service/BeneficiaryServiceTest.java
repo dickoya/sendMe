@@ -8,6 +8,7 @@ import ibrahima.dickoya.sendme.exception.ResourceNotFoundException;
 import ibrahima.dickoya.sendme.exception.TransferException;
 import ibrahima.dickoya.sendme.repository.BeneficiaryRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
+import ibrahima.dickoya.sendme.utils.MessageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -43,6 +44,9 @@ class BeneficiaryServiceTest {
         @Mock
         private UserRepository userRepository;
 
+        @Mock
+        private MessageUtils messageUtils;
+
         @InjectMocks
         private BeneficiaryService beneficiaryService;
 
@@ -59,6 +63,33 @@ class BeneficiaryServiceTest {
                                 .lastName("Dickoya")
                                 .email(USER_EMAIL)
                                 .build();
+
+                // Configuration par défaut de MessageUtils pour tous les tests (lenient car pas
+                // utilisé par tous les tests)
+                lenient().when(messageUtils.get(eq("error.user.notfound"), any())).thenAnswer(invocation -> {
+                        Object[] args = invocation.getArguments();
+                        return "Utilisateur non trouve : " + args[1];
+                });
+                lenient().when(messageUtils.get(eq("error.beneficiary.notfound"), any())).thenAnswer(invocation -> {
+                        Object[] args = invocation.getArguments();
+                        return "Beneficiaire non trouve avec l'id : " + args[1];
+                });
+                lenient().when(messageUtils.get(eq("error.beneficiary.access.denied")))
+                                .thenReturn("Acces refuse : ce beneficiaire ne vous appartient pas");
+                lenient().when(messageUtils.get(eq("error.channel.required")))
+                                .thenReturn("Au moins un canal de reception est requis");
+                lenient().when(messageUtils.get(eq("error.channel.primary.required")))
+                                .thenReturn("Un canal doit etre defini comme principal (isPrimary=true)");
+                lenient().when(messageUtils.get(eq("error.channel.bankname.required")))
+                                .thenReturn("Le nom de la banque est obligatoire pour un virement bancaire");
+                lenient().when(messageUtils.get(eq("error.channel.iban.required")))
+                                .thenReturn("L'IBAN est obligatoire pour un virement bancaire");
+                lenient().when(messageUtils.get(eq("error.channel.bic.required")))
+                                .thenReturn("Le BIC est obligatoire pour un virement bancaire");
+                lenient().when(messageUtils.get(eq("error.channel.phone.required"), any())).thenAnswer(invocation -> {
+                        Object[] args = invocation.getArguments();
+                        return "Le numero de telephone est obligatoire pour le canal " + args[1];
+                });
         }
 
         @Nested

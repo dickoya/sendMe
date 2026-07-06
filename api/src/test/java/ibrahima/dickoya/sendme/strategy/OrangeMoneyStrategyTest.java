@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -103,8 +105,16 @@ class OrangeMoneyStrategyTest {
 
         @Test
         @DisplayName("Doit retourner un échec en cas d'interruption du thread")
-        void execute_ShouldReturnFailure_WhenThreadInterrupted() {
+        void execute_ShouldReturnFailure_WhenThreadInterrupted() throws Exception {
             // Arrange
+            // Activer le mode simulation via réflexion pour que simulateProcessingDelay
+            // utilise un vrai délai et que CompletableFuture.get() bloque
+            java.lang.reflect.Field simulationModeField = BaseTransferStrategy.class.getDeclaredField("simulationMode");
+            simulationModeField.setAccessible(true);
+            simulationModeField.set(strategy, true);
+
+            // Interrompre le thread courant avant l'appel pour que
+            // CompletableFuture.get() lance InterruptedException immédiatement
             Thread.currentThread().interrupt();
 
             // Act
@@ -114,8 +124,8 @@ class OrangeMoneyStrategyTest {
             assertThat(result.isSuccess()).isFalse();
             assertThat(result.getMessage()).isEqualTo("Interruption du traitement Orange Money");
 
-            // Nettoyer l'état d'interruption
-            Thread.interrupted();
+            // Vérifier que le flag d'interruption a été restauré
+            assertThat(Thread.interrupted()).isTrue();
         }
     }
 }

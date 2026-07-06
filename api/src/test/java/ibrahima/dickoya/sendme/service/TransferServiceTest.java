@@ -2,6 +2,7 @@ package ibrahima.dickoya.sendme.service;
 
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import ibrahima.dickoya.sendme.dto.request.SimulateRequest;
 import ibrahima.dickoya.sendme.dto.request.TransferRequest;
 import ibrahima.dickoya.sendme.dto.response.SimulateResponse;
 import ibrahima.dickoya.sendme.dto.response.TransactionResponse;
@@ -15,6 +16,7 @@ import ibrahima.dickoya.sendme.repository.TransactionRepository;
 import ibrahima.dickoya.sendme.repository.UserRepository;
 import ibrahima.dickoya.sendme.strategy.TransferResult;
 import ibrahima.dickoya.sendme.strategy.TransferStrategy;
+import ibrahima.dickoya.sendme.utils.MessageUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.data.domain.*;
 
 import java.math.BigDecimal;
@@ -34,6 +37,9 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -73,14 +79,28 @@ class TransferServiceTest {
         @Mock
         private StripeException stripeException;
 
+        @Mock
+        private MessageUtils messageUtils;
+
+        @Mock
+        private TransactionPersistenceService transactionPersistenceService;
+
+        @Mock
+        private ReferralService referralService;
+
+        @Mock
+        private PlatformTransactionManager transactionManager;
+
         @InjectMocks
         private TransferService transferService;
 
         private User user;
         private Beneficiary beneficiary;
+        private BeneficiaryChannel channel;
         private TransferRequest transferRequest;
         private SimulateResponse simulation;
         private Transaction transaction;
+        private Transaction failedTransaction;
         private final String USER_EMAIL = "ibrahima@sendme.com";
         private final String IDEMPOTENCY_KEY = "550e8400-e29b-41d4-a716-446655440000";
         private final String PAYMENT_METHOD_ID = "pm_123456789";
@@ -96,7 +116,7 @@ class TransferServiceTest {
                                 .isActive(true)
                                 .build();
 
-                BeneficiaryChannel channel = BeneficiaryChannel.builder()
+                channel = BeneficiaryChannel.builder()
                                 .id(1L)
                                 .channel(ChannelType.BANK_TRANSFER)
                                 .bankName("Societe Generale")
@@ -155,6 +175,65 @@ class TransferServiceTest {
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(LocalDateTime.now())
                                 .build();
+
+                failedTransaction = Transaction.builder()
+                                .id(2L)
+                                .reference("TXN-20250609-0002")
+                                .amountSent(new BigDecimal("200.00"))
+                                .currencySent("EUR")
+                                .amountReceived(new BigDecimal("200.00"))
+                                .currencyReceived("EUR")
+                                .exchangeRate(new BigDecimal("1.00"))
+                                .fees(new BigDecimal("3.00"))
+                                .status(TransactionStatus.FAILED)
+                                .channel(ChannelType.BANK_TRANSFER)
+                                .idempotencyKey(IDEMPOTENCY_KEY)
+                                .sender(user)
+                                .beneficiary(beneficiary)
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build();
+
+                // Configuration par défaut de MessageUtils pour tous les tests
+                // Utiliser doAnswer pour gérer correctement les varargs (Object...)
+                lenient().doAnswer(invocation -> {
+                        String key = invocation.getArgument(0);
+                        if ("error.user.notfound".equals(key)) {
+                                Object param = invocation.getArgument(1);
+                                return "Utilisateur non trouve : " + param;
+                        }
+                        if ("error.beneficiary.notfound".equals(key)) {
+                                Object param = invocation.getArgument(1);
+                                return "Beneficiaire non trouve : " + param;
+                        }
+                        if ("error.beneficiary.access.denied".equals(key))
+                                return "Ce beneficiaire ne vous appartient pas";
+                        if ("error.transaction.notfound".equals(key)) {
+                                Object param = invocation.getArgument(1);
+                                return "Transaction non trouvee : " + param;
+                        }
+                        if ("error.transaction.access.denied".equals(key))
+                                return "Acces refuse a cette transaction";
+                        if ("error.channel.notfound".equals(key))
+                                return "Canal de reception non trouve pour ce beneficiaire";
+                        if ("error.transfer.channel.unsupported".equals(key)) {
+                                Object param = invocation.getArgument(1);
+                                return "Canal non supporte : " + param;
+                        }
+                        if ("notification.transfer.initiated".equals(key))
+                                return "Transfert initie";
+                        if ("notification.transfer.completed".equals(key))
+                                return "Transfert complete";
+                        if ("notification.transfer.refunded.success".equals(key))
+                                return "Transfert echoue et carte remboursee";
+                        if ("notification.transfer.refunded.failed".equals(key))
+                                return "Echec remboursement";
+                        if ("notification.transfer.failed.stripe".equals(key))
+                                return "Echec Stripe";
+                        if ("notification.transfer.failed.payment".equals(key))
+                                return "Paiement refuse par la banque";
+                        return "Notification";
+                }).when(messageUtils).get(anyString(), any(Object[].class));
         }
 
         @Nested
@@ -168,17 +247,19 @@ class TransferServiceTest {
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(
                                         new BigDecimal("203.00"), PAYMENT_METHOD_ID, IDEMPOTENCY_KEY))
                                         .thenReturn(paymentIntent);
                         when(stripePaymentService.isPaymentSucceeded(paymentIntent)).thenReturn(true);
                         when(paymentIntent.getId()).thenReturn(PAYMENT_INTENT_ID);
                         when(paymentIntent.getStatus()).thenReturn("succeeded");
-                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(strategyMap.get("BANK_TRANSFER")).thenReturn(bankTransferStrategy);
                         when(bankTransferStrategy.execute(any(Transaction.class), any(Beneficiary.class)))
                                         .thenReturn(TransferResult.success("BANK-REF123"));
+                        lenient().when(referralService.getValidCoupon(any(), any())).thenReturn(Optional.empty());
+                        lenient().doNothing().when(referralService).rewardFirstTransfer(any(), any());
 
                         // Act
                         TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
@@ -192,13 +273,14 @@ class TransferServiceTest {
                         verify(transactionRepository).findByIdempotencyKey(IDEMPOTENCY_KEY);
                         verify(userRepository).findByEmail(USER_EMAIL);
                         verify(beneficiaryRepository).findById(100L);
-                        verify(simulatorService).simulate(any());
+                        verify(simulatorService).simulate(any(SimulateRequest.class), anyLong());
+                        verify(transactionRepository, atLeast(2)).save(any(Transaction.class));
                         verify(stripePaymentService).createAndConfirmPayment(
                                         new BigDecimal("203.00"), PAYMENT_METHOD_ID, IDEMPOTENCY_KEY);
                         verify(stripePaymentService).isPaymentSucceeded(paymentIntent);
                         verify(strategyMap).get("BANK_TRANSFER");
                         verify(bankTransferStrategy).execute(any(Transaction.class), any(Beneficiary.class));
-                        verify(notificationService, atLeastOnce()).createAndSend(any(), anyString(), any(), any());
+                        verify(notificationService, times(2)).createAndSend(any(), anyString(), any(), any());
                         verify(emailService).sendTransferInitiatedEmail(any(), any());
                         verify(emailService).sendTransferCompletedEmail(any(), any());
                 }
@@ -260,121 +342,143 @@ class TransferServiceTest {
                 }
 
                 @Test
-                @DisplayName("Paiement Stripe refusé - Doit lancer TransferException")
-                void processTransfer_ShouldThrowTransferException_WhenStripePaymentFails() throws StripeException {
+                @DisplayName("Paiement Stripe refusé (StripeException) - Doit sauvegarder transaction FAILED et retourner null")
+                void processTransfer_ShouldHandleStripeException_WhenPaymentFails() throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(any(), any(), any()))
                                         .thenThrow(stripeException);
+                        when(stripeException.getMessage()).thenReturn("Carte refuse");
+                        when(transactionPersistenceService.saveFailedTransaction(any(), anyString(), anyString()))
+                                        .thenReturn(failedTransaction);
 
-                        // Act & Assert
-                        assertThatThrownBy(() -> transferService.processTransfer(transferRequest, USER_EMAIL))
-                                        .isInstanceOf(TransferException.class)
-                                        .hasMessageContaining("Paiement refuse par la banque");
+                        // Act
+                        TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
 
-                        verify(transactionRepository, never()).save(any(Transaction.class));
+                        // Assert
+                        assertThat(response).isNull();
+
+                        verify(transactionRepository, times(1)).save(any(Transaction.class)); // createPendingTransaction
+                        verify(transactionPersistenceService).saveFailedTransaction(any(), anyString(), anyString());
+                        verify(notificationService).createAndSend(any(), anyString(), any(), any());
+                        verify(emailService).sendTransferFailedEmail(any(), any(), anyString());
                 }
 
                 @Test
-                @DisplayName("Paiement Stripe non confirmé - Doit lancer TransferException")
-                void processTransfer_ShouldThrowTransferException_WhenStripePaymentNotSucceeded()
+                @DisplayName("Paiement Stripe non confirmé - Doit sauvegarder transaction FAILED et retourner null")
+                void processTransfer_ShouldHandlePaymentNotSucceeded_WhenStripePaymentNotConfirmed()
                                 throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(any(), any(), any()))
                                         .thenReturn(paymentIntent);
                         when(stripePaymentService.isPaymentSucceeded(paymentIntent)).thenReturn(false);
+                        when(paymentIntent.getId()).thenReturn(PAYMENT_INTENT_ID);
                         when(paymentIntent.getStatus()).thenReturn("requires_action");
+                        when(transactionPersistenceService.saveFailedTransaction(any(), anyString(), anyString()))
+                                        .thenReturn(failedTransaction);
 
-                        // Act & Assert
-                        assertThatThrownBy(() -> transferService.processTransfer(transferRequest, USER_EMAIL))
-                                        .isInstanceOf(TransferException.class)
-                                        .hasMessageContaining("Paiement non confirme par Stripe");
+                        // Act
+                        TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
 
-                        verify(transactionRepository, never()).save(any(Transaction.class));
+                        // Assert
+                        assertThat(response).isNull();
+
+                        verify(transactionRepository, times(1)).save(any(Transaction.class)); // createPendingTransaction
+                        verify(transactionPersistenceService).saveFailedTransaction(any(), anyString(), anyString());
+                        verify(notificationService).createAndSend(any(), anyString(), any(), any());
+                        verify(emailService).sendTransferFailedEmail(any(), any(), anyString());
                 }
 
                 @Test
-                @DisplayName("Échec de la stratégie - Doit rembourser Stripe et lancer TransferException")
-                void processTransfer_ShouldRefundAndThrowException_WhenStrategyFails() throws StripeException {
+                @DisplayName("Échec de la stratégie - Doit rembourser Stripe et retourner TransactionResponse REFUNDED")
+                void processTransfer_ShouldRefund_WhenStrategyFails() throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(any(), any(), any()))
                                         .thenReturn(paymentIntent);
                         when(stripePaymentService.isPaymentSucceeded(paymentIntent)).thenReturn(true);
                         when(paymentIntent.getId()).thenReturn(PAYMENT_INTENT_ID);
-                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(strategyMap.get("BANK_TRANSFER")).thenReturn(bankTransferStrategy);
                         when(bankTransferStrategy.execute(any(Transaction.class), any(Beneficiary.class)))
                                         .thenReturn(TransferResult
                                                         .failure("Virement rejete par la banque destinataire"));
 
-                        // Act & Assert
-                        assertThatThrownBy(() -> transferService.processTransfer(transferRequest, USER_EMAIL))
-                                        .isInstanceOf(TransferException.class)
-                                        .hasMessageContaining("Transfert echoue et carte remboursee");
+                        // Act
+                        TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
+
+                        // Assert
+                        assertThat(response).isNotNull();
+                        assertThat(response.getStatus()).isEqualTo(TransactionStatus.REFUNDED);
 
                         verify(stripePaymentService).refundPayment(PAYMENT_INTENT_ID);
                         verify(notificationService, atLeastOnce()).createAndSend(any(), anyString(), any(), any());
                 }
 
                 @Test
-                @DisplayName("Échec de la stratégie ET échec du remboursement Stripe - Doit lancer TransferException")
+                @DisplayName("Échec de la stratégie ET échec du remboursement Stripe - Doit retourner TransactionResponse FAILED")
                 void processTransfer_ShouldHandleRefundFailure_WhenStrategyFailsAndRefundFails()
                                 throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(any(), any(), any()))
                                         .thenReturn(paymentIntent);
                         when(stripePaymentService.isPaymentSucceeded(paymentIntent)).thenReturn(true);
                         when(paymentIntent.getId()).thenReturn(PAYMENT_INTENT_ID);
-                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(strategyMap.get("BANK_TRANSFER")).thenReturn(bankTransferStrategy);
                         when(bankTransferStrategy.execute(any(Transaction.class), any(Beneficiary.class)))
                                         .thenReturn(TransferResult.failure("Erreur reseau"));
                         doThrow(stripeException)
                                         .when(stripePaymentService).refundPayment(PAYMENT_INTENT_ID);
 
-                        // Act & Assert
-                        assertThatThrownBy(() -> transferService.processTransfer(transferRequest, USER_EMAIL))
-                                        .isInstanceOf(TransferException.class)
-                                        .hasMessageContaining("Transfert echoue et carte remboursee");
+                        // Act
+                        TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
+
+                        // Assert
+                        assertThat(response).isNotNull();
+                        assertThat(response.getStatus()).isEqualTo(TransactionStatus.FAILED);
 
                         verify(stripePaymentService).refundPayment(PAYMENT_INTENT_ID);
                         verify(notificationService, atLeastOnce()).createAndSend(any(), anyString(), any(), any());
                 }
 
                 @Test
-                @DisplayName("Stratégie non trouvée pour le canal - Doit rembourser Stripe")
+                @DisplayName("Stratégie non trouvée pour le canal - Doit rembourser Stripe et retourner TransactionResponse REFUNDED")
                 void processTransfer_ShouldRefund_WhenStrategyNotFound() throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
                         when(userRepository.findByEmail(USER_EMAIL)).thenReturn(Optional.of(user));
                         when(beneficiaryRepository.findById(100L)).thenReturn(Optional.of(beneficiary));
-                        when(simulatorService.simulate(any())).thenReturn(simulation);
+                        when(simulatorService.simulate(any(SimulateRequest.class), anyLong())).thenReturn(simulation);
+                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(stripePaymentService.createAndConfirmPayment(any(), any(), any()))
                                         .thenReturn(paymentIntent);
                         when(stripePaymentService.isPaymentSucceeded(paymentIntent)).thenReturn(true);
                         when(paymentIntent.getId()).thenReturn(PAYMENT_INTENT_ID);
-                        when(transactionRepository.save(any(Transaction.class))).thenReturn(transaction);
                         when(strategyMap.get("BANK_TRANSFER")).thenReturn(null);
 
-                        // Act & Assert
-                        assertThatThrownBy(() -> transferService.processTransfer(transferRequest, USER_EMAIL))
-                                        .isInstanceOf(TransferException.class)
-                                        .hasMessageContaining("Transfert echoue et carte remboursee");
+                        // Act
+                        TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
+
+                        // Assert
+                        assertThat(response).isNotNull();
+                        assertThat(response.getStatus()).isEqualTo(TransactionStatus.REFUNDED);
 
                         verify(stripePaymentService).refundPayment(PAYMENT_INTENT_ID);
                 }

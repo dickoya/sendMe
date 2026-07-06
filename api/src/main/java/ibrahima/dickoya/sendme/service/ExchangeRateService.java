@@ -45,8 +45,8 @@ public class ExchangeRateService {
     private static final BigDecimal MARGIN_PCT = BigDecimal.ONE.subtract(MARGIN)
             .multiply(new BigDecimal("100"));
 
-    /** Durée de vie du cache : 30 minutes. */
-    private static final int CACHE_DURATION_MINUTES = 30;
+    /** Durée de vie du cache : 360 minutes (6h). */
+    private static final int CACHE_DURATION_MINUTES = 360;
 
     @Value("${app.openexchangerates.app-id}")
     private String appId;
@@ -99,7 +99,7 @@ public class ExchangeRateService {
         Map<String, Object> rates = ratesCache.get(baseCurrency, key -> fetchRates(key));
 
         if (rates != null && rates.containsKey(targetCurrency)) {
-            // ✅ API OK — taux récupéré normalement
+            // API OK — taux récupéré normalement
             BigDecimal rawRate = new BigDecimal(rates.get(targetCurrency).toString());
             BigDecimal finalRate = rawRate.multiply(MARGIN)
                     .setScale(6, RoundingMode.HALF_UP);
@@ -113,7 +113,7 @@ public class ExchangeRateService {
             return finalRate;
         }
 
-        // ⚠️ API indisponible ou taux manquant → fallback base de données
+        //  API indisponible ou taux manquant → fallback base de données
         log.warn("[EXCHANGE_RATE] API indisponible pour {} -> {}. Fallback BDD...",
                 baseCurrency, targetCurrency);
 
@@ -124,7 +124,7 @@ public class ExchangeRateService {
             return fallbackRate;
         }
 
-        // 🚨 Aucun taux disponible → retour 1:1 (évite de bloquer les transferts)
+        //  Aucun taux disponible → retour 1:1 (évite de bloquer les transferts)
         log.error("[EXCHANGE_RATE] AUCUN taux disponible pour {} -> {}. Retour 1:1",
                 baseCurrency, targetCurrency);
         return BigDecimal.ONE;
