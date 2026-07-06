@@ -25,7 +25,7 @@ const PERIOD_OPTIONS: PeriodOption[] = [7, 30, 90];
 function AdminDashboard() {
     const { t } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
-    const { dashboard, exchangeRateDebug, allExchangeRates, isLoading, error } = useAdminDashboard();
+    const { dashboard, exchangeRateDebug, allExchangeRates, exchangeRateConfig, isLoading, error } = useAdminDashboard();
     const { volumeData, successRateData, period, setPeriod, isLoading: isAnalyticsLoading } = useAdminAnalytics(30);
 
     if (isLoading) {
@@ -232,6 +232,28 @@ function AdminDashboard() {
                             to: exchangeRateDebug.to,
                         })}
                     </p>
+
+                    {/* ── Configuration actuelle ──────────────────────────────────── */}
+                    {exchangeRateConfig && (
+                        <div className="mt-4 grid gap-4 md:grid-cols-2">
+                            <div className="rounded-lg bg-orange-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase text-orange-700">
+                                    {t('dashboard.exchangeRateDebug.cacheDuration')}
+                                </p>
+                                <p className="mt-1 text-lg font-semibold text-orange-700">
+                                    {exchangeRateConfig.cacheDurationMinutes} min
+                                </p>
+                            </div>
+                            <div className="rounded-lg bg-teal-50 px-4 py-3">
+                                <p className="text-xs font-medium uppercase text-teal-700">
+                                    {t('dashboard.exchangeRateDebug.marginPercent')}
+                                </p>
+                                <p className="mt-1 text-lg font-semibold text-teal-700">
+                                    {exchangeRateConfig.marginPercent}%
+                                </p>
+                            </div>
+                        </div>
+                    )}
                 </Card>
             )}
 

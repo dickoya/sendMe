@@ -1,5 +1,6 @@
 package ibrahima.dickoya.sendme.controller;
 
+import ibrahima.dickoya.sendme.dto.request.ExchangeRateConfigRequest;
 import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
 import ibrahima.dickoya.sendme.dto.request.PaymentChannelRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
@@ -21,6 +22,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -50,6 +52,7 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @Validated
+@Slf4j
 @Tag(name = "Administration", description = """
                 Module d'administration — accès restreint au rôle ROLE_ADMIN.
 
@@ -119,6 +122,25 @@ public class AdminController {
 
                 return ResponseEntity.ok(
                                 ApiResponse.success("Debug taux de change", debugInfo));
+        }
+
+        /**
+         * Retourne la configuration actuelle des taux de change.
+         * Utilisé par le dashboard admin pour afficher les valeurs en cours.
+         *
+         * GET /api/admin/config/exchange-rate
+         *
+         * @return 200 OK avec la configuration actuelle
+         */
+        @GetMapping("/config/exchange-rate")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Configuration des taux de change", description = "Retourne la configuration actuelle des taux de change (durée du cache et marge).")
+        public ResponseEntity<ApiResponse<Map<String, Object>>> getExchangeRateConfig() {
+                Map<String, Object> config = new HashMap<>();
+                config.put("cacheDurationMinutes", exchangeRateService.getCacheDurationMinutes());
+                config.put("marginPercent", exchangeRateService.getMarginPercentage());
+                return ResponseEntity.ok(
+                                ApiResponse.success("Configuration des taux de change", config));
         }
 
         /**
@@ -260,6 +282,61 @@ public class AdminController {
                 return ResponseEntity.ok(ApiResponse.success(
                                 "Taux de commission mis a jour : " + request.getFeeRate() + "%",
                                 null));
+        }
+
+        /**
+         * Met à jour la configuration des taux de change (cache et/ou marge).
+         *
+         * Permet à l'admin de modifier :
+         * - La durée de vie du cache (en minutes)
+         * - La marge interne (en pourcentage)
+         *
+         * Les modifications sont appliquées IMMÉDIATEMENT sans redémarrage.
+         * Le cache est invalidé si la durée change.
+         * Les changements sont journalisés dans les logs d'audit.
+         *
+         * @param request les nouveaux paramètres (au moins un des deux) et la raison
+         * @return 200 OK avec message de confirmation
+         */
+        @PutMapping("/config/exchange-rate")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Modifier la configuration des taux de change", description = """
+                        Met à jour la durée du cache et/ou la marge interne appliquée
+                        aux taux de change. Appliqué immédiatement sans redémarrage.
+                        Le cache est invalidé si la durée change.
+                        """)
+        public ResponseEntity<ApiResponse<Map<String, Object>>> updateExchangeRateConfig(
+                        @Valid @RequestBody ExchangeRateConfigRequest request) {
+
+                Map<String, Object> changes = new HashMap<>();
+
+                if (request.getCacheDurationMinutes() != null) {
+                        int oldDuration = exchangeRateService.getCacheDurationMinutes();
+                        exchangeRateService.updateCacheDuration(request.getCacheDurationMinutes());
+                        changes.put("cacheDurationMinutes", Map.of(
+                                        "old", oldDuration,
+                                        "new", request.getCacheDurationMinutes()));
+                        log.info("[ADMIN] Duree du cache changee : {} min -> {} min — Raison : {}",
+                                        oldDuration, request.getCacheDurationMinutes(), request.getReason());
+                }
+
+                if (request.getMarginPercent() != null) {
+                        BigDecimal oldMargin = exchangeRateService.getMarginPercentage();
+                        exchangeRateService.updateMargin(request.getMarginPercent());
+                        changes.put("marginPercent", Map.of(
+                                        "old", oldMargin,
+                                        "new", request.getMarginPercent()));
+                        log.info("[ADMIN] Marge changee : {}% -> {}% — Raison : {}",
+                                        oldMargin, request.getMarginPercent(), request.getReason());
+                }
+
+                if (changes.isEmpty()) {
+                        return ResponseEntity.badRequest().body(
+                                        ApiResponse.error("Aucun paramètre à modifier fourni"));
+                }
+
+                return ResponseEntity.ok(
+                                ApiResponse.success("Configuration des taux de change mise à jour", changes));
         }
 
         /**

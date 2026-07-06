@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Send, Users, Wallet, TrendingUp, PiggyBank, DollarSign, Gift } from 'lucide-react';
+import { Send, Users, Wallet, TrendingUp, PiggyBank, DollarSign, Gift, Shield } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Spinner from '@/components/ui/Spinner';
@@ -110,6 +110,17 @@ function Dashboard() {
                             {t('manageBeneficiaries')}
                         </Button>
                     </Link>
+                    {user?.role === 'ROLE_ADMIN' && (
+                        <Link to="/admin">
+                            <Button
+                                size="sm"
+                                icon={<Shield size={16} />}
+                                className="bg-amber-500/40 text-white hover:bg-amber-500/60 dark:bg-amber-500/20 dark:hover:bg-amber-500/30"
+                            >
+                                {t('adminPanel')}
+                            </Button>
+                        </Link>
+                    )}
                 </div>
             </div>
 

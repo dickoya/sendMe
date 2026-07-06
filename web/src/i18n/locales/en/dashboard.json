@@ -4,6 +4,7 @@
   "referralCode": "My referral code",
   "newTransfer": "New transfer",
   "manageBeneficiaries": "Manage my beneficiaries",
+  "adminPanel": "Administration",
   "stats": {
     "totalSent": "Total sent",
     "totalReceived": "Total received",

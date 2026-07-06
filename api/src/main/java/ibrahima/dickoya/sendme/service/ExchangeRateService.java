@@ -24,8 +24,9 @@ import java.util.concurrent.TimeUnit;
  * l'API OpenExchangeRates (https://openexchangerates.org).
  *
  * Fonctionnalités :
- * - Cache Caffeine de 30 minutes pour éviter de saturer l'API gratuite
- * - Marge interne de 2% appliquée sur le taux brut
+ * - Cache Caffeine (durée configurable par l'admin) pour éviter de saturer
+ * l'API gratuite
+ * - Marge interne configurable par l'admin appliquée sur le taux brut
  * - Fallback base de données si l'API est indisponible
  * - Historique en base pour audit et conformité
  * - Logging détaillé pour chaque récupération de taux
@@ -38,15 +39,25 @@ public class ExchangeRateService {
     /** URL de l'API OpenExchangeRates (plan gratuit : latest.json). */
     private static final String API_URL = "https://openexchangerates.org/api/latest.json?app_id={appId}";
 
-    /** Marge interne de 2% appliquée sur le taux brut. */
-    private static final BigDecimal MARGIN = new BigDecimal("0.98");
+    /**
+     * Marge interne appliquée sur le taux brut.
+     * Modifiable à chaud par l'administrateur via le dashboard.
+     * Valeur par défaut : 0.98 (soit 2% de marge).
+     * volatile garantit la visibilité entre les threads.
+     */
+    private volatile BigDecimal margin = new BigDecimal("0.98");
 
     /** Pourcentage de marge affiché dans les logs. */
-    private static final BigDecimal MARGIN_PCT = BigDecimal.ONE.subtract(MARGIN)
+    private volatile BigDecimal marginPct = BigDecimal.ONE.subtract(margin)
             .multiply(new BigDecimal("100"));
 
-    /** Durée de vie du cache : 360 minutes (6h). */
-    private static final int CACHE_DURATION_MINUTES = 360;
+    /**
+     * Durée de vie du cache en minutes.
+     * Modifiable à chaud par l'administrateur via le dashboard.
+     * Valeur par défaut : 360 minutes (6h).
+     * volatile garantit la visibilité entre les threads.
+     */
+    private volatile int cacheDurationMinutes = 360;
 
     @Value("${app.openexchangerates.app-id}")
     private String appId;
@@ -60,12 +71,12 @@ public class ExchangeRateService {
      * Clé : devise de base (ex: "EUR", "USD")
      * Valeur : Map des taux bruts (ex: {"XOF": 655.957, "GNF": 9500.00})
      *
-     * Expire 30 minutes après écriture.
+     * La durée d'expiration est configurable par l'admin.
      * Tant que l'API répond, le cache est rafraîchi.
      * Si l'API est down, l'ancienne valeur est conservée.
      */
-    private final Cache<String, Map<String, Object>> ratesCache = Caffeine.newBuilder()
-            .expireAfterWrite(CACHE_DURATION_MINUTES, TimeUnit.MINUTES)
+    private Cache<String, Map<String, Object>> ratesCache = Caffeine.newBuilder()
+            .expireAfterWrite(cacheDurationMinutes, TimeUnit.MINUTES)
             .maximumSize(10)
             .build();
 
@@ -74,14 +85,14 @@ public class ExchangeRateService {
     @PostConstruct
     public void init() {
         log.info("[EXCHANGE_RATE] Service initialise avec l'API OpenExchangeRates");
-        log.info("[EXCHANGE_RATE] Marge interne : {}%", MARGIN_PCT);
-        log.info("[EXCHANGE_RATE] Cache : {} minutes", CACHE_DURATION_MINUTES);
+        log.info("[EXCHANGE_RATE] Marge interne : {}%", marginPct);
+        log.info("[EXCHANGE_RATE] Cache : {} minutes", cacheDurationMinutes);
         log.info("[EXCHANGE_RATE] Fallback BDD : active");
         log.info("[EXCHANGE_RATE] Historique audit : active");
     }
 
     /**
-     * Récupère le taux de change entre deux devises, avec marge de 2%.
+     * Récupère le taux de change entre deux devises, avec marge configurable.
      *
      * @param from devise source (ex: "EUR")
      * @param to   devise destination (ex: "XOF")
@@ -101,11 +112,11 @@ public class ExchangeRateService {
         if (rates != null && rates.containsKey(targetCurrency)) {
             // API OK — taux récupéré normalement
             BigDecimal rawRate = new BigDecimal(rates.get(targetCurrency).toString());
-            BigDecimal finalRate = rawRate.multiply(MARGIN)
+            BigDecimal finalRate = rawRate.multiply(margin)
                     .setScale(6, RoundingMode.HALF_UP);
 
             log.info("[EXCHANGE_RATE] {} -> {} : brut={}, final={} (marge {}%)",
-                    baseCurrency, targetCurrency, rawRate, finalRate, MARGIN_PCT);
+                    baseCurrency, targetCurrency, rawRate, finalRate, marginPct);
 
             // Stocker en base pour historique (asynchrone)
             saveRateToDatabase(baseCurrency, targetCurrency, rawRate, finalRate, "SUCCESS");
@@ -113,7 +124,7 @@ public class ExchangeRateService {
             return finalRate;
         }
 
-        //  API indisponible ou taux manquant → fallback base de données
+        // API indisponible ou taux manquant → fallback base de données
         log.warn("[EXCHANGE_RATE] API indisponible pour {} -> {}. Fallback BDD...",
                 baseCurrency, targetCurrency);
 
@@ -124,7 +135,7 @@ public class ExchangeRateService {
             return fallbackRate;
         }
 
-        //  Aucun taux disponible → retour 1:1 (évite de bloquer les transferts)
+        // Aucun taux disponible → retour 1:1 (évite de bloquer les transferts)
         log.error("[EXCHANGE_RATE] AUCUN taux disponible pour {} -> {}. Retour 1:1",
                 baseCurrency, targetCurrency);
         return BigDecimal.ONE;
@@ -166,7 +177,7 @@ public class ExchangeRateService {
                     .targetCurrency(targetCurrency)
                     .rawRate(rawRate)
                     .marginRate(marginRate)
-                    .marginPct(MARGIN_PCT)
+                    .marginPct(marginPct)
                     .fetchedAt(LocalDateTime.now())
                     .apiStatus(apiStatus)
                     .build();
@@ -237,6 +248,63 @@ public class ExchangeRateService {
     }
 
     // ────────────────────────────────────────────────────────────────
+    // Méthodes de configuration dynamique (pour l'admin)
+    // ────────────────────────────────────────────────────────────────
+
+    /**
+     * Met à jour la durée de vie du cache.
+     * Le cache est INVALIDÉ IMMÉDIATEMENT pour forcer un rafraîchissement
+     * à la prochaine demande de taux.
+     *
+     * @param minutes nouvelle durée en minutes
+     */
+    public void updateCacheDuration(int minutes) {
+        if (minutes < 1) {
+            throw new IllegalArgumentException("La durée du cache doit être d'au moins 1 minute");
+        }
+        this.cacheDurationMinutes = minutes;
+        // Invalider le cache immédiatement pour appliquer la nouvelle durée
+        ratesCache.invalidateAll();
+        // Recréer le cache avec la nouvelle durée
+        ratesCache = Caffeine.newBuilder()
+                .expireAfterWrite(cacheDurationMinutes, TimeUnit.MINUTES)
+                .maximumSize(10)
+                .build();
+        log.info("[EXCHANGE_RATE] Duree du cache mise a jour : {} minutes (cache invalide)", minutes);
+    }
+
+    /**
+     * Met à jour la marge interne appliquée sur le taux brut.
+     *
+     * @param marginPercent la marge en pourcentage (ex: 2.0 pour 2%)
+     */
+    public void updateMargin(BigDecimal marginPercent) {
+        if (marginPercent.compareTo(BigDecimal.ZERO) < 0 || marginPercent.compareTo(new BigDecimal("50")) > 0) {
+            throw new IllegalArgumentException("La marge doit être entre 0% et 50%");
+        }
+        // Convertir le pourcentage en facteur multiplicateur (2% → 0.98)
+        BigDecimal factor = BigDecimal.ONE.subtract(
+                marginPercent.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP));
+        this.margin = factor;
+        this.marginPct = marginPercent;
+        log.info("[EXCHANGE_RATE] Marge mise a jour : {}% (facteur: {})", marginPercent, factor);
+    }
+
+    /**
+     * Retourne la durée actuelle du cache en minutes.
+     */
+    public int getCacheDurationMinutes() {
+        return cacheDurationMinutes;
+    }
+
+    /**
+     * Retourne le facteur de marge actuel (ex: 0.98 pour 2%).
+     */
+    public BigDecimal getMargin() {
+        return margin;
+    }
+
+    // ────────────────────────────────────────────────────────────────
     // Méthodes publiques pour le debug et le dashboard admin
     // ────────────────────────────────────────────────────────────────
 
@@ -282,7 +350,7 @@ public class ExchangeRateService {
 
         BigDecimal rawRate = getRawRate(from, to);
         if (rawRate != null) {
-            return rawRate.multiply(MARGIN)
+            return rawRate.multiply(margin)
                     .setScale(6, RoundingMode.HALF_UP);
         }
         return null;
@@ -301,10 +369,10 @@ public class ExchangeRateService {
     }
 
     /**
-     * Retourne la marge appliquée (ex: 2.00).
+     * Retourne la marge appliquée en pourcentage (ex: 2.00).
      */
     public BigDecimal getMarginPercentage() {
-        return MARGIN_PCT;
+        return marginPct;
     }
 
     /**

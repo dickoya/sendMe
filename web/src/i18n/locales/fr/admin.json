@@ -58,6 +58,8 @@
       "rawRate": "Taux brut",
       "marginRate": "Taux avec marge",
       "cacheTimestamp": "Cache",
+      "cacheDuration": "Durée du cache",
+      "marginPercent": "Marge interne",
       "pair": "Paire suivie : {{from}} -> {{to}}"
     },
     "errors": {
@@ -145,7 +147,24 @@
       "button": "Exporter en CSV"
     }
   },
-  "settings": {
+    "settings": {
+        "exchangeRate": {
+            "title": "Configuration des taux de change",
+            "cacheDuration": "Durée du cache (minutes)",
+            "cacheDurationHint": "Laissez vide pour conserver la valeur actuelle. Le cache sera invalidé immédiatement.",
+            "marginPercent": "Marge interne (%)",
+            "marginPercentHint": "Entre 0% et 50%. Laissez vide pour conserver la valeur actuelle.",
+            "reason": "Raison du changement",
+            "reasonPlaceholder": "Ex: Ajustement de la marge pour le mois",
+            "save": "Mettre à jour",
+            "saving": "Enregistrement...",
+            "success": "Configuration des taux de change mise à jour",
+            "error": "Erreur lors de la mise à jour",
+            "validation": {
+                "reasonRequired": "Veuillez indiquer une raison pour ce changement",
+                "atLeastOne": "Veuillez renseigner au moins un paramètre à modifier"
+            }
+        },
     "fees": {
       "title": "Frais de la plateforme",
       "rateLabel": "Nouveau taux de commission (%)",

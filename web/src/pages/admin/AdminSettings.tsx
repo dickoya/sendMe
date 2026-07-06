@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import Card from '@/components/ui/Card';
 import FeeConfigForm from '@/components/forms/FeeConfigForm';
+import ExchangeRateConfigForm from '@/components/forms/ExchangeRateConfigForm';
 import MaintenanceForm from '@/components/forms/MaintenanceForm';
 
 /**
@@ -15,6 +16,10 @@ function AdminSettings() {
         <div className="flex flex-col gap-6">
             <Card title={t('settings.fees.title')}>
                 <FeeConfigForm />
+            </Card>
+
+            <Card title={t('settings.exchangeRate.title')}>
+                <ExchangeRateConfigForm />
             </Card>
 
             <Card title={t('settings.maintenance.title')}>

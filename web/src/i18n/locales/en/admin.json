@@ -58,6 +58,8 @@
       "rawRate": "Raw rate",
       "marginRate": "Rate with margin",
       "cacheTimestamp": "Cache",
+      "cacheDuration": "Cache duration",
+      "marginPercent": "Internal margin",
       "pair": "Tracked pair: {{from}} -> {{to}}"
     },
     "errors": {
@@ -145,7 +147,24 @@
       "button": "Export to CSV"
     }
   },
-  "settings": {
+    "settings": {
+        "exchangeRate": {
+            "title": "Exchange rate configuration",
+            "cacheDuration": "Cache duration (minutes)",
+            "cacheDurationHint": "Leave empty to keep current value. The cache will be invalidated immediately.",
+            "marginPercent": "Internal margin (%)",
+            "marginPercentHint": "Between 0% and 50%. Leave empty to keep current value.",
+            "reason": "Reason for the change",
+            "reasonPlaceholder": "E.g.: Margin adjustment for the month",
+            "save": "Update",
+            "saving": "Saving...",
+            "success": "Exchange rate configuration updated",
+            "error": "Error updating configuration",
+            "validation": {
+                "reasonRequired": "Please provide a reason for this change",
+                "atLeastOne": "Please provide at least one parameter to update"
+            }
+        },
     "fees": {
       "title": "Platform fees",
       "rateLabel": "New commission rate (%)",

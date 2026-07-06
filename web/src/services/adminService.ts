@@ -19,6 +19,11 @@ export interface FeeConfigPayload {
     reason: string;
 }
 
+export interface ExchangeRateConfigPayload {
+    cacheDurationMinutes?: number;
+    marginPercent?: number;
+    reason: string;
+}
 
 /**
  * Service administration — appels vers /api/admin/*
@@ -83,6 +88,23 @@ export const adminService = {
      */
     async updateFeeRate(payload: FeeConfigPayload): Promise<void> {
         await api.put('/admin/config/fees', payload);
+    },
+
+    /**
+     * Récupère la configuration actuelle des taux de change.
+     * GET /api/admin/config/exchange-rate
+     */
+    async getExchangeRateConfig(): Promise<{ cacheDurationMinutes: number; marginPercent: number }> {
+        const { data } = await api.get<ApiResponse<{ cacheDurationMinutes: number; marginPercent: number }>>('/admin/config/exchange-rate');
+        return data.data;
+    },
+
+    /**
+     * Met à jour la configuration des taux de change (durée du cache et/ou marge).
+     * PUT /api/admin/config/exchange-rate
+     */
+    async updateExchangeRateConfig(payload: ExchangeRateConfigPayload): Promise<void> {
+        await api.put('/admin/config/exchange-rate', payload);
     },
 
     /**

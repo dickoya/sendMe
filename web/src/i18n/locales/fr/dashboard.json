@@ -4,6 +4,7 @@
   "referralCode": "Mon code de parrainage",
   "newTransfer": "Nouveau transfert",
   "manageBeneficiaries": "Gérer mes bénéficiaires",
+  "adminPanel": "Administration",
   "stats": {
     "totalSent": "Total envoyé",
     "totalReceived": "Total reçu",
