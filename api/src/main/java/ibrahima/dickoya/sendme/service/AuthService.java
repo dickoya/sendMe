@@ -38,6 +38,7 @@ public class AuthService {
     private final LoginAttemptService loginAttemptService;
     private final IpBlockingService ipBlockingService;
     private final RefreshTokenService refreshTokenService;
+    private final AuditService auditService;
 
     // ── Durée de validité du token de vérification email (48h) ──────────────
     private static final long EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 48;
@@ -78,6 +79,10 @@ public class AuthService {
 
         log.info("Nouvel utilisateur enregistre : {} (code parrainage: {}, email non vérifié)", user.getEmail(),
                 referralCode);
+
+        // Enregistrer un log d'audit
+        auditService.logEvent("AUTH", "REGISTER", user.getEmail(), user.getId(), "SUCCESS",
+                "Nouvel utilisateur inscrit : " + user.getEmail());
 
         // Envoyer l'email de vérification (au lieu de l'email de bienvenue)
         try {
@@ -231,6 +236,10 @@ public class AuthService {
 
             log.info("Connexion reussie pour : {} depuis IP : {}", user.getEmail(), ipAddress);
 
+            // Enregistrer un log d'audit pour la connexion
+            auditService.logEvent("AUTH", "LOGIN", user.getEmail(), user.getId(), "SUCCESS",
+                    "Connexion réussie depuis " + ipAddress);
+
             // 6. Enregistrer l'historique de connexion
             try {
                 String userAgent = httpRequest.getHeader("User-Agent");
@@ -245,7 +254,13 @@ public class AuthService {
                 log.error("[AUTH] Échec de l'enregistrement de l'historique de connexion : {}", e.getMessage());
             }
 
-            // 7. Envoi sécurisé de l'alerte e-mail
+            // 7. Enregistrer un log d'audit si c'est un admin qui se connecte
+            if (user.getRole() == Role.ROLE_ADMIN) {
+                auditService.logEvent("ADMIN", "LOGIN", user.getEmail(), user.getId(), "SUCCESS",
+                        "Connexion admin depuis " + ipAddress);
+            }
+
+            // 8. Envoi sécurisé de l'alerte e-mail
             try {
                 final String finalIpAddress = ipAddress;
                 emailService.sendLoginAlertEmail(user, finalIpAddress);

@@ -191,6 +191,8 @@ export interface Page<T> {
     totalPages: number;
     number: number;
     size: number;
+    first: boolean;
+    last: boolean;
 }
 
 // ── API générique ──────────────────────────────────────────────────────
@@ -258,18 +260,6 @@ export interface ReferralCouponResponse {
     usedAt: string | null;
     referredUserName: string;
     transactionId: number | null;
-    createdAt: string;
-}
-
-// ── Admin Logs ─────────────────────────────────────────────────────────
-export interface AdminLogEntry {
-    id: number;
-    action: string;
-    adminEmail: string;
-    entityType: string;
-    entityId?: number | null;
-    details: string;
-    ipAddress?: string;
     createdAt: string;
 }
 

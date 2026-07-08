@@ -10,9 +10,7 @@ import type {
     ExchangeRateDebugEntry,
     VolumeDataPoint,
     SuccessRateDataPoint,
-    AdminLogEntry,
 } from '@/types';
-import type { AdminLogFilters } from '@/pages/admin/AdminLogs';
 
 export interface FeeConfigPayload {
     feeRate: number;
@@ -186,29 +184,6 @@ export const adminService = {
     async getSuccessRateData(days = 30): Promise<SuccessRateDataPoint[]> {
         const { data } = await api.get<ApiResponse<SuccessRateDataPoint[]>>('/admin/analytics/success-rate', {
             params: { days },
-        });
-        return data.data;
-    },
-
-
-    /**
-     * Liste paginée des logs d'activité admin.
-     * GET /api/admin/logs?page=0&size=20&action=...&adminEmail=...&dateFrom=...&dateTo=...
-     */
-    async getLogs(
-        page = 0,
-        size = 20,
-        filters: AdminLogFilters = { action: '', adminEmail: '', dateFrom: '', dateTo: '' }
-    ): Promise<Page<AdminLogEntry>> {
-        const { data } = await api.get<ApiResponse<Page<AdminLogEntry>>>('/admin/logs', {
-            params: {
-                page,
-                size,
-                action: filters.action || undefined,
-                adminEmail: filters.adminEmail || undefined,
-                dateFrom: filters.dateFrom || undefined,
-                dateTo: filters.dateTo || undefined,
-            },
         });
         return data.data;
     },

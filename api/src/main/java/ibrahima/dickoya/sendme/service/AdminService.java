@@ -69,6 +69,7 @@ public class AdminService {
          * quand son compte est activé ou désactivé.
          */
         private final EmailService emailService;
+        private final AuditService auditService;
 
         /**
          * Génère le tableau de bord complet avec toutes les statistiques.
@@ -197,6 +198,7 @@ public class AdminService {
          * @return UserResponse l'utilisateur mis à jour
          */
         @Transactional
+        @Auditable(action = "USER_TOGGLE", entityType = "USER", entityIdExpression = "#userId")
         public UserResponse toggleUserStatus(Long userId) {
 
                 User user = userRepository.findById(userId)
@@ -222,6 +224,11 @@ public class AdminService {
 
                 log.info("[ADMIN] Compte {} : statut changé à {}",
                                 user.getEmail(), newStatus ? "ACTIF" : "DESACTIVE");
+
+                // Enregistrer un log d'audit
+                auditService.logEvent("ADMIN", "USER_TOGGLE", user.getEmail(), user.getId(),
+                                "SUCCESS",
+                                "Compte " + (newStatus ? "réactivé" : "désactivé") + " : " + user.getEmail());
 
                 return toUserResponse(user);
         }
@@ -265,6 +272,7 @@ public class AdminService {
          *
          * @param request le nouveau taux et la raison du changement
          */
+        @Auditable(action = "FEE_UPDATE", entityType = "CONFIG")
         public void updateFeeRate(FeeConfigRequest request) {
 
                 // Récupérer l'ancien taux AVANT la mise à jour
@@ -361,6 +369,7 @@ public class AdminService {
          * @param duration        durée estimée (ex: "2 heures")
          */
         @Transactional(readOnly = true)
+        @Auditable(action = "MAINTENANCE", entityType = "NOTIFICATION")
         public void sendMaintenanceNotification(
                         String maintenanceDate,
                         String duration) {

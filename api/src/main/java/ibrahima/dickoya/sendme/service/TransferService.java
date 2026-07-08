@@ -97,6 +97,7 @@ public class TransferService {
          * des proxies AOP Spring avec @Transactional(REQUIRES_NEW).
          */
         private final TransactionPersistenceService transactionPersistenceService;
+        private final AuditService auditService;
 
         /**
          * TransactionTemplate pour gérer les transactions programmatiquement.
@@ -127,7 +128,8 @@ public class TransferService {
                         ReferralService referralService,
                         TransactionPersistenceService transactionPersistenceService,
                         PlatformTransactionManager transactionManager,
-                        MessageUtils messageUtils) {
+                        MessageUtils messageUtils,
+                        AuditService auditService) {
                 this.transactionRepository = transactionRepository;
                 this.beneficiaryRepository = beneficiaryRepository;
                 this.userRepository = userRepository;
@@ -138,6 +140,7 @@ public class TransferService {
                 this.emailService = emailService;
                 this.referralService = referralService;
                 this.transactionPersistenceService = transactionPersistenceService;
+                this.auditService = auditService;
                 this.transactionTemplate = new TransactionTemplate(transactionManager);
                 this.messageUtils = messageUtils;
         }
@@ -383,6 +386,12 @@ public class TransferService {
 
                 transaction = transactionRepository.save(transaction);
                 log.info("Transaction sauvegardee : {}", transaction.getReference());
+
+                // Log d'audit : transfert créé
+                auditService.logEvent("TRANSFER", "TRANSFER_CREATED", user.getEmail(), user.getId(),
+                                transaction.getId(), "TRANSACTION", "PENDING",
+                                "Transfert créé : " + transaction.getReference(), null, null);
+
                 return transaction;
         }
 
@@ -495,6 +504,11 @@ public class TransferService {
                 transactionRepository.save(transaction);
                 log.info("=== TRANSFERT COMPLETE : {} ===", transaction.getReference());
 
+                // Log d'audit : transfert réussi
+                auditService.logEvent("TRANSFER", "TRANSFER_COMPLETED", user.getEmail(), user.getId(),
+                                transaction.getId(), "TRANSACTION", "SUCCESS",
+                                "Transfert réussi : " + transaction.getReference(), null, null);
+
                 // Notification TRANSFER_COMPLETED
                 notificationService.createAndSend(
                                 user,
@@ -548,6 +562,12 @@ public class TransferService {
 
                         transaction.setStatus(TransactionStatus.REFUNDED);
                         transactionRepository.save(transaction);
+
+                        // Log d'audit : transfert remboursé
+                        auditService.logEvent("TRANSFER", "TRANSFER_REFUNDED", user.getEmail(), user.getId(),
+                                        transaction.getId(), "TRANSACTION", "SUCCESS",
+                                        "Transfert remboursé : " + transaction.getReference() + " - Raison : " + reason,
+                                        null, null);
 
                         // Notification SSE : remboursement réussi
                         notificationService.createAndSend(
