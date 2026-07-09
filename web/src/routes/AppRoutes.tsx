@@ -15,6 +15,7 @@ import Login from '@/pages/public/Login';
 import Register from '@/pages/public/Register';
 import EmailVerification from '@/pages/public/EmailVerification';
 import VerificationSent from '@/pages/public/VerificationSent';
+import LegalNotice from '@/pages/public/LegalNotice';
 
 // Pages privées
 import Dashboard from '@/pages/private/Dashboard';
@@ -57,10 +58,11 @@ function AppRoutes() {
             <Route path="/verify-email" element={<EmailVerification />} />
             <Route path="/verify-email-sent" element={<VerificationSent />} />
 
-            {/* ── Routes publiques (Login, Register) ────────────────────────── */}
+            {/* ── Routes publiques (Login, Register, Legal) ──────────────────── */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/legal" element={<LegalNotice />} />
             </Route>
 
             {/* ── Routes privées (utilisateur connecté) ───────────────────────── */}
@@ -74,6 +76,7 @@ function AppRoutes() {
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/referral" element={<ReferralPage />} />
                     <Route path="/faq" element={<Faq />} />
+                    <Route path="/legal" element={<LegalNotice />} />
                 </Route>
             </Route>
 

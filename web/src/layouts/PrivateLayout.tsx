@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Scale } from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
 
@@ -28,6 +29,22 @@ function PrivateLayout() {
                 <main className="flex-1 p-4 md:p-6">
                     <Outlet />
                 </main>
+
+                {/* Footer */}
+                <footer className="border-t border-gray-100 bg-white px-6 py-4 dark:border-[#222222] dark:bg-[#0D0D0D]">
+                    <div className="flex flex-col items-center justify-between gap-2 sm:flex-row">
+                        <p className="text-xs text-gray-400 dark:text-[#5A5E72]">
+                            &copy; {new Date().getFullYear()} SendMe. {t('footer.rights')}
+                        </p>
+                        <Link
+                            to="/legal"
+                            className="inline-flex items-center gap-1.5 text-xs text-gray-400 transition-colors hover:text-brand-600 dark:text-[#5A5E72] dark:hover:text-brand-400"
+                        >
+                            <Scale size={12} />
+                            {t('nav.legal', 'Mentions légales')}
+                        </Link>
+                    </div>
+                </footer>
             </div>
         </div>
     );

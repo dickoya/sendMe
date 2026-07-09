@@ -583,7 +583,7 @@ function Home() {
                             <ul className="mt-4 space-y-2">
                                 <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.about')}</a></li>
                                 <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.legal')}</a></li>
+                                <li><Link to="/legal" className="text-sm text-gray-600 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">{t('footer.legal')}</Link></li>
                             </ul>
                         </div>
                         <div>

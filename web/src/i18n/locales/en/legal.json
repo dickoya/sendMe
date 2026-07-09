@@ -1,0 +1,252 @@
+{
+    "meta": {
+        "title": "Legal Information — SendMe",
+        "description": "Legal notices, privacy policy, terms of use and regulatory compliance of SendMe"
+    },
+    "page": {
+        "title": "Legal Information",
+        "subtitle": "Transparency and compliance are at the heart of our commitment. Find here all the legal and regulatory documents governing our money transfer services.",
+        "lastUpdate": "Last updated: July 2026",
+        "searchPlaceholder": "Search legal documents...",
+        "noResults": "No documents found",
+        "noResultsSub": "Try modifying your search or selecting another category."
+    },
+    "categories": {
+        "all": "Show all",
+        "general": "Legal notices",
+        "personalData": "Personal Data & GDPR",
+        "cookies": "Cookie Policy",
+        "terms": "Terms of Use",
+        "privacy": "Privacy & Security",
+        "aml": "Anti-Money Laundering (AML)",
+        "complaints": "Complaints & Mediation"
+    },
+    "sections": [
+        {
+            "id": "general-1",
+            "category": "general",
+            "title": "Legal Notices",
+            "icon": "Building2",
+            "content": [
+                {
+                    "subtitle": "Service Publisher",
+                    "text": "SendMe is an online money transfer service published by <strong>SendMe Technologies SA</strong>, registered with the Trade Register under number <strong>BE 0768.945.321</strong>."
+                },
+                {
+                    "subtitle": "Registered Office",
+                    "text": "SendMe Technologies SA<br/>Avenue de la Toison d'Or 25<br/>1050 Brussels, Belgium"
+                },
+                {
+                    "subtitle": "Regulatory Authority",
+                    "text": "SendMe is licensed as a payment institution by the <strong>National Bank of Belgium (NBB)</strong> under license number <strong>NBB-PAY-2024-0042</strong>. Our activities are supervised by the NBB and the Financial Services and Markets Authority (FSMA)."
+                },
+                {
+                    "subtitle": "Contact",
+                    "text": "Email: <a href=\"mailto:legal@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">legal@sendme.com</a><br/>Phone: +32 (0)2 123 45 67<br/>Customer service: <a href=\"mailto:support@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">support@sendme.com</a>"
+                }
+            ]
+        },
+        {
+            "id": "general-2",
+            "category": "general",
+            "title": "Payment Services Directive (PSD2)",
+            "icon": "Landmark",
+            "content": [
+                {
+                    "subtitle": "PSD2 Compliance",
+                    "text": "SendMe complies with Directive (EU) 2015/2366 on payment services in the internal market (PSD2). This directive strengthens the security of online payments and protects consumers against fraud."
+                },
+                {
+                    "subtitle": "Strong Customer Authentication (SCA)",
+                    "text": "In accordance with PSD2, all transactions made via SendMe are subject to <strong>Strong Customer Authentication (SCA)</strong>. This may include verification by SMS code, email or authentication application."
+                },
+                {
+                    "subtitle": "Execution Times",
+                    "text": "Money transfers are executed within a maximum of <strong>2 business days</strong> from receipt of funds, in accordance with PSD2 requirements. Transfers to certain mobile channels (Orange Money, MTN Mobile Money) may be instant."
+                }
+            ]
+        },
+        {
+            "id": "pd-1",
+            "category": "personalData",
+            "title": "Data Protection Policy",
+            "icon": "ShieldCheck",
+            "content": [
+                {
+                    "subtitle": "Data Controller",
+                    "text": "The data controller for your personal data is <strong>SendMe Technologies SA</strong>, located at Avenue de la Toison d'Or 25, 1050 Brussels, Belgium."
+                },
+                {
+                    "subtitle": "Data Collected",
+                    "text": "As part of our services, we collect the following data:<br/><br/>• <strong>Identity data</strong>: last name, first name, date of birth, nationality, address<br/>• <strong>Contact data</strong>: email, phone number<br/>• <strong>Financial data</strong>: IBAN, card information (via Stripe), transaction history<br/>• <strong>Verification data</strong>: copy of ID, proof of address (KYC)<br/>• <strong>Technical data</strong>: IP address, browser type, cookies"
+                },
+                {
+                    "subtitle": "Legal Basis for Processing",
+                    "text": "The processing of your data is based on:<br/><br/>• <strong>Contract execution</strong>: to process your money transfers<br/>• <strong>Legal obligations</strong>: to comply with AML/CFT regulations<br/>• <strong>Your consent</strong>: for cookies and marketing communications<br/>• <strong>Legitimate interest</strong>: to improve our services and prevent fraud"
+                },
+                {
+                    "subtitle": "Retention Period",
+                    "text": "In accordance with Belgian and European regulations, your data is retained:<br/><br/>• <strong>Transaction data</strong>: 10 years (legal obligation)<br/>• <strong>KYC data</strong>: 5 years after account closure<br/>• <strong>Cookie data</strong>: 13 months maximum<br/>• <strong>Marketing data</strong>: until consent withdrawal"
+                }
+            ]
+        },
+        {
+            "id": "pd-2",
+            "category": "personalData",
+            "title": "Your GDPR Rights",
+            "icon": "FileCheck",
+            "content": [
+                {
+                    "subtitle": "User Rights",
+                    "text": "Under the General Data Protection Regulation (GDPR - Regulation EU 2016/679), you have the following rights:<br/><br/>• <strong>Right of access</strong>: obtain a copy of your personal data<br/>• <strong>Right to rectification</strong>: correct inaccurate data<br/>• <strong>Right to erasure</strong>: request deletion of your data (right to be forgotten)<br/>• <strong>Right to restriction</strong>: limit the processing of your data<br/>• <strong>Right to portability</strong>: receive your data in a structured format<br/>• <strong>Right to object</strong>: object to processing for legitimate reasons"
+                },
+                {
+                    "subtitle": "Exercising Your Rights",
+                    "text": "To exercise your rights, contact our Data Protection Officer (DPO) at: <a href=\"mailto:dpo@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">dpo@sendme.com</a> or by mail to our registered office. We undertake to respond to your request within a maximum of <strong>30 days</strong>."
+                },
+                {
+                    "subtitle": "Complaint to the Authority",
+                    "text": "If you believe your rights are not being respected, you can lodge a complaint with the Belgian <strong>Data Protection Authority (DPA)</strong>:<br/><br/>Data Protection Authority<br/>Rue de la Presse 35, 1000 Brussels<br/>Email: <a href=\"mailto:contact@apd-gba.be\" class=\"text-brand-600 dark:text-brand-400 underline\">contact@apd-gba.be</a><br/>Website: <a href=\"https://www.privacycommission.be\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand-600 dark:text-brand-400 underline\">www.privacycommission.be</a>"
+                }
+            ]
+        },
+        {
+            "id": "ck-1",
+            "category": "cookies",
+            "title": "Cookie Policy",
+            "icon": "Cookie",
+            "content": [
+                {
+                    "subtitle": "What are cookies?",
+                    "text": "Cookies are small text files placed on your device (computer, smartphone, tablet) when you browse our site. They allow us to recognize your browser and improve your user experience."
+                },
+                {
+                    "subtitle": "Essential Cookies",
+                    "text": "These cookies are <strong>strictly necessary</strong> for the service to function. They allow us to:<br/><br/>• Authenticate you and maintain your session<br/>• Secure your transactions<br/>• Remember your language and theme preferences<br/>• Enforce rate limits for security"
+                },
+                {
+                    "subtitle": "Analytical Cookies",
+                    "text": "We use analytical cookies to understand how you use our service and improve it. These cookies collect anonymous data on:<br/><br/>• Pages visited and time spent<br/>• Features used<br/>• Any errors encountered<br/><br/>You can refuse these cookies at any time via our consent banner."
+                },
+                {
+                    "subtitle": "Cookie Management",
+                    "text": "You can configure your cookie preferences at any time via our <strong>preference center</strong> accessible at the bottom of the page. You can also configure your browser to refuse or delete cookies. Please note that disabling essential cookies may affect the functioning of the service."
+                }
+            ]
+        },
+        {
+            "id": "terms-1",
+            "category": "terms",
+            "title": "Terms and Conditions of Use",
+            "icon": "FileText",
+            "content": [
+                {
+                    "subtitle": "Acceptance of Terms",
+                    "text": "By creating a SendMe account and using our services, you unreservedly accept these terms and conditions of use. If you do not accept these terms, please do not use our services."
+                },
+                {
+                    "subtitle": "Eligibility",
+                    "text": "To use SendMe, you must:<br/><br/>• Be at least <strong>18 years old</strong><br/>• Have the legal capacity to contract<br/>• Provide accurate and complete information<br/>• Not be on an international sanctions list<br/>• Reside in a country where SendMe is authorized to operate"
+                },
+                {
+                    "subtitle": "User Obligations",
+                    "text": "As a user, you undertake to:<br/><br/>• Provide accurate and up-to-date identification information<br/>• Not use the service for illegal or fraudulent purposes<br/>• Not attempt to circumvent security measures<br/>• Comply with applicable transaction limits<br/>• Inform SendMe of any changes to your personal information"
+                },
+                {
+                    "subtitle": "Transaction Limits",
+                    "text": "In accordance with Belgian and European regulations, the following limits apply:<br/><br/>• <strong>New account (level 1)</strong>: up to €1,000 per transaction, €2,500 per month<br/>• <strong>Verified account (level 2)</strong>: up to €5,000 per transaction, €15,000 per month<br/>• <strong>Premium account (level 3)</strong>: personalized limits after enhanced verification"
+                }
+            ]
+        },
+        {
+            "id": "terms-2",
+            "category": "terms",
+            "title": "Fees and Charges",
+            "icon": "Euro",
+            "content": [
+                {
+                    "subtitle": "Transfer Fees",
+                    "text": "The fees applicable to each transfer are clearly indicated before the transaction is confirmed. They include:<br/><br/>• <strong>Service fee</strong>: variable percentage depending on the amount and destination<br/>• <strong>Exchange fee</strong>: margin applied to the interbank exchange rate<br/>• <strong>Channel fee</strong>: any fees related to the reception method (mobile money, bank transfer, etc.)"
+                },
+                {
+                    "subtitle": "Rate Transparency",
+                    "text": "SendMe is committed to <strong>full transparency</strong> on exchange rates and fees. Before each transaction, you will see:<br/><br/>• The exact amount you are sending<br/>• The exchange rate applied<br/>• The total amount of fees<br/>• The exact amount the beneficiary will receive<br/><br/>No hidden fees are applied."
+                },
+                {
+                    "subtitle": "Right of Withdrawal",
+                    "text": "Under PSD2, you have a <strong>14-day right of withdrawal</strong> for distance payment service contracts. However, this right does not apply once the transfer has been executed, in accordance with Article VI.53 of the Belgian Code of Economic Law."
+                }
+            ]
+        },
+        {
+            "id": "pr-1",
+            "category": "privacy",
+            "title": "Privacy Protection",
+            "icon": "Lock",
+            "content": [
+                {
+                    "subtitle": "Data Encryption",
+                    "text": "All data transmitted through SendMe is protected by <strong>TLS 1.3 encryption</strong> (Transport Layer Security). Your payment information is processed via Stripe, which is PCI DSS Level 1 certified, the highest security level for financial transactions."
+                },
+                {
+                    "subtitle": "Secure Storage",
+                    "text": "Your data is stored on secure servers located in the <strong>European Union</strong>, in compliance with GDPR. We use technical and organizational security measures to protect your data against unauthorized access, loss or disclosure."
+                },
+                {
+                    "subtitle": "Data Sharing",
+                    "text": "SendMe only shares your personal data with:<br/><br/>• Our <strong>payment partners</strong> (Stripe, banking partners) for transaction processing<br/>• <strong>Regulatory authorities</strong> (NBB, FSMA, DPA) when required by law<br/>• Our <strong>KYC providers</strong> for identity verification<br/><br/>We never sell your personal data to third parties."
+                }
+            ]
+        },
+        {
+            "id": "aml-1",
+            "category": "aml",
+            "title": "Anti-Money Laundering (AML/CFT)",
+            "icon": "ShieldAlert",
+            "content": [
+                {
+                    "subtitle": "Our Commitment",
+                    "text": "SendMe is subject to the <strong>Belgian law of September 18, 2017</strong> on the prevention of money laundering and terrorist financing, transposing European directives 2015/849 and 2018/843."
+                },
+                {
+                    "subtitle": "KYC Procedure (Know Your Customer)",
+                    "text": "To comply with our legal obligations, we carry out an <strong>identity verification</strong> of our users. This procedure may include:<br/><br/>• Identity document verification (passport, ID card)<br/>• Proof of address less than 3 months old<br/>• Selfie or video verification<br/>• Questionnaire on the origin of funds (for high amounts)"
+                },
+                {
+                    "subtitle": "Reporting Suspicious Transactions",
+                    "text": "In accordance with the law, SendMe is required to report any suspicious transaction to the Belgian <strong>Financial Intelligence Processing Unit (CTIF)</strong>. This legal obligation takes precedence over professional secrecy and confidentiality."
+                },
+                {
+                    "subtitle": "International Sanctions",
+                    "text": "SendMe systematically checks all users and transactions against <strong>sanctions lists</strong> published by:<br/><br/>• The European Union (EU)<br/>• The United Nations (UN)<br/>• The Office of Foreign Assets Control (OFAC)<br/>• The Belgian Treasury"
+                }
+            ]
+        },
+        {
+            "id": "complaints-1",
+            "category": "complaints",
+            "title": "Complaints Procedure",
+            "icon": "MessageSquare",
+            "content": [
+                {
+                    "subtitle": "How to file a complaint?",
+                    "text": "If you are not satisfied with our services, you can file a complaint:<br/><br/>• By email to: <a href=\"mailto:complaints@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">complaints@sendme.com</a><br/>• By mail to: SendMe Technologies SA, Complaints Department, Avenue de la Toison d'Or 25, 1050 Brussels<br/>• Via our contact form in your customer area"
+                },
+                {
+                    "subtitle": "Processing Times",
+                    "text": "We will acknowledge receipt of your complaint within <strong>5 business days</strong> and undertake to provide you with a reasoned response within a maximum of <strong>15 business days</strong>. For complex cases, this period may be extended to 30 business days, with prior notice."
+                },
+                {
+                    "subtitle": "Mediation",
+                    "text": "If you are not satisfied with our response, you may refer the matter to the <strong>Financial Services Mediator</strong> (Ombudsfin):<br/><br/>Ombudsfin<br/>Place de la Station 1<br/>1080 Brussels<br/>Website: <a href=\"https://www.ombudsfin.be\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand-600 dark:text-brand-400 underline\">www.ombudsfin.be</a><br/>Email: <a href=\"mailto:reclamations@ombudsfin.be\" class=\"text-brand-600 dark:text-brand-400 underline\">reclamations@ombudsfin.be</a>"
+                }
+            ]
+        }
+    ],
+    "footer": {
+        "disclaimer": "This information is provided for informational purposes only and does not constitute legal advice. For any specific questions concerning your personal situation, please consult a lawyer specialized in financial technology law.",
+        "contact": "Have a legal question?",
+        "contactSub": "Our legal team is available for any additional information.",
+        "contactButton": "Contact the legal department"
+    }
+}
