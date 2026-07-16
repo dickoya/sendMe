@@ -94,7 +94,7 @@ function LegalNotice() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-[#0D0D0D] dark:to-[#111111]">
-            {/* ── Hero ─────────────────────────────────────────────── */}
+            {/* Hero */}
             <section className="relative overflow-hidden border-b border-gray-100 bg-white pb-16 pt-12 dark:border-[#222222] dark:bg-[#0D0D0D]">
                 {/* Decorative background */}
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -118,7 +118,7 @@ function LegalNotice() {
                 </div>
             </section>
 
-            {/* ── Barre de recherche + Filtres ─────────────────────── */}
+            {/* Barre de recherche + Filtres */}
             <section className="sticky top-0 z-30 border-b border-gray-100 bg-white/80 backdrop-blur-lg dark:border-[#222222] dark:bg-[#0D0D0D]/80">
                 <div className="mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8">
                     {/* Search */}
@@ -152,7 +152,7 @@ function LegalNotice() {
                 </div>
             </section>
 
-            {/* ── Contenu principal ────────────────────────────────── */}
+            {/* Contenu principal */}
             <section className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
                 {filteredSections.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -222,7 +222,7 @@ function LegalNotice() {
                     </div>
                 )}
 
-                {/* ── Disclaimer ────────────────────────────────────── */}
+                {/* Disclaimer */}
                 <div className="mt-10 rounded-2xl border border-amber-100 bg-amber-50/50 px-6 py-5 dark:border-amber-900/30 dark:bg-amber-900/10">
                     <div className="flex items-start gap-3">
                         <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" />
@@ -232,7 +232,7 @@ function LegalNotice() {
                     </div>
                 </div>
 
-                {/* ── CTA Contact ───────────────────────────────────── */}
+                {/* CTA Contact */}
                 <div className="mt-8 rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm dark:border-[#222222] dark:bg-[#0D0D0D]">
                     <Mail className="mx-auto mb-4 h-10 w-10 text-brand-600 dark:text-brand-400" />
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEEF0]">

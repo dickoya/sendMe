@@ -20,7 +20,7 @@ const api = axios.create({
     },
 });
 
-// ── État du refresh ──────────────────────────────────────────────────────
+// État du refresh
 /** Flag pour éviter les refresh concurrents */
 let isRefreshing = false;
 
@@ -45,7 +45,7 @@ function processQueue(error: unknown, token: string | null = null) {
     failedQueue = [];
 }
 
-// ── Intercepteur de requête ────────────────────────────────────────────
+// Intercepteur de requête
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
     if (token) {
@@ -54,7 +54,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     return config;
 });
 
-// ── Intercepteur de réponse ────────────────────────────────────────────
+// Intercepteur de réponse
 api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
@@ -96,7 +96,6 @@ api.interceptors.response.use(
             // Appel à l'API pour rafraîchir les tokens
             const { authService } = await import('@/services/authService');
             const response = await authService.refresh(refreshToken);
-
 
             // Mettre à jour le localStorage
             localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.accessToken);

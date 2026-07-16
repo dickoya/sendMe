@@ -32,7 +32,6 @@ function AdminDashboard() {
         return <Spinner fullPage label={tCommon('states.loading')} />;
     }
 
-
     if (error || !dashboard) {
         return (
             <div className="flex flex-col items-center gap-2 py-12 text-center text-danger-600">
@@ -44,7 +43,7 @@ function AdminDashboard() {
 
     return (
         <div className="flex flex-col gap-6 ">
-            {/* ── Statistiques utilisateurs ──────────────────────────────────── */}
+            {/* Statistiques utilisateurs */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <StatCard
                     label={t('dashboard.stats.totalUsers')}
@@ -73,7 +72,7 @@ function AdminDashboard() {
                 />
             </div>
 
-            {/* ── Statistiques transactions ──────────────────────────────────── */}
+            {/* Statistiques transactions */}
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <StatCard
                     label={t('dashboard.stats.totalTransactions')}
@@ -101,7 +100,7 @@ function AdminDashboard() {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-                {/* ── Activité du jour ────────────────────────────────────────────── */}
+                {/* Activité du jour */}
                 <Card title={t('dashboard.todayActivity.title')}>
                     <div className="flex flex-col gap-4">
                         <div className="flex items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
@@ -125,11 +124,11 @@ function AdminDashboard() {
                     </div>
                 </Card>
 
-                {/* ── Répartition par canal ────────────────────────────────────────── */}
+                {/* Répartition par canal */}
                 <ChannelPieChart data={dashboard.transactionsByChannel} />
             </div>
 
-            {/* ── Graphiques d'évolution (volume + taux de succès) ────────────────── */}
+            {/* Graphiques d'évolution (volume + taux de succès) */}
             <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-end gap-2">
                     <span className="text-sm text-gray-500">{t('dashboard.periodFilter.label')}</span>
@@ -159,8 +158,7 @@ function AdminDashboard() {
                 )}
             </div>
 
-
-                {/* ── Taux de change : toutes les paires ──────────────────────────────── */}
+                {/* Taux de change : toutes les paires */}
                 {allExchangeRates.length > 0 && (
                     <Card title={t('dashboard.allExchangeRates.title')}>
                         <div className="overflow-x-auto max-h-96 overflow-y-auto">
@@ -196,8 +194,7 @@ function AdminDashboard() {
                     </Card>
                 )}
 
-
-            {/* ── Debug EUR → XOF (carte existante) ──────────────────────────────── */}
+            {/* Debug EUR → XOF (carte existante) */}
             {exchangeRateDebug && (
                 <Card title={t('dashboard.exchangeRateDebug.title')}>
                     <div className="grid gap-4 md:grid-cols-3">
@@ -233,7 +230,7 @@ function AdminDashboard() {
                         })}
                     </p>
 
-                    {/* ── Configuration actuelle ──────────────────────────────────── */}
+                    {/* Configuration actuelle */}
                     {exchangeRateConfig && (
                         <div className="mt-4 grid gap-4 md:grid-cols-2">
                             <div className="rounded-lg bg-orange-50 px-4 py-3">
@@ -256,7 +253,6 @@ function AdminDashboard() {
                     )}
                 </Card>
             )}
-
 
         </div>
     );

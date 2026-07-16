@@ -377,7 +377,7 @@ public class AdminController {
                                                 null));
         }
 
-        // ── NOUVEAUX ENDPOINTS : Filtres, Batch, Volume, Success Rate, Logs ──
+        // NOUVEAUX ENDPOINTS : Filtres, Batch, Volume, Success Rate, Logs
 
         /**
          * Récupère les utilisateurs avec filtres avancés.
@@ -496,7 +496,7 @@ public class AdminController {
                                 ApiResponse.success("Logs d'activité", logs));
         }
 
-        // ── GESTION DES CANAUX DE PAIEMENT ────────────────────────────────────
+        // GESTION DES CANAUX DE PAIEMENT
 
         /**
          * Liste tous les canaux de paiement (actifs et inactifs).

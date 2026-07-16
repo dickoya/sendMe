@@ -36,7 +36,7 @@ function Home() {
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
 
-    // ── Options de devises ──────────────────────────────────────────────
+    // Options de devises
     // Devises d'envoi (pays développés)
     const currencyFromOptions: CurrencyOption[] = [
         { code: 'EUR', label: 'Euro', flag: 'eu' },
@@ -58,8 +58,7 @@ function Home() {
         { code: 'TND', label: 'Dinar Tunisien', flag: 'tn' },
     ];
 
-
-    // ── Simulateur ──────────────────────────────────────────────────────
+    // Simulateur
     const [amount, setAmount] = useState<number>(100);
     const [currencyFrom, setCurrencyFrom] = useState<string>('EUR');
     const [currencyTo, setCurrencyTo] = useState<string>('XOF');
@@ -104,7 +103,7 @@ function Home() {
         }
     };
 
-    // ── Statistiques (données statiques pour la démo) ───────────────────
+    // Statistiques (données statiques pour la démo)
     const stats = [
         { value: '50K+', label: t('stats.transactions'), icon: Send },
         { value: '10K+', label: t('stats.users'), icon: Users },
@@ -112,7 +111,7 @@ function Home() {
         { value: '< 30s', label: t('stats.speed'), icon: Zap },
     ];
 
-    // ── Fonctionnalités ─────────────────────────────────────────────────
+    // Fonctionnalités
     const features = [
         {
             icon: Zap,
@@ -140,7 +139,7 @@ function Home() {
         },
     ];
 
-    // ── Étapes ──────────────────────────────────────────────────────────
+    // Étapes
     const steps = [
         {
             number: '01',
@@ -164,7 +163,7 @@ function Home() {
 
     return (
         <div className="flex min-h-screen flex-col">
-            {/* ── Navigation ──────────────────────────────────────────────── */}
+            {/* Navigation */}
             <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-[#0D0D0D]/80 dark:border-[#222222]/50">
 
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -207,7 +206,7 @@ function Home() {
                 </div>
             </nav>
 
-            {/* ── Hero Section ────────────────────────────────────────────── */}
+            {/* Hero Section */}
             <section className="relative overflow-hidden bg-gradient-to-br from-brand-900 via-brand-700 to-brand-500 pt-24">
                 {/* Formes décoratives */}
                 <div className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
@@ -351,7 +350,7 @@ function Home() {
 
             </section>
 
-            {/* ── Section Fonctionnalités ─────────────────────────────────── */}
+            {/* Section Fonctionnalités */}
             <section id="features" className="bg-gray-50 py-20 sm:py-28 dark:bg-[#0D0D0D]">
 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -386,7 +385,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* ── Section Comment ça marche ───────────────────────────────── */}
+            {/* Section Comment ça marche */}
             <section id="how-it-works" className="bg-white py-20 sm:py-28 dark:bg-[#141414]">
 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -424,7 +423,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* ── Section Parrainage ──────────────────────────────────────── */}
+            {/* Section Parrainage */}
             <section className="relative overflow-hidden bg-white py-20 sm:py-28 dark:bg-[#141414]">
 
                 {/* Formes décoratives */}
@@ -507,7 +506,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* ── Section Statistiques ────────────────────────────────────── */}
+            {/* Section Statistiques */}
             <section className="bg-gradient-to-r from-brand-700 to-brand-500 py-16">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">
@@ -527,7 +526,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* ── Section CTA finale ──────────────────────────────────────── */}
+            {/* Section CTA finale */}
             <section className="bg-gray-50 py-20 sm:py-28 dark:bg-[#0D0D0D]">
 
                 <div className="mx-auto max-w-2xl px-4 text-center sm:px-6 lg:px-8">
@@ -554,7 +553,7 @@ function Home() {
                 </div>
             </section>
 
-            {/* ── Footer ──────────────────────────────────────────────────── */}
+            {/* Footer */}
             <footer className="border-t border-gray-100 bg-white py-12 dark:border-[#222222] dark:bg-[#0D0D0D]">
 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

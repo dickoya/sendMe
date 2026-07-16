@@ -18,7 +18,7 @@ interface AuthContextValue {
     isLoading: boolean;
     /** Erreur du dernier login/register, à afficher dans le formulaire */
     error: string | null;
-    login: (payload: LoginPayload) => Promise<AuthUser>; // 👈 1. Changé void en Promise<AuthUser>
+    login: (payload: LoginPayload) => Promise<AuthUser>;
     register: (payload: RegisterPayload) => Promise<void>;
     logout: () => void;
     clearError: () => void;
@@ -69,13 +69,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
     }, []);
 
-    const login = async (payload: LoginPayload): Promise<AuthUser> => { // 👈 2. Ajout du type de retour
+    const login = async (payload: LoginPayload): Promise<AuthUser> => {
         setError(null);
         try {
             const response = await authService.login(payload);
-            const sessionUser = persistSession(response); // 👈 3. Stocké dans une variable "sessionUser"
+            const sessionUser = persistSession(response);
             setUser(sessionUser);
-            return sessionUser; // 👈 4. On retourne la variable
+            return sessionUser;
         } catch (err) {
             setError(extractMessage(err));
             throw err;

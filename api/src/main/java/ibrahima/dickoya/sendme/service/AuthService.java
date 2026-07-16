@@ -40,10 +40,10 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final AuditService auditService;
 
-    // ── Durée de validité du token de vérification email (48h) ──────────────
+    // Durée de validité du token de vérification email (48h)
     private static final long EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 48;
 
-    // ── Inscription ──────────────────────────────────────────────────────────
+    // Inscription
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistsException(
@@ -103,7 +103,7 @@ public class AuthService {
                 .build();
     }
 
-    // ── Vérification d'email ─────────────────────────────────────────────────
+    // Vérification d'email
     /**
      * Valide l'email d'un utilisateur à partir d'un token de vérification.
      *
@@ -162,7 +162,7 @@ public class AuthService {
                 .build();
     }
 
-    // ── Renvoi de l'email de vérification ────────────────────────────────────
+    // Renvoi de l'email de vérification
     /**
      * Renvoie l'email de vérification à un utilisateur dont l'email n'est pas
      * encore vérifié.
@@ -194,7 +194,7 @@ public class AuthService {
         }
     }
 
-    // ── Connexion ────────────────────────────────────────────────────────────
+    // Connexion
     public AuthResponse login(LoginRequest request, jakarta.servlet.http.HttpServletRequest httpRequest) {
         String ipAddress = extractIpAddress(httpRequest);
 
@@ -293,7 +293,7 @@ public class AuthService {
         }
     }
 
-    // ── Rafraîchissement de token ───────────────────────────────────────────
+    // Rafraîchissement de token
     public AuthResponse refresh(String refreshToken) {
         // 1. Extraire l'email depuis le refresh token
         String email = jwtService.extractUsername(refreshToken);
@@ -339,7 +339,7 @@ public class AuthService {
                 .build();
     }
 
-    // ── Utilitaires ──────────────────────────────────────────────────────────
+    // Utilitaires
 
     private String extractIpAddress(jakarta.servlet.http.HttpServletRequest request) {
         String ipAddress = request.getHeader("X-Forwarded-For");

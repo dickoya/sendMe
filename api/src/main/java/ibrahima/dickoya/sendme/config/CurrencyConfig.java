@@ -21,14 +21,14 @@ import java.util.stream.Collectors;
 @Getter
 public enum CurrencyConfig {
 
-    // ── Devises d'envoi (pays développés) ──────────────────────────────
+    // Devises d'envoi (pays développés)
     EUR("EUR", "€", 2, "France", CurrencyType.SEND),
     USD("USD", "$", 2, "États-Unis", CurrencyType.SEND),
     GBP("GBP", "£", 2, "Royaume-Uni", CurrencyType.SEND),
     CAD("CAD", "C$", 2, "Canada", CurrencyType.SEND),
     CHF("CHF", "CHF", 2, "Suisse", CurrencyType.SEND),
 
-    // ── Devises de réception (Afrique) ─────────────────────────────────
+    // Devises de réception (Afrique)
     XOF("XOF", "CFA", 0, "UEMOA (Bénin, Burkina, Côte d'Ivoire...)", CurrencyType.RECEIVE),
     XAF("XAF", "CFA", 0, "CEMAC (Cameroun, Congo, Gabon...)", CurrencyType.RECEIVE),
     GNF("GNF", "FG", 0, "Guinée", CurrencyType.RECEIVE),

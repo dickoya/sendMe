@@ -131,7 +131,7 @@ public class CountryController {
         return ResponseEntity.ok(currencies);
     }
 
-    // ── Méthodes utilitaires privées ────────────────────────────────────────
+    // Méthodes utilitaires privées
 
     /**
      * Retourne le nom complet d'un pays à partir de son code ISO.

@@ -42,7 +42,7 @@ import java.time.format.DateTimeFormatter;
 @Slf4j
 public class ReceiptPdfService {
 
-        // ── Couleurs de la charte graphique SendMe ──────────────────────────────
+        // Couleurs de la charte graphique SendMe
 
         /**
          * Couleur principale — bleu profond SendMe.
@@ -119,22 +119,22 @@ public class ReceiptPdfService {
                         // Marges du document (gauche, droite, haut, bas) en points
                         document.setMargins(40, 40, 40, 40);
 
-                        // ── Section 1 : En-tête ──────────────────────────────────────────
+                        // Section 1 : En-tête
                         addHeader(document, transaction);
 
-                        // ── Section 2 : Bannière de statut ──────────────────────────────
+                        // Section 2 : Bannière de statut
                         addStatusBanner(document, transaction);
 
-                        // ── Section 3 : Informations des parties ────────────────────────
+                        // Section 3 : Informations des parties
                         addPartiesSection(document, transaction);
 
-                        // ── Section 4 : Détails financiers ──────────────────────────────
+                        // Section 4 : Détails financiers
                         addFinancialDetails(document, transaction);
 
-                        // ── Section 5 : Informations Stripe ─────────────────────────────
+                        // Section 5 : Informations Stripe
                         addStripeInfo(document, transaction);
 
-                        // ── Section 6 : Pied de page ─────────────────────────────────────
+                        // Section 6 : Pied de page
                         addFooter(document, transaction);
 
                         // Fermer le document et récupérer les octets
@@ -158,7 +158,7 @@ public class ReceiptPdfService {
          */
         private void addHeader(Document document, Transaction transaction) {
 
-                // ── Ligne de titre principale ────────────────────────────────────────
+                // Ligne de titre principale
                 // Tableau à 2 colonnes : logo à gauche, info à droite
                 Table headerTable = new Table(UnitValue.createPercentArray(new float[] { 1, 1 }))
                                 .setWidth(UnitValue.createPercentValue(100));
@@ -289,7 +289,7 @@ public class ReceiptPdfService {
                                 .setWidth(UnitValue.createPercentValue(100))
                                 .setMarginBottom(16);
 
-                // ── Colonne gauche : Expéditeur ──────────────────────────────────────
+                // Colonne gauche : Expéditeur
                 Cell senderCell = new Cell()
                                 .setBackgroundColor(COLOR_LIGHT_GRAY)
                                 .setPadding(12)
@@ -322,7 +322,7 @@ public class ReceiptPdfService {
 
                 partiesTable.addCell(senderCell);
 
-                // ── Colonne droite : Bénéficiaire ────────────────────────────────────
+                // Colonne droite : Bénéficiaire
                 Cell beneficiaryCell = new Cell()
                                 .setBackgroundColor(COLOR_LIGHT_GRAY)
                                 .setPadding(12)
@@ -542,7 +542,7 @@ public class ReceiptPdfService {
                                 .setTextAlignment(TextAlignment.CENTER));
         }
 
-        // ── Méthodes utilitaires ─────────────────────────────────────────────────
+        // Méthodes utilitaires
 
         /**
          * Crée un titre de section avec la couleur primaire et une bordure inférieure.

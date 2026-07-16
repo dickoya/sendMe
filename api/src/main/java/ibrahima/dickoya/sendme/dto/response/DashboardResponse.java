@@ -19,7 +19,7 @@ import java.util.Map;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DashboardResponse {
 
-    // ── Statistiques utilisateurs ─────────────────────────────────────────
+    // Statistiques utilisateurs
 
     /** Nombre total d'utilisateurs inscrits sur la plateforme. */
     private Long totalUsers;
@@ -30,7 +30,7 @@ public class DashboardResponse {
     /** Nombre d'utilisateurs avec un compte désactivé. */
     private Long inactiveUsers;
 
-    // ── Statistiques transactions ─────────────────────────────────────────
+    // Statistiques transactions
 
     /** Nombre total de transactions toutes périodes confondues. */
     private Long totalTransactions;
@@ -53,7 +53,7 @@ public class DashboardResponse {
      */
     private Double successRate;
 
-    // ── Statistiques financières ──────────────────────────────────────────
+    // Statistiques financières
 
     /**
      * Volume total transféré sur la plateforme (en EUR).
@@ -79,7 +79,7 @@ public class DashboardResponse {
      */
     private Long todayTransactions;
 
-    // ── Répartition par canal ─────────────────────────────────────────────
+    // Répartition par canal
 
     /**
      * Nombre de transactions par canal de réception.
@@ -89,7 +89,7 @@ public class DashboardResponse {
      */
     private Map<String, Long> transactionsByChannel;
 
-    // ── Monitoring temps réel ─────────────────────────────────────────────
+    // Monitoring temps réel
 
     /**
      * Nombre de connexions SSE actives en ce moment.

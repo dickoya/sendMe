@@ -5,7 +5,7 @@
  * - ibrahima.dickoya.sendme.dto.response.*
  */
 
-// ── Enums ──────────────────────────────────────────────────────────────
+// Enums
 export type ChannelType =
     | 'BANK_TRANSFER'
     | 'ORANGE_MONEY'
@@ -41,7 +41,7 @@ export type NotificationType =
     | 'MAINTENANCE'
     | 'FEE_UPDATE';
 
-// ── Auth ───────────────────────────────────────────────────────────────
+// Auth
 export interface AuthResponse {
     accessToken: string;
     refreshToken: string;
@@ -66,7 +66,7 @@ export interface User {
     createdAt: string;
 }
 
-// ── Bénéficiaires ──────────────────────────────────────────────────────
+// Bénéficiaires
 export interface BankDetails {
     id?: number;
     bankName: string;
@@ -123,7 +123,7 @@ export interface BeneficiaryFormData {
     channels: BeneficiaryChannelFormData[];
 }
 
-// ── Transferts ─────────────────────────────────────────────────────────
+// Transferts
 export interface SimulateRequest {
     amount: number;
     currencyFrom: string;
@@ -173,7 +173,7 @@ export interface Transaction {
     updatedAt: string;
 }
 
-// ── Notifications ──────────────────────────────────────────────────────
+// Notifications
 export interface Notification {
     id: number;
     message: string;
@@ -184,7 +184,7 @@ export interface Notification {
     createdAt: string;
 }
 
-// ── Pagination ─────────────────────────────────────────────────────────
+// Pagination
 export interface Page<T> {
     content: T[];
     totalElements: number;
@@ -195,14 +195,14 @@ export interface Page<T> {
     last: boolean;
 }
 
-// ── API générique ──────────────────────────────────────────────────────
+// API générique
 export interface ApiResponse<T> {
     success: boolean;
     message: string;
     data: T;
 }
 
-// ── Admin ──────────────────────────────────────────────────────────────
+// Admin
 export interface UserResponse extends User {
     totalTransactions: number;
     totalAmountSent: number;
@@ -241,7 +241,7 @@ export interface ExchangeRateDebugEntry {
     marginRate: number | null;
     cacheTimestamp: string;
 }
-// ── Parrainage ─────────────────────────────────────────────────────────
+// Parrainage
 export interface ReferralCodeResponse {
     referralCode: string;
     shareLink: string;
@@ -263,7 +263,7 @@ export interface ReferralCouponResponse {
     createdAt: string;
 }
 
-// ── Graphiques Admin ───────────────────────────────────────────────────
+// Graphiques Admin
 export interface VolumeDataPoint {
     date: string;
     volume: number;
@@ -278,8 +278,7 @@ export interface SuccessRateDataPoint {
     failed: number;
 }
 
-
-// ── Erreurs API ────────────────────────────────────────────────────────
+// Erreurs API
 
 /**
  * Format d'erreur retourné par GlobalExceptionHandler du backend.

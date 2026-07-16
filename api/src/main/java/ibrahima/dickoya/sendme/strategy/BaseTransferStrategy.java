@@ -59,7 +59,7 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
     @Value("${strategy.failure-rate:0}")
     private int failureRate;
 
-    // ─── Méthodes abstraites : chaque stratégie concrète doit les définir ───
+    // Méthodes abstraites : chaque stratégie concrète doit les définir
 
     /**
      * Retourne le type de canal géré par cette stratégie.
@@ -99,7 +99,7 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
      */
     protected abstract String getErrorMessage();
 
-    // ─── Template Method ───────────────────────────────────────────────────
+    // Template Method
 
     /**
      * Template Method qui définit le squelette d'exécution d'un transfert.
@@ -182,7 +182,7 @@ public abstract class BaseTransferStrategy implements TransferStrategy {
         return maskPhone(contactInfo);
     }
 
-    // ─── Méthodes de simulation ────────────────────────────────────────────
+    // Méthodes de simulation
 
     /**
      * Simule un délai de traitement réseau/API de manière non-bloquante.

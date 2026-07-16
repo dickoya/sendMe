@@ -55,7 +55,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     fetchAll();
   }, [fetchAll]);
 
-  // ── Connexion SSE temps réel ─────────────────────────────────────────────
+  // Connexion SSE temps réel
   // Utilise fetch() avec Authorization header (sécurisé, pas de token dans l'URL)
   useSSE(
     (notification) => {

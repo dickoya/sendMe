@@ -247,9 +247,7 @@ public class ExchangeRateService {
         }
     }
 
-    // ────────────────────────────────────────────────────────────────
     // Méthodes de configuration dynamique (pour l'admin)
-    // ────────────────────────────────────────────────────────────────
 
     /**
      * Met à jour la durée de vie du cache.
@@ -304,9 +302,7 @@ public class ExchangeRateService {
         return margin;
     }
 
-    // ────────────────────────────────────────────────────────────────
     // Méthodes publiques pour le debug et le dashboard admin
-    // ────────────────────────────────────────────────────────────────
 
     /**
      * Récupère le taux brut (sans marge) pour un couple de devises.

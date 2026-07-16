@@ -56,7 +56,7 @@ function Transfer() {
     const [transferError, setTransferError] = useState<string | null>(null);
     const [completedTransaction, setCompletedTransaction] = useState<Transaction | null>(null);
 
-    // ── État du toggle de réduction de parrainage ───────────────────────────
+    // État du toggle de réduction de parrainage
     const [applyDiscount, setApplyDiscount] = useState(true);
     const [availableDiscount, setAvailableDiscount] = useState(0);
 
@@ -82,7 +82,7 @@ function Transfer() {
         setSelectedChannelId(null);
     }, [beneficiaryId]);
 
-    // ── Validation du montant ────────────────────────────────────────────────
+    // Validation du montant
     const MIN_AMOUNT = 20;
 
     const validateAmount = (value: string): string | undefined => {
@@ -97,7 +97,7 @@ function Transfer() {
     const debouncedAmount = useDebounce(amount, 400);
     const numericAmount = parseFloat(debouncedAmount);
 
-    // ── Simulation automatique ──────────────────────────────────────────────
+    // Simulation automatique
     useEffect(() => {
         if (!selectedBeneficiary || !selectedChannel || !numericAmount || numericAmount <= 0) {
             setSimulation(null);
@@ -131,7 +131,7 @@ function Transfer() {
         };
     }, [debouncedAmount, numericAmount, selectedBeneficiary, selectedChannel, currency, applyDiscount]);
 
-    // ── Soumission du paiement ──────────────────────────────────────────────
+    // Soumission du paiement
     const handlePayment = async (paymentMethodId: string) => {
         if (!selectedBeneficiary || !simulation) return;
 
@@ -168,7 +168,7 @@ function Transfer() {
         setTransferError(null);
     };
 
-    // ── Rendu ─────────────────────────────────────────────────────────────────
+    // Rendu
     if (beneficiariesLoading) {
         return <Spinner fullPage label={tCommon('states.loading')} />;
     }
@@ -178,7 +178,7 @@ function Transfer() {
             <Elements stripe={getStripe(i18n.language)}>
             <Card title={stepTitle(step, t)}>
 
-                {/* ─────────────────────────── ÉTAPE 1 : FORMULAIRE ─────────────────────────── */}
+                {/* ÉTAPE 1 : FORMULAIRE */}
                 {step === 'form' && (
                     <div className="flex flex-col gap-5">
                         <BeneficiarySelector
@@ -187,7 +187,7 @@ function Transfer() {
                             onChange={setBeneficiaryId}
                         />
 
-                        {/* ── Sélecteur de canal si le bénéficiaire a plusieurs canaux ── */}
+                        {/* Sélecteur de canal si le bénéficiaire a plusieurs canaux */}
                         {selectedBeneficiary && selectedBeneficiary.channels.length > 1 && (
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-sm font-medium text-gray-700">
@@ -280,7 +280,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ─────────────────────────── ÉTAPE 2 : RÉCAPITULATIF ─────────────────────────── */}
+                {/* ÉTAPE 2 : RÉCAPITULATIF */}
                 {step === 'summary' && selectedBeneficiary && simulation && (
                     <div className="flex flex-col gap-5">
                         <TransferSummary
@@ -301,7 +301,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ─────────────────────────── ÉTAPE 3 : PAIEMENT STRIPE ─────────────────────────── */}
+                {/* ÉTAPE 3 : PAIEMENT STRIPE */}
                 {step === 'payment' && simulation && (
                     <div className="flex flex-col gap-4">
                         <button
@@ -325,7 +325,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ─────────────────────────── ÉTAPE 4 : SUCCÈS ─────────────────────────── */}
+                {/* ÉTAPE 4 : SUCCÈS */}
                 {step === 'success' && completedTransaction && (
                     <TransferSuccess transaction={completedTransaction} onNewTransfer={resetTunnel} />
                 )}

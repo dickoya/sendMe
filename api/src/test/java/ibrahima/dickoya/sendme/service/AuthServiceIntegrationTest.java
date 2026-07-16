@@ -76,7 +76,7 @@ class AuthServiceIntegrationTest {
         @Test
         @DisplayName("Inscription → vérification email → connexion : flux complet")
         void testRegisterVerifyEmailAndLogin() {
-                // ── ÉTAPE 1 : Inscription ─────────────────────────────────────────────
+                // ÉTAPE 1 : Inscription
                 AuthResponse registerResponse = authService.register(registerRequest);
 
                 assertThat(registerResponse).isNotNull();
@@ -96,7 +96,7 @@ class AuthServiceIntegrationTest {
                 // Vérifier que l'email de vérification a été envoyé
                 verify(emailService, times(1)).sendEmailVerificationEmail(any(User.class), anyString());
 
-                // ── ÉTAPE 2 : Vérification email ──────────────────────────────────────
+                // ÉTAPE 2 : Vérification email
                 String verificationToken = savedUser.getEmailVerificationToken();
                 AuthResponse verifyResponse = authService.verifyEmail(verificationToken);
 
@@ -114,7 +114,7 @@ class AuthServiceIntegrationTest {
                 // Vérifier que l'email de bienvenue a été envoyé
                 verify(emailService, times(1)).sendWelcomeEmail(any(User.class));
 
-                // ── ÉTAPE 3 : Connexion ───────────────────────────────────────────────
+                // ÉTAPE 3 : Connexion
                 LoginRequest loginRequest = LoginRequest.builder()
                                 .email("jean.dupont@email.com")
                                 .password("Password123!")

@@ -51,13 +51,13 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI sendMeOpenAPI() {
         return new OpenAPI()
-                // ── Informations générales du projet ────────────────────────
+                // Informations générales du projet
                 .info(buildApiInfo())
-                // ── Serveurs disponibles ─────────────────────────────────────
+                // Serveurs disponibles
                 .servers(buildServers())
-                // ── Configuration du schéma de sécurité JWT ─────────────────
+                // Configuration du schéma de sécurité JWT
                 .components(buildSecurityComponents())
-                // ── Appliquer la sécurité JWT à toutes les routes ────────────
+                // Appliquer la sécurité JWT à toutes les routes
                 .addSecurityItem(new SecurityRequirement()
                         .addList(SECURITY_SCHEME_NAME));
     }

@@ -200,36 +200,36 @@ public class TransferService {
 
                 log.info("=== DEBUT TRANSFERT pour {} ===", userEmail);
 
-                // ── ÉTAPE 1 : Vérification idempotence ──────────────────────────────
+                // ÉTAPE 1 : Vérification idempotence
                 var existing = checkIdempotency(request.getIdempotencyKey());
                 if (existing != null) {
                         return existing;
                 }
 
-                // ── ÉTAPE 2 : Récupérer l'utilisateur et le bénéficiaire ────────────
+                // ÉTAPE 2 : Récupérer l'utilisateur et le bénéficiaire
                 User user = loadUser(userEmail);
                 Beneficiary beneficiary = loadBeneficiary(request.getBeneficiaryId(), user);
 
-                // ── ÉTAPE 3 : Déterminer le canal et simuler le transfert ───────────
+                // ÉTAPE 3 : Déterminer le canal et simuler le transfert
                 BeneficiaryChannel selectedChannel = selectChannel(beneficiary, request.getChannelId());
                 SimulateResponse simulation = simulateTransfer(user, selectedChannel, request);
                 var totalToDebit = simulation.getTotalDebited();
 
-                // ── ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING ───────
+                // ÉTAPE 4 : Créer la transaction en BDD avec statut PENDING
                 Transaction transaction = createPendingTransaction(request, user, beneficiary, selectedChannel,
                                 simulation);
 
-                // ── ÉTAPE 5 : Débiter la carte via Stripe ───────────────────────────
+                // ÉTAPE 5 : Débiter la carte via Stripe
                 PaymentIntent paymentIntent = debitCard(totalToDebit, request, transaction, user);
                 if (paymentIntent == null) {
                         // Le paiement a échoué, la transaction FAILED a déjà été retournée
                         return null; // Ne devrait pas arriver car debitCard retourne via return
                 }
 
-                // ── NOTIFICATION 1 : Transfert initié ───────────────────────────────
+                // NOTIFICATION 1 : Transfert initié
                 notifyTransferInitiated(transaction, user, beneficiary);
 
-                // ── ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie ──────────
+                // ÉTAPE 6 : Passer à PROCESSING et exécuter la stratégie
                 transaction.setStatus(TransactionStatus.PROCESSING);
                 transactionRepository.save(transaction);
 
@@ -247,7 +247,7 @@ public class TransferService {
                                 selectedChannel.getChannel().name(), selectedChannel.getId());
                 TransferResult result = strategy.execute(transaction, beneficiary);
 
-                // ── ÉTAPE 7 : Traiter le résultat de la stratégie ───────────────────
+                // ÉTAPE 7 : Traiter le résultat de la stratégie
                 if (result.isSuccess()) {
                         return handleSuccessfulStrategy(transaction, user, simulation, request);
                 } else {
@@ -256,7 +256,7 @@ public class TransferService {
                 }
         }
 
-        // ── Méthodes privées extraites de processTransfer ──────────────────────
+        // Méthodes privées extraites de processTransfer
 
         /**
          * Vérifie l'idempotence : si une transaction avec cette clé existe déjà,

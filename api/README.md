@@ -14,14 +14,14 @@ API REST de SendMe, développée avec **Java 21** et **Spring Boot 3.2.5**.
 | Base de données | MySQL 8.0+ |
 | Migrations | Flyway 9.22.3 (22 migrations V1–V22) |
 | ORM | Spring Data JPA + Hibernate 6 |
-| Sécurité | Spring Security 6 + JWT (jjwt 0.12.3) |
+| Sécurité | Spring Security 6 + JWT (jjwt 0.12.6) |
 | Paiement | Stripe SDK Java 25.3.0 |
 | Emails | Spring Mail + Thymeleaf (14 templates) |
 | PDF | iText7 (itext7-core 7.2.5) |
 | Taux de change | OpenExchangeRates API |
 | Rate Limiting | Bucket4j 8.7.0 + Caffeine |
 | Cache | Spring Cache + Caffeine |
-| Documentation | SpringDoc OpenAPI 2.3.0 (Swagger UI) |
+| Documentation | SpringDoc OpenAPI 2.5.0 (Swagger UI) |
 | Validation | Jakarta Validation |
 | Internationalisation | Spring MessageSource (FR/EN) |
 | Tests | JUnit 5, Mockito, AssertJ |
@@ -68,11 +68,12 @@ spring.datasource.username=root
 spring.datasource.password=ton_mot_de_passe
 
 # ── Stripe (mode Sandbox) ────────────────────────────────────────────────
-stripe.api-key=pk_test_ta_cle_publishable
+stripe.secret.key=pk_test_ta_cle_secrete
+stripe.publishable.key=pk_test_ta_cle_publishable
 stripe.webhook.secret=whsec_ton_webhook_secret
 
 # ── OpenExchangeRates ────────────────────────────────────────────────────
-openexchangerates.api-key=ta_cle_api
+app.openexchangerates.app-id=ta_cle_api
 
 # ── Email (Mailtrap / Brevo) ─────────────────────────────────────────────
 spring.mail.host=smtp-relay.brevo.com
@@ -107,20 +108,20 @@ api/src/main/java/ibrahima/dickoya/sendme/
 │   ├── OpenApiConfig.java           # Swagger/OpenAPI documentation
 │   ├── StripeConfig.java            # Stripe API key initialization
 │   ├── CurrencyConfig.java          # OpenExchangeRates client
-│   ├── CacheConfig.java             # Caffeine cache configuration
-│   ├── AsyncConfig.java             # @Async for emails
 │   ├── MessageSourceConfig.java     # i18n FR/EN
-│   └── WebConfig.java               # CORS, converters
-├── controller/          # 13 contrôleurs REST
-│   ├── AuthController.java          # /api/auth (register, login, refresh, verify-email)
-│   ├── TransferController.java      # /api/transfers, /api/transactions
+│   ├── SwaggerConfig.java           # Swagger UI customization
+│   ├── SchedulingConfig.java        # @Scheduled tasks
+│   └── FlywayRepairConfig.java      # Flyway repair on startup
+├── controller/          # 14 contrôleurs REST
+│   ├── AuthController.java          # /api/auth (register, login, refresh, verify-email, resend-verification)
+│   ├── TransferController.java      # /api/transfers, /api/transactions, /api/channels/active
 │   ├── BeneficiaryController.java   # /api/beneficiaries (CRUD)
-│   ├── NotificationController.java  # /api/notifications (SSE, historique)
+│   ├── NotificationController.java  # /api/notifications (SSE, historique, read, read-all, unread-count)
 │   ├── DashboardController.java     # /api/dashboard (stats, evolution, exchange rates)
 │   ├── ProfileController.java       # /api/profile (update, password, delete, login-history)
 │   ├── ReferralController.java      # /api/referral (code, coupons, discount, verify)
 │   ├── CountryController.java       # /api/countries, /api/currencies (public)
-│   ├── AdminController.java         # /api/admin (dashboard, users, transactions, config, logs, channels)
+│   ├── AdminController.java         # /api/admin (dashboard, users, transactions, config, logs, channels, analytics)
 │   ├── ExchangeRateHistoryController.java  # /api/admin/exchange-rates/history
 │   ├── StripeWebhookController.java # /api/webhooks/stripe
 │   ├── DebugController.java         # /api/debug (rate, rates)
@@ -129,49 +130,50 @@ api/src/main/java/ibrahima/dickoya/sendme/
 ├── dto/                 # Request/Response DTOs
 │   ├── request/         # 12 classes de requête
 │   └── response/        # 18 classes de réponse
-├── entity/              # 11 entités JPA
+├── entity/              # 10 entités JPA
 │   ├── User.java                    # Utilisateurs (BCrypt, email vérifié, parrainage)
 │   ├── Beneficiary.java             # Bénéficiaires
 │   ├── BeneficiaryChannel.java      # Canaux multiples par bénéficiaire (V15)
 │   ├── Transaction.java             # Transactions (idempotence, Stripe, référence)
 │   ├── Notification.java            # Notifications (SSE + historique)
-│   ├── ReferralCode.java            # Codes de parrainage
 │   ├── ReferralCoupon.java          # Coupons de réduction
 │   ├── LoginHistory.java            # Historique des connexions (V19)
 │   ├── AdminAuditLog.java           # Logs d'audit admin (V21)
 │   ├── PaymentChannel.java          # Canaux de paiement dynamiques (V22)
-│   └── ExchangeRate.java            # Taux de change historiques
+│   ├── ExchangeRate.java            # Taux de change historiques
+│   └── BlockedIp.java               # IPs bloquées (V11)
 ├── enums/               # 4 énumérations
 │   ├── ChannelType.java             # BANK_TRANSFER, ORANGE_MONEY, MTN_MOBILE_MONEY, WAVE, MOOV_MONEY, AIRTEL_MONEY
 │   ├── TransactionStatus.java       # PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
-│   ├── NotificationType.java        # TRANSFER_*, PAYMENT_*, ACCOUNT_*, SECURITY_*, INFO, MAINTENANCE, FEE_UPDATE
+│   ├── NotificationType.java        # TRANSFER_*, PAYMENT_*, INFO
 │   └── Role.java                    # ROLE_USER, ROLE_ADMIN
-├── exception/           # 7 exceptions personnalisées + GlobalExceptionHandler
+├── exception/           # 6 exceptions personnalisées + GlobalExceptionHandler
+│   ├── EmailAlreadyExistsException.java
+│   ├── EmailNotVerifiedException.java
+│   ├── RateLimitExceededException.java
 │   ├── ResourceNotFoundException.java
 │   ├── TransferException.java
 │   ├── ReferralException.java
-│   ├── EmailAlreadyVerifiedException.java
-│   ├── InvalidTokenException.java
-│   ├── AccountDisabledException.java
-│   └── DuplicateEmailException.java
-├── repository/          # 11 interfaces Spring Data JPA
+│   ├── MissingStrategyException.java
+│   └── GlobalExceptionHandler.java
+├── repository/          # 10 interfaces Spring Data JPA
 │   ├── UserRepository.java
 │   ├── BeneficiaryRepository.java
 │   ├── TransactionRepository.java
 │   ├── NotificationRepository.java
-│   ├── ReferralCodeRepository.java
 │   ├── ReferralCouponRepository.java
 │   ├── LoginHistoryRepository.java
 │   ├── AdminAuditLogRepository.java
 │   ├── PaymentChannelRepository.java
 │   ├── ExchangeRateRepository.java
+│   ├── BeneficiaryChannelRepository.java
 │   └── BlockedIpRepository.java
 ├── security/            # JWT, Rate Limiting, UserDetails
 │   ├── JwtService.java              # Génération/validation JWT (access 24h, refresh 7j)
 │   ├── JwtAuthenticationFilter.java # Filtre d'extraction JWT
 │   ├── RateLimitingFilter.java      # Bucket4j + exponential backoff
 │   └── UserDetailsServiceImpl.java  # UserDetailsService personnalisé
-├── service/             # 16 services métier
+├── service/             # 17 services métier
 │   ├── AuthService.java             # Inscription, connexion, refresh, vérification email
 │   ├── TransferService.java         # Orchestration complète des transferts
 │   ├── SimulatorService.java        # Simulation des frais et taux de change
@@ -188,7 +190,11 @@ api/src/main/java/ibrahima/dickoya/sendme/
 │   ├── StripeWebhookService.java    # Traitement des webhooks Stripe
 │   ├── EmailService.java            # Envoi d'emails asynchrones (14 templates)
 │   ├── ReceiptPdfService.java       # Génération de reçus PDF (iText7)
-│   └── PaymentChannelService.java   # Gestion dynamique des canaux de paiement
+│   ├── PaymentChannelService.java   # Gestion dynamique des canaux de paiement
+│   ├── LoginAttemptService.java     # Suivi des tentatives de connexion
+│   ├── IpBlockingService.java       # Exponential backoff IP
+│   ├── RefreshTokenService.java     # Rate limiting des refresh tokens
+│   └── TransactionPersistenceService.java # Persistance des transactions en échec
 ├── strategy/            # Strategy Pattern pour les transferts
 │   ├── TransferStrategy.java        # Interface commune
 │   ├── BaseTransferStrategy.java    # Template Method (simulation, délais, masquage)
@@ -246,7 +252,6 @@ api/src/main/resources/
 | POST | `/api/auth/refresh` | Rafraîchir les tokens | ❌ |
 | GET | `/api/auth/verify-email` | Vérifier l'email | ❌ |
 | POST | `/api/auth/resend-verification` | Renvoyer l'email de vérification | ❌ |
-| POST | `/api/auth/test-email` | Test de configuration email | ❌ |
 
 ### Transferts (`/api/transfers`)
 
@@ -265,6 +270,12 @@ api/src/main/resources/
 | GET | `/api/transactions/{id}` | Détail d'une transaction | ✅ |
 | GET | `/api/transactions/{id}/receipt` | Télécharger le reçu PDF | ✅ |
 | GET | `/api/transactions/{id}/receipt/preview` | Prévisualiser le reçu PDF | ✅ |
+
+### Canaux de paiement (`/api/channels`)
+
+| Méthode | Endpoint | Description | Auth |
+|---|---|---|---|
+| GET | `/api/channels/active` | Canaux de paiement actifs | ❌ |
 
 ### Bénéficiaires (`/api/beneficiaries`)
 
@@ -383,8 +394,8 @@ api/src/main/resources/
 | V5 | Ajout des colonnes de notification |
 | V6 | Ajout des colonnes de bénéficiaire |
 | V7 | Ajout des colonnes de transaction |
-| V8 | Ajout des colonnes de notification |
-| V9 | Ajout des colonnes de parrainage |
+| V8 | Ajout des index de notification |
+| V9 | Table referral_coupons |
 | V10 | Table exchange_rates |
 | V11 | Table blocked_ips + rate limiting |
 | V12 | Ajout des colonnes de bénéficiaire |
@@ -415,22 +426,21 @@ api/src/main/resources/
 
 ```properties
 # Application
-spring.application.name=sendme-api
+spring.application.name=sendme
 server.port=8080
 
 # JWT
 app.jwt.secret=ta_cle_secrete_jwt
-app.jwt.access-token-expiration=86400000    # 24h
-app.jwt.refresh-token-expiration=604800000  # 7j
+app.jwt.expiration=86400000          # 24h
+app.jwt.refresh-expiration=604800000 # 7j
 
 # Stripe
-stripe.api-key=pk_test_...
+stripe.secret.key=pk_test_...
+stripe.publishable.key=pk_test_...
 stripe.webhook.secret=whsec_...
 
 # OpenExchangeRates
-openexchangerates.api-key=ta_cle
-openexchangerates.base-url=https://openexchangerates.org/api
-openexchangerates.margin-percent=2.0
+app.openexchangerates.app-id=ta_cle
 
 # CORS
 app.cors.allowed-origins=http://localhost:5173
@@ -438,11 +448,6 @@ app.cors.allowed-origins=http://localhost:5173
 # Simulation
 strategy.simulation-mode=true
 strategy.failure-rate=5
-
-# Rate Limiting
-rate-limiting.max-attempts=5
-rate-limiting.window-minutes=15
-rate-limiting.block-duration-minutes=60
 ```
 
 ---

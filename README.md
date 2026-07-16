@@ -36,14 +36,14 @@ sendMe/
 ├── api/              Backend Spring Boot — voir api/README.md
 │   ├── src/main/java/ibrahima/dickoya/sendme/
 │   │   ├── config/        # 8 configurations (Security, Stripe, Swagger, Currency, etc.)
-│   │   ├── controller/    # 13 contrôleurs REST
+│   │   ├── controller/    # 14 contrôleurs REST
 │   │   ├── dto/           # Request/Response DTOs
-│   │   ├── entity/        # 11 entités JPA
+│   │   ├── entity/        # 10 entités JPA
 │   │   ├── enums/         # 4 énumérations (ChannelType, TransactionStatus, NotificationType, Role)
-│   │   ├── exception/     # 7 exceptions personnalisées + GlobalExceptionHandler
-│   │   ├── repository/    # 11 interfaces Spring Data JPA
+│   │   ├── exception/     # 6 exceptions personnalisées + GlobalExceptionHandler
+│   │   ├── repository/    # 10 interfaces Spring Data JPA
 │   │   ├── security/      # JWT, RateLimitingFilter, UserDetailsServiceImpl
-│   │   ├── service/       # 16 services métier
+│   │   ├── service/       # 17 services métier
 │   │   ├── strategy/      # TransferStrategy + 6 implémentations + BaseTransferStrategy
 │   │   └── utils/         # 3 utilitaires (CurrencyByCountry, DataMaskingUtils, MessageUtils)
 │   ├── src/main/resources/
@@ -59,8 +59,8 @@ sendMe/
 │   │   ├── pages/        # 17 pages (publiques, privées, admin)
 │   │   ├── layouts/      # 3 layouts (Public, Private, Admin)
 │   │   ├── routes/       # AppRoutes, PrivateRoute, AdminRoute
-│   │   ├── services/     # 11 services API (Axios)
-│   │   ├── hooks/        # 10 hooks personnalisés
+│   │   ├── services/     # 12 services API (Axios)
+│   │   ├── hooks/        # 12 hooks personnalisés
 │   │   ├── store/        # 4 Context API (auth, notification, theme, transfer)
 │   │   ├── i18n/         # 26 fichiers de traduction FR/EN (13 namespaces)
 │   │   ├── types/        # Types TypeScript complets
@@ -94,7 +94,6 @@ sendMe/
 
 | Document | Description |
 |---|---|
-| [`docs/README.md`](./docs/README.md) | Index de la documentation technique |
 | [`docs/architecture.md`](./docs/architecture.md) | Architecture générale, Strategy Pattern, flux de transfert, sécurité, multi-devises, parrainage, audit |
 | [`docs/database.md`](./docs/database.md) | Schéma de base de données, migrations Flyway V1–V22, entités, devises supportées |
 | [`docs/diagrams/README.md`](./docs/diagrams/README.md) | Index des diagrammes techniques |
@@ -132,12 +131,12 @@ L'application est disponible sur `http://localhost:5173`.
 
 | Canal | Type | Icône |
 |---|---|---|
-| Virement bancaire (SEPA/SWIFT) | `BANK_TRANSFER`
-| Orange Money | `ORANGE_MONEY` | |
-| MTN Mobile Money | `MTN_MOBILE_MONEY` |  |
-| Wave | `WAVE` |
-| Moov Money | `MOOV_MONEY` |  |
-| Airtel Money | `AIRTEL_MONEY` | |
+| Virement bancaire (SEPA/SWIFT) | `BANK_TRANSFER` | 🏦 |
+| Orange Money | `ORANGE_MONEY` | 🟠 |
+| MTN Mobile Money | `MTN_MOBILE_MONEY` | 🟡 |
+| Wave | `WAVE` | 🔵 |
+| Moov Money | `MOOV_MONEY` | 🟢 |
+| Airtel Money | `AIRTEL_MONEY` | 🔴 |
 
 ---
 
@@ -146,7 +145,7 @@ L'application est disponible sur `http://localhost:5173`.
 - **Authentification JWT** — inscription, connexion, refresh token, déconnexion, validation d'email (V20)
 - **Bénéficiaires** — CRUD avec champs contextuels selon le canal (RG-02), multi-canaux par bénéficiaire (V15)
 - **Transferts** — simulation temps réel, tunnel 4 étapes, paiement Stripe, routage multi-canaux (Strategy Pattern)
-- **Multi-devises** — 5 devises d'envoi (EUR, USD, GBP, CAD, CHF), 8 devises de réception (XOF, XAF, GNF, NGN, GHS, ZAR, MAD, TND)
+- **Multi-devises** — 5 devises d'envoi (EUR, USD, GBP, CAD, CHF), 13 devises de réception (XOF, XAF, GNF, EUR, CHF, GBP, USD, CAD, MAD, DZD, TND, EGP, ZAR)
 - **Dashboard utilisateur** — statistiques personnelles, évolution des transferts, taux de change en direct
 - **Profil** — modification, changement de mot de passe, historique des connexions (V19), suppression de compte
 - **Parrainage** — code unique (format `SENDME-XXXXXXXXXXXX`), coupons de réduction (5€), statistiques
@@ -177,9 +176,11 @@ L'application est disponible sur `http://localhost:5173`.
 
 ## Comptes par défaut
 
-| Rôle | Email                         | Mot de passe  |
-|---|-------------------------------|---------------|
-| Admin | `dickoyaservices@outlook.com` | `P@ssword123` |
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| Admin | `admin@sendme.com` | `Admin@sendme2025` |
+
+> **Note :** Ce compte est créé par la migration Flyway V1. En développement, vous pouvez modifier l'email et le mot de passe dans `application-local.properties`.
 
 ---
 

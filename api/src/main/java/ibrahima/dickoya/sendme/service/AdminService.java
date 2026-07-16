@@ -87,12 +87,12 @@ public class AdminService {
 
                 log.info("[ADMIN] Génération du tableau de bord");
 
-                // ── Statistiques utilisateurs ────────────────────────────────────────
+                // Statistiques utilisateurs
                 long totalUsers = userRepository.count();
                 long activeUsers = userRepository.countByIsActiveTrue();
                 long inactiveUsers = totalUsers - activeUsers;
 
-                // ── Statistiques transactions ────────────────────────────────────────
+                // Statistiques transactions
                 long totalTransactions = transactionRepository.count();
                 long completedTransactions = transactionRepository
                                 .countByStatus(TransactionStatus.COMPLETED);
@@ -109,7 +109,7 @@ public class AdminService {
                                 ? (double) completedTransactions / totalTransactions * 100
                                 : 0.0;
 
-                // ── Statistiques financières ─────────────────────────────────────────
+                // Statistiques financières
                 // Volume total = somme des montants envoyés des transactions COMPLETED
                 Double totalVolume = transactionRepository
                                 .sumAmountSentByStatus(TransactionStatus.COMPLETED);
@@ -130,7 +130,7 @@ public class AdminService {
                 long todayTransactions = transactionRepository
                                 .countByCreatedAtAfter(startOfDay);
 
-                // ── Répartition par canal ────────────────────────────────────────────
+                // Répartition par canal
                 Map<String, Long> transactionsByChannel = new HashMap<>();
                 transactionRepository.countByChannel().forEach(result -> {
                         transactionsByChannel.put(
@@ -139,10 +139,10 @@ public class AdminService {
                         );
                 });
 
-                // ── Connexions SSE actives ────────────────────────────────────────────
+                // Connexions SSE actives
                 int activeSSEConnections = sseEmitterService.getActiveConnectionsCount();
 
-                // ── Construire et retourner la réponse ───────────────────────────────
+                // Construire et retourner la réponse
                 return DashboardResponse.builder()
                                 .totalUsers(totalUsers)
                                 .activeUsers(activeUsers)
@@ -415,7 +415,7 @@ public class AdminService {
                 log.info("[ADMIN] Notifications changement tarifs envoyées avec succès");
         }
 
-        // ── NOUVELLES MÉTHODES : Filtres, Batch, Volume, Success Rate ────────
+        // NOUVELLES MÉTHODES : Filtres, Batch, Volume, Success Rate
 
         /**
          * Récupère les utilisateurs avec filtres avancés.

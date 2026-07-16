@@ -3,7 +3,7 @@ import auditLogService from '../../services/auditLogService';
 import type { AuditLogEntry, AuditLogFilters } from '../../services/auditLogService';
 import type { Page } from '../../types';
 
-// ── Constantes ──────────────────────────────────────────────────────────
+// Constantes
 const CATEGORIES = ['AUTH', 'TRANSFER', 'ADMIN', 'CONFIG', 'SYSTEM'] as const;
 const EVENT_TYPES = [
     'REGISTER', 'LOGIN', 'LOGIN_FAILED', 'LOGOUT',
@@ -45,7 +45,7 @@ const EVENT_TYPE_LABELS: Record<string, string> = {
     JOB_EXECUTED: 'Job exécuté',
 };
 
-// ── Composant ───────────────────────────────────────────────────────────
+// Composant
 const AdminLogs: React.FC = () => {
     const [logs, setLogs] = useState<Page<AuditLogEntry> | null>(null);
     const [loading, setLoading] = useState(true);

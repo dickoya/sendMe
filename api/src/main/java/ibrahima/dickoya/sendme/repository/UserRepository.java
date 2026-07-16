@@ -59,7 +59,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmailVerificationToken(String emailVerificationToken);
 
-    // ── Recherche et filtres pour l'admin ─────────────────────────────────
+    // Recherche et filtres pour l'admin
 
     /**
      * Recherche paginée d'utilisateurs avec filtres combinés.

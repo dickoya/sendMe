@@ -57,12 +57,12 @@ function Profile() {
     const { showToast } = useToast();
     const navigate = useNavigate();
 
-    // ── État du profil ──────────────────────────────────────────────────────
+    // État du profil
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [isLoadingProfile, setIsLoadingProfile] = useState(true);
     const [profileError, setProfileError] = useState<string | null>(null);
 
-    // ── Formulaire d'informations personnelles ──────────────────────────────
+    // Formulaire d'informations personnelles
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -71,7 +71,7 @@ function Profile() {
     });
     const [isSavingProfile, setIsSavingProfile] = useState(false);
 
-    // ── Formulaire de changement de mot de passe ────────────────────────────
+    // Formulaire de changement de mot de passe
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
@@ -79,25 +79,25 @@ function Profile() {
     });
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-    // ── État des préférences ────────────────────────────────────────────────
+    // État des préférences
     const [selectedLanguage, setSelectedLanguage] = useState(() => {
         return localStorage.getItem('sendme_language') || 'fr';
     });
 
-    // ── Historique de connexion ─────────────────────────────────────────────
+    // Historique de connexion
     const [loginHistory, setLoginHistory] = useState<LoginHistoryEntry[]>([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
-    // ── Coupons de réduction ────────────────────────────────────────────────
+    // Coupons de réduction
     const [coupons, setCoupons] = useState<ReferralCouponResponse[]>([]);
     const [isLoadingCoupons, setIsLoadingCoupons] = useState(false);
 
-    // ── Suppression de compte ───────────────────────────────────────────────
+    // Suppression de compte
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deletePassword, setDeletePassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // ── Chargement du profil ────────────────────────────────────────────────
+    // Chargement du profil
     // Chargé une seule fois au montage du composant
     useEffect(() => {
         let cancelled = false;
@@ -130,7 +130,7 @@ function Profile() {
         return () => { cancelled = true; };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // ── Chargement de l'historique de connexion ─────────────────────────────
+    // Chargement de l'historique de connexion
     // Chargé une seule fois au montage du composant
     useEffect(() => {
         let cancelled = false;
@@ -155,7 +155,7 @@ function Profile() {
         return () => { cancelled = true; };
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // ── Chargement des coupons de réduction ─────────────────────────────────
+    // Chargement des coupons de réduction
     useEffect(() => {
         let cancelled = false;
         const loadCoupons = async () => {
@@ -194,7 +194,7 @@ function Profile() {
         }
     }, [t, showToast]);
 
-    // ── Gestionnaires de formulaire ─────────────────────────────────────────
+    // Gestionnaires de formulaire
     const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
@@ -205,7 +205,7 @@ function Profile() {
         setPasswordData((prev) => ({ ...prev, [name]: value }));
     };
 
-    // ── Mise à jour du profil ───────────────────────────────────────────────
+    // Mise à jour du profil
     const handleSaveProfile = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSavingProfile(true);
@@ -225,7 +225,7 @@ function Profile() {
         }
     };
 
-    // ── Changement de mot de passe ──────────────────────────────────────────
+    // Changement de mot de passe
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -259,13 +259,13 @@ function Profile() {
         }
     };
 
-    // ── Changement de langue ────────────────────────────────────────────────
+    // Changement de langue
     const handleLanguageChange = (langCode: string) => {
         i18n.changeLanguage(langCode);
         setSelectedLanguage(langCode);
     };
 
-    // ── Suppression de compte ───────────────────────────────────────────────
+    // Suppression de compte
     const handleDeleteAccount = async () => {
         setIsDeleting(true);
         try {
@@ -283,12 +283,12 @@ function Profile() {
         }
     };
 
-    // ── Affichage du chargement ─────────────────────────────────────────────
+    // Affichage du chargement
     if (isLoadingProfile) {
         return <Spinner fullPage label={tCommon('states.loading')} />;
     }
 
-    // ── Affichage d'erreur ──────────────────────────────────────────────────
+    // Affichage d'erreur
     if (profileError && !profile) {
         return (
             <div className="flex min-h-[60vh] items-center justify-center">
@@ -322,7 +322,7 @@ function Profile() {
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-                {/* ── Section 1 : Informations personnelles ─────────────────── */}
+                {/* Section 1 : Informations personnelles */}
                 <Card title={t('sections.personalInfo')} className="lg:col-span-2">
                     <form onSubmit={handleSaveProfile} className="grid gap-4 sm:grid-cols-2">
                         <Input
@@ -369,7 +369,7 @@ function Profile() {
                     </form>
                 </Card>
 
-                {/* ── Section 2 : Changement de mot de passe ────────────────── */}
+                {/* Section 2 : Changement de mot de passe */}
                 <Card title={t('password.title')}>
                     <form onSubmit={handleChangePassword} className="flex flex-col gap-4">
                         <Input
@@ -409,7 +409,7 @@ function Profile() {
                     </form>
                 </Card>
 
-                {/* ── Section 3 : Préférences ───────────────────────────────── */}
+                {/* Section 3 : Préférences */}
                 <Card title={t('sections.preferences')}>
                     <div className="flex flex-col gap-6">
                         {/* Langue */}
@@ -475,7 +475,7 @@ function Profile() {
                     </div>
                 </Card>
 
-                {/* ── Section 4 : Mes coupons de réduction ──────────────────── */}
+                {/* Section 4 : Mes coupons de réduction */}
                 <Card title={t('sections.referralCoupons', 'Mes coupons de réduction')} className="lg:col-span-2">
                     {isLoadingCoupons ? (
                         <Spinner size="sm" />
@@ -524,7 +524,7 @@ function Profile() {
                     )}
                 </Card>
 
-                {/* ── Section 5 : Historique de connexion ────────────────────── */}
+                {/* Section 5 : Historique de connexion */}
                 <Card title={t('loginHistory.title')} className="lg:col-span-2">
                     {isLoadingHistory ? (
                         <Spinner size="sm" />
@@ -582,7 +582,7 @@ function Profile() {
                     )}
                 </Card>
 
-                {/* ── Section 5 : Zone dangereuse — Suppression de compte ───── */}
+                {/* Section 5 : Zone dangereuse — Suppression de compte */}
                 <Card title={t('sections.dangerZone')} className="lg:col-span-2 border-danger-200 dark:border-danger-800">
                     <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
@@ -602,7 +602,7 @@ function Profile() {
                 </Card>
             </div>
 
-            {/* ── Modal de confirmation de suppression ──────────────────────── */}
+            {/* Modal de confirmation de suppression */}
             <ConfirmDialog
                 isOpen={showDeleteModal}
                 onClose={() => {

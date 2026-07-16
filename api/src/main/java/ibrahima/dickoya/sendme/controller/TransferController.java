@@ -243,15 +243,15 @@ public class TransferController {
                         @Parameter(description = "Identifiant de la transaction", required = true) @PathVariable Long id,
                         @AuthenticationPrincipal UserDetails userDetails) {
 
-                // 1. Récupérer l'entité et vérifier les droits d'accès
+                // Récupérer l'entité et vérifier les droits d'accès
                 Transaction transaction = transferService
                                 .getEntityById(id, userDetails.getUsername());
 
-                // 2. Réutiliser ton service de génération PDF existant
+                // Réutiliser le service de génération PDF existant
                 byte[] pdfBytes = receiptPdfService.generateReceipt(transaction);
                 String filename = "recu-" + transaction.getReference() + ".pdf";
 
-                // 3. Retourner le flux avec la disposition INLINE (ouvre l'onglet au lieu de
+                // Retourner le flux avec la disposition INLINE (ouvre l'onglet au lieu de
                 // forcer le téléchargement)
                 return ResponseEntity.ok()
                                 .header(HttpHeaders.CONTENT_TYPE, "application/pdf")

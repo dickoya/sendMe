@@ -153,7 +153,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
        @Query(value = "SELECT MAX(CAST(SUBSTRING(t.reference, LOCATE('-', t.reference, LOCATE('-', t.reference) + 1) + 1) AS INTEGER)) FROM transactions t", nativeQuery = true)
        Long findMaxReferenceSequence();
 
-       // ── Agrégations pour le dashboard admin ────────────────────────────
+       // Agrégations pour le dashboard admin
 
        /**
         * Volume total par jour pour les X derniers jours.

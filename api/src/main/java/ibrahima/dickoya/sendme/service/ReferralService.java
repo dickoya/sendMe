@@ -48,7 +48,7 @@ public class ReferralService {
     private final ReferralCouponRepository couponRepository;
     private final SecureRandom secureRandom = new SecureRandom();
 
-    // ── Génération du code de parrainage ──────────────────────────────────
+    // Génération du code de parrainage
 
     /**
      * Génère un code de parrainage unique et non-prédictible pour un utilisateur.
@@ -93,7 +93,7 @@ public class ReferralService {
                 .orElse(false);
     }
 
-    // ── Application du code de parrainage à l'inscription ─────────────────
+    // Application du code de parrainage à l'inscription
 
     /**
      * Lie un nouvel utilisateur à son parrain via le code de parrainage.
@@ -149,7 +149,7 @@ public class ReferralService {
                 newUser.getEmail(), sponsor.getEmail(), referralCode, REFERRAL_DISCOUNT);
     }
 
-    // ── Génération des coupons au premier transfert du filleul ────────────
+    // Génération des coupons au premier transfert du filleul
 
     /**
      * Vérifie si l'utilisateur est un filleul et génère les coupons
@@ -197,7 +197,7 @@ public class ReferralService {
                 sponsor.getEmail(), REFERRAL_DISCOUNT, currency);
     }
 
-    // ── Récupération des coupons disponibles ──────────────────────────────
+    // Récupération des coupons disponibles
 
     /**
      * Récupère le coupon valide le plus ancien pour un utilisateur et une devise.
@@ -219,7 +219,7 @@ public class ReferralService {
         return couponRepository.findValidCouponsByUserId(userId);
     }
 
-    // ── Utilisation d'un coupon ───────────────────────────────────────────
+    // Utilisation d'un coupon
 
     /**
      * Marque un coupon comme utilisé et le lie à une transaction.
@@ -246,7 +246,7 @@ public class ReferralService {
                 couponId, transaction.getReference());
     }
 
-    // ── Statistiques de parrainage ────────────────────────────────────────
+    // Statistiques de parrainage
 
     /**
      * Récupère les informations de parrainage d'un utilisateur.
@@ -280,7 +280,7 @@ public class ReferralService {
                 .toList();
     }
 
-    // ── Montant de la réduction ───────────────────────────────────────────
+    // Montant de la réduction
 
     /**
      * Calcule le montant de réduction applicable pour un utilisateur et une devise.
@@ -293,7 +293,7 @@ public class ReferralService {
                 .orElse(BigDecimal.ZERO);
     }
 
-    // ── Mappers ───────────────────────────────────────────────────────────
+    // Mappers
 
     private ReferralCouponResponse toCouponResponse(ReferralCoupon coupon) {
         String referredName = coupon.getReferredUser().getFirstName()

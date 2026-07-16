@@ -42,19 +42,19 @@ public class SecurityConfig {
     private String allowedOrigins;
 
     private static final String[] PUBLIC_ROUTES = {
-            // ── Authentification ──────────────────────────────────────────────
+            // Authentification
             "/api/auth/**",
 
-            // ── Simulation de transfert (page d'accueil publique) ────────────
+            // Simulation de transfert (page d'accueil publique)
             "/api/transfers/simulate",
 
-            // ── Vérification publique d'un code de parrainage ────────────────
+            // Vérification publique d'un code de parrainage
             "/api/referral/verify",
 
-            // ── Stripe Webhook ────────────────────────────────────────────────
+            // Stripe Webhook
             "/api/webhooks/**",
 
-            // ── Swagger UI / OpenAPI / Actuator ───────────────────────────────
+            // Swagger UI / OpenAPI / Actuator
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs",
@@ -75,19 +75,19 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        // ── Autoriser le mode asynchrone (SSE) ──
+                        // Autoriser le mode asynchrone (SSE)
                         .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC).permitAll()
 
-                        // ── Autoriser les requêtes de pré-vérification OPTIONS ──
+                        // Autoriser les requêtes de pré-vérification OPTIONS
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // ── Routes publiques ──
+                        // Routes publiques
                         .requestMatchers(PUBLIC_ROUTES).permitAll()
 
-                        // ── Administration ──
+                        // Administration
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // ── Tout le reste est sécurisé ──
+                        // Tout le reste est sécurisé
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

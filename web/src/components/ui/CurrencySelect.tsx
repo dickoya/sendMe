@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
  * Chaque drapeau est un composant React qui accepte className.
  */
 
-// ── Union Européenne ──────────────────────────────────────────────
+// Union Européenne
 function FlagEu({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -24,7 +24,7 @@ function FlagEu({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── États-Unis ────────────────────────────────────────────────────
+// États-Unis
 function FlagUs({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -44,7 +44,7 @@ function FlagUs({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Royaume-Uni ───────────────────────────────────────────────────
+// Royaume-Uni
 function FlagGb({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -59,7 +59,7 @@ function FlagGb({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Canada ────────────────────────────────────────────────────────
+// Canada
 function FlagCa({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -71,7 +71,7 @@ function FlagCa({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Suisse ────────────────────────────────────────────────────────
+// Suisse
 function FlagCh({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -82,7 +82,7 @@ function FlagCh({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── UEMOA (Bénin, Burkina, Côte d'Ivoire...) ──────────────────────
+// UEMOA (Bénin, Burkina, Côte d'Ivoire...)
 function FlagXof({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -93,7 +93,7 @@ function FlagXof({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── CEMAC (Cameroun, Congo, Gabon...) ─────────────────────────────
+// CEMAC (Cameroun, Congo, Gabon...)
 function FlagXaf({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -104,7 +104,7 @@ function FlagXaf({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Guinée ────────────────────────────────────────────────────────
+// Guinée
 function FlagGn({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -115,7 +115,7 @@ function FlagGn({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Nigeria ───────────────────────────────────────────────────────
+// Nigeria
 function FlagNg({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -126,7 +126,7 @@ function FlagNg({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Ghana ─────────────────────────────────────────────────────────
+// Ghana
 function FlagGh({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -138,7 +138,7 @@ function FlagGh({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Afrique du Sud ────────────────────────────────────────────────
+// Afrique du Sud
 function FlagZa({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -152,7 +152,7 @@ function FlagZa({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Maroc ─────────────────────────────────────────────────────────
+// Maroc
 function FlagMa({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>
@@ -162,7 +162,7 @@ function FlagMa({ className = 'h-4 w-5' }: { className?: string }) {
     );
 }
 
-// ── Tunisie ───────────────────────────────────────────────────────
+// Tunisie
 function FlagTn({ className = 'h-4 w-5' }: { className?: string }) {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" className={`${className} rounded-sm shadow-sm`}>

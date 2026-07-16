@@ -20,6 +20,7 @@ Application React + TypeScript pour la passerelle de transfert d'argent SendMe.
 | Temps réel | Server-Sent Events (fetch + ReadableStream) |
 | Tests | Vitest + Testing Library |
 | Linting | ESLint + TypeScript-ESLint |
+| Graphiques | Recharts |
 
 ---
 
@@ -70,7 +71,6 @@ web/src/
 ├── components/         # 50+ composants UI réutilisables
 │   ├── ui/             # Composants atomiques (Button, Input, Modal, Badge, Card, etc.)
 │   ├── forms/          # Formulaires complexes (TransferForm, BeneficiaryForm, etc.)
-│   ├── charts/         # Graphiques (VolumeChart, SuccessRateChart, PieChart)
 │   ├── layout/         # Navbar, Sidebar, Footer, Breadcrumb
 │   └── shared/         # Composants partagés (LoadingSpinner, EmptyState, ErrorState, Pagination)
 ├── pages/              # 17 pages
@@ -104,7 +104,7 @@ web/src/
 │   ├── AppRoutes.tsx        # Arborescence complète des routes
 │   ├── PrivateRoute.tsx     # Guard d'authentification
 │   └── AdminRoute.tsx       # Guard de rôle ADMIN
-├── services/           # 11 services API (Axios)
+├── services/           # 12 services API (Axios)
 │   ├── api.ts               # Instance Axios centrale + intercepteurs JWT/refresh
 │   ├── authService.ts       # Authentification (login, register, refresh, verify-email)
 │   ├── transferService.ts   # Transferts et transactions
@@ -115,8 +115,9 @@ web/src/
 │   ├── referralService.ts   # Parrainage
 │   ├── adminService.ts      # Administration
 │   ├── countryService.ts    # Pays et devises
-│   └── paymentChannelService.ts # Canaux de paiement
-├── hooks/              # 10 hooks personnalisés
+│   ├── channelService.ts    # Canaux de paiement
+│   └── stripeService.ts     # Stripe (payment intent)
+├── hooks/              # 12 hooks personnalisés
 │   ├── useSSE.ts            # Connexion SSE avec reconnexion automatique
 │   ├── usePagination.ts     # Pagination générique
 │   ├── useDebounce.ts       # Debounce pour la recherche
@@ -126,7 +127,16 @@ web/src/
 │   ├── useScrollToTop.ts    # Scroll to top on navigation
 │   ├── useDocumentTitle.ts  # Mise à jour du titre de page
 │   ├── useFormValidation.ts # Validation de formulaire
-│   └── useCountdown.ts      # Compte à rebours
+│   ├── useCountdown.ts      # Compte à rebours
+│   ├── useOnboarding.ts     # Tour guidé onboarding
+│   ├── useDashboard.ts      # Données du dashboard
+│   ├── useBeneficiary.ts    # Gestion des bénéficiaires
+│   ├── useTransfer.ts       # Tunnel de transfert
+│   ├── useAdminDashboard.ts # Dashboard admin
+│   ├── useAdminUsers.ts     # Gestion utilisateurs admin
+│   ├── useAdminTransactions.ts # Transactions admin
+│   ├── useAdminAnalytics.ts # Analytics admin
+│   └── usePaymentChannels.ts # Canaux de paiement admin
 ├── store/              # 4 Context API
 │   ├── auth/               # AuthContext (user, login, register, logout)
 │   ├── notification/       # NotificationContext (SSE, historique, compteur)
@@ -164,7 +174,7 @@ web/src/
 │   ├── validation.ts       # Règles de validation
 │   ├── notificationDisplay.ts # Messages de notification traduits
 │   ├── exportCsv.ts        # Export CSV des transactions
-│   └── countries.ts        # Données des pays
+│   └── formatCurrency.ts   # Formatage monétaire
 ├── lib/                # Fonctions utilitaires
 │   └── utils.ts            # getErrorMessage, cn (classnames)
 ├── App.tsx             # Composant racine (providers)
@@ -229,7 +239,7 @@ Le transfert se déroule en 4 étapes dans un tunnel dédié :
 - **Pagination** — historique, bénéficiaires, notifications, admin
 - **Recherche et filtres** — utilisateurs admin (texte, statut, rôle, dates)
 - **Actions en masse** — suspension/activation de plusieurs comptes
-- **Graphiques** — volume par jour, taux de succès, répartition par canal (Chart.js)
+- **Graphiques** — volume par jour, taux de succès, répartition par canal (Recharts)
 - **Thème clair/sombre** — persistance en localStorage
 - **Internationalisation** — bascule FR/EN avec détection navigateur
 - **Notifications temps réel** — SSE avec reconnexion automatique (5s)
@@ -251,7 +261,7 @@ npm run build      # Build de production
 npm run preview    # Prévisualisation du build
 npm run test       # Tests unitaires (Vitest)
 npm run lint       # Linting ESLint
-npm run typecheck  # Vérification TypeScript
+npm run check:i18n # Vérification des clés de traduction i18n
 ```
 
 ---
@@ -260,19 +270,23 @@ npm run typecheck  # Vérification TypeScript
 
 ```json
 {
-  "react": "^19.0.0",
-  "react-router-dom": "^7.0.0",
-  "axios": "^1.7.0",
-  "@stripe/react-stripe-js": "^3.0.0",
-  "@stripe/stripe-js": "^5.0.0",
-  "i18next": "^24.0.0",
-  "react-i18next": "^15.0.0",
-  "i18next-browser-languagedetector": "^8.0.0",
-  "chart.js": "^4.4.0",
-  "react-chartjs-2": "^5.2.0",
-  "tailwindcss": "^4.0.0",
-  "vite": "^8.0.0",
-  "vitest": "^3.0.0"
+  "react": "^19.2.6",
+  "react-router-dom": "^7.17.0",
+  "axios": "^1.17.0",
+  "@stripe/react-stripe-js": "^6.6.0",
+  "@stripe/stripe-js": "^9.8.0",
+  "i18next": "^26.3.1",
+  "react-i18next": "^17.0.8",
+  "i18next-browser-languagedetector": "^8.2.1",
+  "recharts": "^3.8.1",
+  "tailwindcss": "^4.3.1",
+  "vite": "^8.0.12",
+  "vitest": "^4.1.9",
+  "typescript": "~6.0.2",
+  "lucide-react": "^1.18.0",
+  "date-fns": "^4.4.0",
+  "class-variance-authority": "^0.7.1",
+  "tailwind-merge": "^3.6.0"
 }
 ```
 

@@ -80,7 +80,7 @@ public class AuditService {
         logEvent(category, eventType, userEmail, null, null, null, "SUCCESS", message, null, null);
     }
 
-    // ── Consultation ──────────────────────────────────────────────────────
+    // Consultation
 
     @Transactional(readOnly = true)
     public Page<AuditLogResponse> getAllLogs(Pageable pageable) {
@@ -135,7 +135,7 @@ public class AuditService {
         return result;
     }
 
-    // ── Utilitaires ──────────────────────────────────────────────────────
+    // Utilitaires
 
     private AuditLogResponse toResponse(AuditLog log) {
         return AuditLogResponse.builder()

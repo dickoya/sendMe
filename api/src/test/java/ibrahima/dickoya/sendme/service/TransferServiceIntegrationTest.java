@@ -119,13 +119,13 @@ class TransferServiceIntegrationTest {
         @Test
         @DisplayName("Création bénéficiaire → simulation → transfert → historique : flux complet")
         void testFullTransferFlow() throws Exception {
-                // ── ÉTAPE 1 : Création du bénéficiaire ────────────────────────────────
+                // ÉTAPE 1 : Création du bénéficiaire
                 assertThat(testBeneficiary).isNotNull();
                 assertThat(testBeneficiary.getFirstName()).isEqualTo("Amadou");
                 assertThat(testBeneficiary.getLastName()).isEqualTo("Diallo");
                 assertThat(testBeneficiary.getChannels()).hasSize(1);
 
-                // ── ÉTAPE 2 : Simulation du transfert ─────────────────────────────────
+                // ÉTAPE 2 : Simulation du transfert
                 SimulateRequest simulateRequest = SimulateRequest.builder()
                                 .amount(new BigDecimal("200.00"))
                                 .currencyFrom("EUR")
@@ -143,7 +143,7 @@ class TransferServiceIntegrationTest {
                 assertThat(simulation.getAmountReceived()).isNotNull();
                 assertThat(simulation.getCurrencyTo()).isEqualTo("XOF");
 
-                // ── ÉTAPE 3 : Exécution du transfert ──────────────────────────────────
+                // ÉTAPE 3 : Exécution du transfert
                 TransferRequest transferRequest = TransferRequest.builder()
                                 .amount(new BigDecimal("200.00"))
                                 .currency("EUR")
@@ -165,7 +165,7 @@ class TransferServiceIntegrationTest {
                 verify(stripePaymentService, atLeastOnce()).createAndConfirmPayment(
                                 any(BigDecimal.class), anyString(), anyString());
 
-                // ── ÉTAPE 4 : Historique des transactions ─────────────────────────────
+                // ÉTAPE 4 : Historique des transactions
                 Page<TransactionResponse> history = transferService.getHistory(
                                 userEmail, PageRequest.of(0, 10));
 

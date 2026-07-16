@@ -51,21 +51,21 @@ import NotFound from '@/pages/NotFound';
 function AppRoutes() {
     return (
         <Routes>
-            {/* ── Page d'accueil publique ──────────────────────────────────── */}
+            {/* Page d'accueil publique */}
             <Route path="/" element={<Home />} />
 
-            {/* ── Routes de vérification d'email (pages autonomes, sans layout) ── */}
+            {/* Routes de vérification d'email (pages autonomes, sans layout) */}
             <Route path="/verify-email" element={<EmailVerification />} />
             <Route path="/verify-email-sent" element={<VerificationSent />} />
 
-            {/* ── Routes publiques (Login, Register, Legal) ──────────────────── */}
+            {/* Routes publiques (Login, Register, Legal) */}
             <Route element={<PublicLayout />}>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/legal" element={<LegalNotice />} />
             </Route>
 
-            {/* ── Routes privées (utilisateur connecté) ───────────────────────── */}
+            {/* Routes privées (utilisateur connecté) */}
             <Route element={<PrivateRoute />}>
                 <Route element={<PrivateLayout />}>
                     <Route path="/dashboard" element={<Dashboard />} />
@@ -80,7 +80,7 @@ function AppRoutes() {
                 </Route>
             </Route>
 
-            {/* ── Routes admin (ROLE_ADMIN) ───────────────────────────────────── */}
+            {/* Routes admin (ROLE_ADMIN) */}
             <Route element={<AdminRoute />}>
                 <Route element={<AdminLayout />}>
                     <Route path="/admin" element={<AdminDashboard />} />
@@ -92,7 +92,7 @@ function AppRoutes() {
                 </Route>
             </Route>
 
-            {/* ── 404 ──────────────────────────────────────────────────────────── */}
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
         </Routes>
     );

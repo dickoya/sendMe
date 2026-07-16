@@ -17,7 +17,7 @@
 /* ✅ Force Tailwind v4 à utiliser la classe .dark sur <html> au lieu de prefers-color-scheme */
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
-  /* ── Couleur de marque (bleu profond) ───────────────────── */
+  /* Couleur de marque (bleu profond) */
   --color-brand-50: #E6F1FB;
   --color-brand-100: #B5D4F4;
   --color-brand-200: #85B7EB;
@@ -29,14 +29,14 @@
   --color-brand-800: #0F2F45;
   --color-brand-900: #0C2D40;
 
-  /* ── Accent — succès / montants reçus (teal) ────────────── */
+  /* Accent — succès / montants reçus (teal) */
   --color-accent-50: #E1F5EE;
   --color-accent-100: #B8E8D6;
   --color-accent-400: #1D9E75;
   --color-accent-500: #178060;
   --color-accent-600: #0F6E56;
 
-  /* ── Couleurs sémantiques ───────────────────────────────── */
+  /* Couleurs sémantiques */
   --color-danger-50: #FDEDEC;
   --color-danger-500: #C0392B;
   --color-danger-600: #A93226;
@@ -49,7 +49,7 @@
   --color-purple-500: #8E44AD;
   --color-purple-600: #6C3483;
 
-  /* ── Surfaces (mode clair) ──────────────────────────────── */
+  /* Surfaces (mode clair) */
   --color-surface: #FFFFFF;
   --color-surface-secondary: #F3F4F6;
   --color-surface-tertiary: #E5E7EB;
@@ -58,15 +58,15 @@
   --color-text-secondary: #6B7280;
   --color-text-tertiary: #9CA3AF;
 
-  /* ── Ombres (mode clair) ────────────────────────────────── */
+  /* Ombres (mode clair) */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
   --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.08);
 
-  /* ── Police ─────────────────────────────────────────────── */
+  /* Police */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  /* ── Rayons ─────────────────────────────────────────────── */
+  /* Rayons */
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
 }
@@ -80,7 +80,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 .dark {
-  /* ── Brand (plus vives, néon sobre) ─────────────────────── */
+  /* Brand (plus vives, néon sobre) */
   --color-brand-50: #0F1A2E;
   --color-brand-100: #142642;
   --color-brand-200: #1E3A5F;
@@ -92,14 +92,14 @@
   --color-brand-800: #B5D4F4;
   --color-brand-900: #D0E3F8;
 
-  /* ── Accent (plus vifs) ─────────────────────────────────── */
+  /* Accent (plus vifs) */
   --color-accent-50: #0A1F18;
   --color-accent-100: #0F2D24;
   --color-accent-400: #2ECC71;
   --color-accent-500: #27AE60;
   --color-accent-600: #1D9E75;
 
-  /* ── Sémantiques (plus vives) ───────────────────────────── */
+  /* Sémantiques (plus vives) */
   --color-danger-50: #1F0D0D;
   --color-danger-500: #E74C3C;
   --color-danger-600: #EC7063;
@@ -112,7 +112,7 @@
   --color-purple-500: #A569BD;
   --color-purple-600: #BB8FCE;
 
-  /* ── Surfaces (dark premium — noir neutre, reposant pour les yeux) ── */
+  /* Surfaces (dark premium — noir neutre, reposant pour les yeux) */
   --color-surface: #0D0D0D;           /* fond principal noir neutre */
   --color-surface-secondary: #141414;  /* cartes / conteneurs */
   --color-surface-tertiary: #1C1C1C;   /* hover / surbrillance */
@@ -121,7 +121,7 @@
   --color-text-secondary: #A8ACBD;     /* ratio 5.1:1 ✅ (amélioration contraste) */
   --color-text-tertiary: #8B8FA3;      /* ratio 3.2:1 → utilisé pour textes tertiaires */
 
-  /* ── Ombres & Glow (mode sombre) ────────────────────────── */
+  /* Ombres & Glow (mode sombre) */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(90, 159, 224, 0.08);
   --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(90, 159, 224, 0.06);
@@ -137,7 +137,7 @@
     @apply bg-[#0D0D0D] text-[#EDEEF0];
   }
 
-  /* ── Scrollbar mode clair ───────────────────────────────── */
+  /* Scrollbar mode clair */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -149,7 +149,7 @@
     @apply bg-gray-400;
   }
 
-  /* ── Scrollbar mode sombre ──────────────────────────────── */
+  /* Scrollbar mode sombre */
   .dark ::-webkit-scrollbar-thumb {
     @apply bg-gray-700;
   }
@@ -157,7 +157,7 @@
     @apply bg-gray-600;
   }
 
-  /* ── Selection ──────────────────────────────────────────── */
+  /* Selection */
   ::selection {
     @apply bg-brand-200/40 text-brand-900;
   }
