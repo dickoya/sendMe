@@ -22,8 +22,7 @@
     "yearly": "Annuel",
     "amount": "Montant",
     "count": "Transactions",
-    "currentRate": "Taux actuel",
-    "rawRate": "Taux brut"
+    "currentRate": "Taux actuel"
   },
   "quickActions": {
     "title": "Actions rapides",

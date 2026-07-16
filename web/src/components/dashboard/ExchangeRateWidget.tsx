@@ -118,14 +118,6 @@ export default function ExchangeRateWidget({
                                 1 {currentRate.from} = {currentRate.rate.toFixed(4)} {currentRate.to}
                             </p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-gray-500 dark:text-gray-300">
-                                {t('charts.rawRate')}
-                            </p>
-                            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                {currentRate.rawRate.toFixed(4)}
-                            </p>
-                        </div>
                     </div>
                 </div>
             )}

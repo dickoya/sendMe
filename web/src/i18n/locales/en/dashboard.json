@@ -22,8 +22,7 @@
     "yearly": "Yearly",
     "amount": "Amount",
     "count": "Transactions",
-    "currentRate": "Current rate",
-    "rawRate": "Raw rate"
+    "currentRate": "Current rate"
   },
   "quickActions": {
     "title": "Quick actions",
