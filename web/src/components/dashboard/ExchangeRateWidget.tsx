@@ -131,16 +131,16 @@ export default function ExchangeRateWidget({
                 <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                             <XAxis
                                 dataKey="date"
-                                tick={{ fontSize: 10, fill: '#6b7280' }}
-                                axisLine={{ stroke: '#e5e7eb' }}
+                                tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)' }}
+                                axisLine={{ stroke: 'var(--color-border)' }}
                             />
                             <YAxis
                                 domain={['auto', 'auto']}
-                                tick={{ fontSize: 10, fill: '#6b7280' }}
-                                axisLine={{ stroke: '#e5e7eb' }}
+                                tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)' }}
+                                axisLine={{ stroke: 'var(--color-border)' }}
                                 tickFormatter={(val) => val.toFixed(2)}
                             />
                             <Tooltip content={<CustomTooltip />} />
@@ -156,7 +156,7 @@ export default function ExchangeRateWidget({
                     </ResponsiveContainer>
                 </div>
             ) : (
-                <div className="flex h-48 items-center justify-center text-sm text-gray-500">
+                <div className="flex h-48 items-center justify-center text-sm text-gray-500 dark:text-[#8B8FA3]">
                     {t('empty.noRateData')}
                 </div>
             )}

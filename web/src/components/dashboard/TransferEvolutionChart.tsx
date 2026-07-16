@@ -34,7 +34,7 @@ export default function TransferEvolutionChart({ evolution, isLoading }: Transfe
     if (!evolution || (evolution.monthly.length === 0 && evolution.yearly.length === 0)) {
         return (
             <Card title={t('charts.transferEvolution')} className="lg:col-span-2">
-                <div className="flex h-64 items-center justify-center text-sm text-gray-500">
+                <div className="flex h-64 items-center justify-center text-sm text-gray-500 dark:text-[#8B8FA3]">
                     {t('empty.noData')}
                 </div>
             </Card>
@@ -102,22 +102,22 @@ export default function TransferEvolutionChart({ evolution, isLoading }: Transfe
             <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                         <XAxis
                             dataKey="label"
-                            tick={{ fontSize: 12, fill: '#6b7280' }}
-                            axisLine={{ stroke: '#e5e7eb' }}
+                            tick={{ fontSize: 12, fill: 'var(--color-text-tertiary)' }}
+                            axisLine={{ stroke: 'var(--color-border)' }}
                         />
                         <YAxis
                             yAxisId="left"
-                            tick={{ fontSize: 12, fill: '#6b7280' }}
-                            axisLine={{ stroke: '#e5e7eb' }}
+                            tick={{ fontSize: 12, fill: 'var(--color-text-tertiary)' }}
+                            axisLine={{ stroke: 'var(--color-border)' }}
                         />
                         <YAxis
                             yAxisId="right"
                             orientation="right"
-                            tick={{ fontSize: 12, fill: '#6b7280' }}
-                            axisLine={{ stroke: '#e5e7eb' }}
+                            tick={{ fontSize: 12, fill: 'var(--color-text-tertiary)' }}
+                            axisLine={{ stroke: 'var(--color-border)' }}
                         />
                         <Tooltip content={<CustomTooltip />} />
                         <Legend />

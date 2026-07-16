@@ -17,15 +17,15 @@ export interface StatCardProps {
  */
 function StatCard({ label, value, icon, iconClassName, subtext }: StatCardProps) {
     return (
-        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-[#222222] dark:bg-[#141414]">
             <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">{label}</span>
+                <span className="text-sm text-gray-500 dark:text-[#8B8FA3]">{label}</span>
                 <div className={cn('flex h-9 w-9 items-center justify-center rounded-full', iconClassName ?? 'bg-brand-50 text-brand-600')}>
                     {icon}
                 </div>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900">{value}</p>
-            {subtext && <p className="mt-1 text-xs text-gray-400">{subtext}</p>}
+            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-[#EDEEF0]">{value}</p>
+            {subtext && <p className="mt-1 text-xs text-gray-400 dark:text-[#5A5E72]">{subtext}</p>}
         </div>
     );
 }

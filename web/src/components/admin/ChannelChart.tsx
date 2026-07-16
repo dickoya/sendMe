@@ -29,7 +29,7 @@ function ChannelChart({ data }: ChannelChartProps) {
     const total = Object.values(data).reduce((sum, v) => sum + v, 0);
 
     if (total === 0) {
-        return <p className="py-6 text-center text-sm text-gray-400">{t('states.noData')}</p>;
+        return <p className="py-6 text-center text-sm text-gray-400 dark:text-[#5A5E72]">{t('states.noData')}</p>;
     }
 
     return (
@@ -40,21 +40,21 @@ function ChannelChart({ data }: ChannelChartProps) {
 
                 return (
                     <div key={channel} className="flex items-center gap-3">
-                        <div className="flex w-36 flex-shrink-0 items-center gap-2 text-sm text-gray-700">
+                        <div className="flex w-36 flex-shrink-0 items-center gap-2 text-sm text-gray-700 dark:text-[#C0C4D0]">
                             <span>{getChannelIcon(channel)}</span>
                             <span className="truncate">{getChannelLabel(channel, t)}</span>
                         </div>
                         <div className="flex-1">
-                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100">
+                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-[#222222]">
                                 <div
                                     className="h-full rounded-full bg-brand-500 transition-all"
                                     style={{ width: `${percentage}%` }}
                                 />
                             </div>
                         </div>
-                        <span className="w-10 flex-shrink-0 text-right text-sm font-medium text-gray-900">
-              {count}
-            </span>
+                        <span className="w-10 flex-shrink-0 text-right text-sm font-medium text-gray-900 dark:text-[#EDEEF0]">
+                            {count}
+                        </span>
                     </div>
                 );
             })}

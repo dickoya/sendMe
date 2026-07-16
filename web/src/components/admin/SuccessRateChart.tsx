@@ -18,7 +18,7 @@ export default function SuccessRateChart({ data }: SuccessRateChartProps) {
   if (!data.length) {
     return (
       <Card title={t('dashboard.successRateChart.title')}>
-        <p className="py-8 text-center text-sm text-gray-400">{t('dashboard.successRateChart.noData')}</p>
+        <p className="py-8 text-center text-sm text-gray-400 dark:text-[#5A5E72]">{t('dashboard.successRateChart.noData')}</p>
       </Card>
     );
   }
@@ -51,8 +51,8 @@ export default function SuccessRateChart({ data }: SuccessRateChartProps) {
           const y = padding.top + chartH - ((tick - minRate) / (maxRate - minRate)) * chartH;
           return (
             <g key={tick}>
-              <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#E5E7EB" strokeWidth="1" />
-              <text x={padding.left - 8} y={y + 4} textAnchor="end" className="text-[10px]" fill="#9CA3AF">
+              <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="var(--color-border)" strokeWidth="1" />
+              <text x={padding.left - 8} y={y + 4} textAnchor="end" className="text-[10px]" fill="var(--color-text-tertiary)">
                 {tick}%
               </text>
             </g>
@@ -84,7 +84,7 @@ export default function SuccessRateChart({ data }: SuccessRateChartProps) {
               y={height - 5}
               textAnchor="middle"
               className="text-[10px]"
-              fill="#9CA3AF"
+              fill="var(--color-text-tertiary)"
             >
               {new Date(p.date).toLocaleDateString(undefined, { day: '2-digit', month: '2-digit' })}
             </text>

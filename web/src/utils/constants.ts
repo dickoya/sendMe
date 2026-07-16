@@ -54,8 +54,17 @@ export function getChannelIcon(channel: ChannelType): string {
 /**
  * Retourne le libellé traduit d'un canal depuis les fichiers i18n locales.
  */
-export function getChannelLabel(channel: ChannelType, t: TFunction): string {
-    return t(`channels.${channel}`);
+export function getChannelLabel(channel: ChannelType | string | undefined, t: TFunction): string {
+    if (!channel) {
+        return t('channels.UNKNOWN', 'Canal inconnu');
+    }
+
+    const label = t(`channels.${channel}`);
+    if (label === `channels.${channel}`) {
+        return t('channels.UNKNOWN', 'Canal inconnu');
+    }
+
+    return label;
 }
 
 /**

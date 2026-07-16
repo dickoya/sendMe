@@ -184,7 +184,7 @@ function Dashboard() {
                 <Card
                     title={t('cards.myBeneficiaries')}
                     actions={
-                        <Link to="/beneficiaries" className="text-sm font-medium text-brand-600 hover:underline">
+                        <Link to="/beneficiaries" className="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
                             {tCommon('actions.seeAll')}
                         </Link>
                     }
@@ -205,11 +205,12 @@ function Dashboard() {
                                 <div key={b.id} className="flex items-center gap-3">
                                     <Avatar firstName={b.firstName} lastName={b.lastName} size="sm" />
                                     <div className="min-w-0">
-                                        <p className="truncate text-sm font-medium text-gray-900">
+                                        <p className="truncate text-sm font-medium text-gray-900 dark:text-[#EDEEF0]">
                                             {b.firstName} {b.lastName}
                                         </p>
-                                        <p className="text-xs text-gray-500">
-                                            {getChannelIcon(b.channel)} {getChannelLabel(b.channel, tCommon)}
+                                        <p className="text-xs text-gray-500 dark:text-[#8B8FA3]">
+                                            {getChannelIcon(b.channels.find((ch) => ch.isPrimary)?.channel ?? b.channel)}{' '}
+                                            {getChannelLabel(b.channels.find((ch) => ch.isPrimary)?.channel ?? b.channel, tCommon)}
                                         </p>
                                     </div>
                                 </div>
@@ -222,7 +223,7 @@ function Dashboard() {
                 <Card
                     title={t('cards.recentTransactions')}
                     actions={
-                        <Link to="/history" className="text-sm font-medium text-brand-600 hover:underline">
+                        <Link to="/history" className="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
                             {tCommon('actions.seeFullHistory')}
                         </Link>
                     }
@@ -238,24 +239,24 @@ function Dashboard() {
                             onAction={() => {}}
                         />
                     ) : (
-                        <div className="flex flex-col divide-y divide-gray-100">
+                        <div className="flex flex-col divide-y divide-gray-100 dark:divide-[#222222]">
                             {transactions.map((tx) => (
                                 <div key={tx.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 text-lg">
+                                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-50 text-lg dark:bg-[#1A1A1A]">
                                             {getChannelIcon(tx.channel)}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="truncate text-sm font-medium text-gray-900">
+                                            <p className="truncate text-sm font-medium text-gray-900 dark:text-[#EDEEF0]">
                                                 {tx.reference}
                                             </p>
-                                            <p className="text-xs text-gray-500">{formatDateShort(tx.createdAt)}</p>
+                                            <p className="text-xs text-gray-500 dark:text-[#8B8FA3]">{formatDateShort(tx.createdAt)}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-shrink-0 items-center gap-3">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {formatCurrency(tx.amountSent, tx.currencySent)}
-                    </span>
+                                        <span className="text-sm font-semibold text-gray-900 dark:text-[#EDEEF0]">
+                                            {formatCurrency(tx.amountSent, tx.currencySent)}
+                                        </span>
                                         <TransactionStatusBadge status={tx.status} />
                                     </div>
                                 </div>

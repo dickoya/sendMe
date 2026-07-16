@@ -34,7 +34,7 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
         <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
                 <thead>
-                <tr className="border-b border-gray-100 text-xs uppercase text-gray-400">
+                <tr className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-[#222222] dark:text-[#5A5E72]">
                     <th className="py-3 font-medium">{t('users.table.user')}</th>
                     <th className="py-3 font-medium">{t('users.table.role')}</th>
                     <th className="py-3 font-medium">{t('users.table.status')}</th>
@@ -44,19 +44,19 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
                     <th className="py-3 font-medium text-right">{t('users.table.action')}</th>
                 </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 dark:divide-[#1F1F1F]">
                 {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
+                    <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-[#1A1A1A]">
                         <td className="py-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700">
+                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-semibold text-brand-700 dark:bg-brand-900/30 dark:text-brand-400">
                                     {user.firstName[0]}{user.lastName[0]}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="truncate font-medium text-gray-900">
+                                    <p className="truncate font-medium text-gray-900 dark:text-[#EDEEF0]">
                                         {user.firstName} {user.lastName}
                                     </p>
-                                    <p className="truncate text-xs text-gray-400">{user.email}</p>
+                                    <p className="truncate text-xs text-gray-400 dark:text-[#5A5E72]">{user.email}</p>
                                 </div>
                             </div>
                         </td>
@@ -70,13 +70,13 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
                                 {user.isActive ? t('users.status.active') : t('users.status.suspended')}
                             </Badge>
                         </td>
-                        <td className="py-3 text-right font-medium text-gray-900">
+                        <td className="py-3 text-right font-medium text-gray-900 dark:text-[#EDEEF0]">
                             {user.totalTransactions}
                         </td>
-                        <td className="py-3 text-right text-gray-700">
+                        <td className="py-3 text-right text-gray-700 dark:text-[#C0C4D0]">
                             {formatCurrency(user.totalAmountSent, 'EUR')}
                         </td>
-                        <td className="py-3 text-gray-500">{formatDateShort(user.createdAt)}</td>
+                        <td className="py-3 text-gray-500 dark:text-[#8B8FA3]">{formatDateShort(user.createdAt)}</td>
                         <td className="py-3 text-right">
                             {user.role !== 'ROLE_ADMIN' && (
                                 <button
@@ -84,8 +84,8 @@ function UserTable({ users, onToggleStatus }: UserTableProps) {
                                     disabled={togglingId === user.id}
                                     className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 ${
                                         user.isActive
-                                            ? 'bg-danger-50 text-danger-600 hover:bg-danger-100'
-                                            : 'bg-accent-50 text-accent-600 hover:bg-accent-100'
+                                            ? 'bg-danger-50 text-danger-600 hover:bg-danger-100 dark:bg-danger-900/30 dark:text-danger-400 dark:hover:bg-danger-900/50'
+                                            : 'bg-accent-50 text-accent-600 hover:bg-accent-100 dark:bg-accent-900/30 dark:text-accent-400 dark:hover:bg-accent-900/50'
                                     }`}
                                 >
                                     {togglingId === user.id ? (

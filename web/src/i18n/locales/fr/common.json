@@ -51,6 +51,7 @@
     "no": "Non"
   },
   "channels": {
+    "UNKNOWN": "Canal inconnu",
     "BANK_TRANSFER": "Virement bancaire",
     "ORANGE_MONEY": "Orange Money",
     "MTN_MOBILE_MONEY": "MTN Mobile Money",
@@ -86,5 +87,8 @@
     "completed": "Distribué au bénéficiaire",
     "failed": "Échec du transfert",
     "refunded": "Remboursement effectué"
+  },
+  "footer": {
+    "rights": "Tous droits réservés"
   }
 }

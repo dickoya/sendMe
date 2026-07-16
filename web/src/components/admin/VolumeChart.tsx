@@ -19,7 +19,7 @@ export default function VolumeChart({ data }: VolumeChartProps) {
   if (!data.length) {
     return (
       <Card title={t('dashboard.volumeChart.title')}>
-        <p className="py-8 text-center text-sm text-gray-400">{t('dashboard.volumeChart.noData')}</p>
+        <p className="py-8 text-center text-sm text-gray-400 dark:text-[#5A5E72]">{t('dashboard.volumeChart.noData')}</p>
       </Card>
     );
   }
@@ -46,14 +46,14 @@ export default function VolumeChart({ data }: VolumeChartProps) {
                 style={{ height: `${Math.max(height, 2)}%` }}
               >
                 {/* Tooltip au survol */}
-                <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+                <div className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 dark:bg-[#EDEEF0] dark:text-[#0D0D0D]">
                   <div>{formatCurrency(point.volume, 'EUR')}</div>
-                  <div className="text-gray-300">{point.transactionCount} tx</div>
+                  <div className="text-gray-300 dark:text-[#5A5E72]">{point.transactionCount} tx</div>
 
                 </div>
               </div>
               {/* Label date */}
-              <span className="mt-1 text-[10px] text-gray-400">{label}</span>
+              <span className="mt-1 text-[10px] text-gray-400 dark:text-[#5A5E72]">{label}</span>
             </div>
           );
         })}
