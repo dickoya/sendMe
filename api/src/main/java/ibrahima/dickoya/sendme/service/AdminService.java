@@ -483,9 +483,9 @@ public class AdminService {
                 List<Object[]> raw = transactionRepository.getVolumeByDay(since);
 
                 return raw.stream().map(row -> VolumeDataPoint.builder()
-                                .date(((java.sql.Date) row[0]).toLocalDate())
-                                .volume(row[1] != null ? (Double) row[1] : 0.0)
-                                .transactionCount((Long) row[2])
+                                .date(toLocalDate(row[0]))
+                                .volume(toDouble(row[1]))
+                                .transactionCount(toLong(row[2]))
                                 .build())
                                 .collect(Collectors.toList());
         }
@@ -499,18 +499,57 @@ public class AdminService {
                 List<Object[]> raw = transactionRepository.getSuccessRateByDay(since);
 
                 return raw.stream().map(row -> {
-                        Long total = (Long) row[1];
-                        Long completed = (Long) row[2];
-                        Long failed = (Long) row[3];
+                        Long total = toLong(row[1]);
+                        Long completed = toLong(row[2]);
+                        Long failed = toLong(row[3]);
                         double rate = total > 0 ? (double) completed / total * 100 : 0.0;
 
                         return SuccessRateDataPoint.builder()
-                                        .date(((java.sql.Date) row[0]).toLocalDate())
+                                        .date(toLocalDate(row[0]))
                                         .successRate(Math.round(rate * 100.0) / 100.0)
                                         .total(total)
                                         .completed(completed)
                                         .failed(failed)
                                         .build();
                 }).collect(Collectors.toList());
+        }
+
+        private LocalDate toLocalDate(Object value) {
+                if (value == null) {
+                        return null;
+                }
+                if (value instanceof java.sql.Date sqlDate) {
+                        return sqlDate.toLocalDate();
+                }
+                if (value instanceof java.sql.Timestamp timestamp) {
+                        return timestamp.toLocalDateTime().toLocalDate();
+                }
+                if (value instanceof LocalDate localDate) {
+                        return localDate;
+                }
+                if (value instanceof LocalDateTime localDateTime) {
+                        return localDateTime.toLocalDate();
+                }
+                throw new IllegalArgumentException("Type de date inattendu: " + value.getClass());
+        }
+
+        private Double toDouble(Object value) {
+                if (value == null) {
+                        return 0.0;
+                }
+                if (value instanceof Number number) {
+                        return number.doubleValue();
+                }
+                return Double.valueOf(value.toString());
+        }
+
+        private Long toLong(Object value) {
+                if (value == null) {
+                        return 0L;
+                }
+                if (value instanceof Number number) {
+                        return number.longValue();
+                }
+                return Long.valueOf(value.toString());
         }
 }
