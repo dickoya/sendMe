@@ -1,13 +1,23 @@
+import { useEffect } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Scale } from 'lucide-react';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import ThemeToggle from '@/components/layout/ThemeToggle';
+import { useTheme } from '@/store/theme/themeContext';
 
 function PublicLayout() {
     const { t } = useTranslation('common');
     const location = useLocation();
+    const { setTheme } = useTheme();
     const isLegalPage = location.pathname === '/legal';
+    const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+
+    useEffect(() => {
+        if (isAuthPage) {
+            setTheme('light');
+        }
+    }, [isAuthPage, setTheme]);
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-[#0D0D0D]">
