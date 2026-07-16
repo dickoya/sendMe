@@ -2,7 +2,9 @@ package ibrahima.dickoya.sendme.annotation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ibrahima.dickoya.sendme.entity.AdminAuditLog;
+import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.repository.AdminAuditLogRepository;
+import ibrahima.dickoya.sendme.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -42,6 +44,7 @@ public class AuditAspect {
     private static final Logger log = LoggerFactory.getLogger(AuditAspect.class);
 
     private final AdminAuditLogRepository auditLogRepository;
+    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     private final ExpressionParser parser = new SpelExpressionParser();
@@ -86,6 +89,14 @@ public class AuditAspect {
                 adminEmail = user.getEmail();
             } else if (principal instanceof org.springframework.security.core.userdetails.UserDetails userDetails) {
                 adminEmail = userDetails.getUsername();
+                adminId = userRepository.findByEmail(adminEmail)
+                        .map(User::getId)
+                        .orElse(null);
+            }
+
+            if (adminId == null) {
+                log.warn("[AUDIT] Impossible de déterminer l'ID admin pour {}", adminEmail);
+                return result;
             }
 
             // Créer et sauvegarder le log
