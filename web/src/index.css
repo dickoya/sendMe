@@ -17,33 +17,49 @@
 /* ✅ Force Tailwind v4 à utiliser la classe .dark sur <html> au lieu de prefers-color-scheme */
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
-  /* Couleur de marque (bleu profond) */
-  --color-brand-50: #E6F1FB;
-  --color-brand-100: #B5D4F4;
-  --color-brand-200: #85B7EB;
-  --color-brand-300: #5A9FE0;
-  --color-brand-400: #2E86C1;
-  --color-brand-500: #21618C;
-  --color-brand-600: #1B4F72;
-  --color-brand-700: #154360;
-  --color-brand-800: #0F2F45;
-  --color-brand-900: #0C2D40;
+  /* Couleur de marque — Bleu Indigo profond & moderne (inspiré Stripe/Revolut) */
+  --color-brand-50: #EEF0FF;
+  --color-brand-100: #D0D5FF;
+  --color-brand-200: #A8B1FF;
+  --color-brand-300: #7C8AFF;
+  --color-brand-400: #5A6DFF;
+  --color-brand-500: #3B4FED;
+  --color-brand-600: #2D3FC9;
+  --color-brand-700: #1F2DA3;
+  --color-brand-800: #141E7A;
+  --color-brand-900: #0C1250;
 
-  /* Accent — succès / montants reçus (teal) */
-  --color-accent-50: #E1F5EE;
-  --color-accent-100: #B8E8D6;
-  --color-accent-400: #1D9E75;
-  --color-accent-500: #178060;
-  --color-accent-600: #0F6E56;
+  /* Accent — Turquoise / Cyan (succès, montants reçus, vibe positive) */
+  --color-accent-50: #E0FAF5;
+  --color-accent-100: #B0F0E5;
+  --color-accent-200: #7BE5D4;
+  --color-accent-300: #4DD4BF;
+  --color-accent-400: #14C8B0;
+  --color-accent-500: #0DA896;
+  --color-accent-600: #0A8A7C;
+  --color-accent-700: #076C61;
+
+  /* Violet / Indigo (pour variété) */
+  --color-violet-50: #F3EEFF;
+  --color-violet-100: #DDD0FF;
+  --color-violet-200: #C0A8FF;
+  --color-violet-300: #A37CFF;
+  --color-violet-400: #8B5CF6;
+  --color-violet-500: #7C3AED;
+  --color-violet-600: #6D28D9;
 
   /* Couleurs sémantiques */
-  --color-danger-50: #FDEDEC;
-  --color-danger-500: #C0392B;
-  --color-danger-600: #A93226;
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-400: #F87171;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
 
-  --color-warning-50: #FEF9E7;
-  --color-warning-500: #F39C12;
-  --color-warning-600: #B9770E;
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-400: #FBBF24;
+  --color-warning-500: #F59E0B;
+  --color-warning-600: #D97706;
 
   --color-purple-50: #F4ECF7;
   --color-purple-500: #8E44AD;
@@ -51,24 +67,24 @@
 
   /* Surfaces (mode clair) */
   --color-surface: #FFFFFF;
-  --color-surface-secondary: #F3F4F6;
-  --color-surface-tertiary: #E5E7EB;
-  --color-border: #E5E7EB;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-text-tertiary: #9CA3AF;
+  --color-surface-secondary: #F8FAFC;
+  --color-surface-tertiary: #F1F5F9;
+  --color-border: #E2E8F0;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-text-tertiary: #94A3B8;
 
-  /* Ombres (mode clair) */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
-  --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.08);
+  /* Ombres (mode clair) — plus modernes, plus douces */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: 0 10px 25px rgba(59, 79, 237, 0.08), 0 4px 10px rgba(59, 79, 237, 0.05);
+  --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06);
 
   /* Police */
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 
   /* Rayons */
   --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+  --radius-2xl: 1.5rem;
 }
 
 /**
@@ -80,51 +96,63 @@
  * ═══════════════════════════════════════════════════════════════
  */
 .dark {
-  /* Brand (plus vives, néon sobre) */
-  --color-brand-50: #0F1A2E;
-  --color-brand-100: #142642;
-  --color-brand-200: #1E3A5F;
-  --color-brand-300: #2A5A8C;
-  --color-brand-400: #3A7BC4;
-  --color-brand-500: #5A9FE0;
-  --color-brand-600: #7AB8F0;
-  --color-brand-700: #9ACDF5;
-  --color-brand-800: #B5D4F4;
-  --color-brand-900: #D0E3F8;
+  /* Brand — version néon/glow pour le dark mode */
+  --color-brand-50: #0C0F2E;
+  --color-brand-100: #141A4A;
+  --color-brand-200: #1F2A6E;
+  --color-brand-300: #2D3D9E;
+  --color-brand-400: #4A5FED;
+  --color-brand-500: #6B7DFF;
+  --color-brand-600: #8B99FF;
+  --color-brand-700: #A8B1FF;
+  --color-brand-800: #C8CEFF;
+  --color-brand-900: #E2E5FF;
 
-  /* Accent (plus vifs) */
-  --color-accent-50: #0A1F18;
-  --color-accent-100: #0F2D24;
-  --color-accent-400: #2ECC71;
-  --color-accent-500: #27AE60;
-  --color-accent-600: #1D9E75;
+  /* Accent — Turquoise vif (dark) */
+  --color-accent-50: #0A1F1C;
+  --color-accent-100: #0F2D28;
+  --color-accent-200: #144A42;
+  --color-accent-300: #1A6E62;
+  --color-accent-400: #14C8B0;
+  --color-accent-500: #2EE0C8;
+  --color-accent-600: #5AEAD6;
+  --color-accent-700: #85F0E2;
+
+  /* Violet / Indigo (dark) */
+  --color-violet-50: #140D2E;
+  --color-violet-100: #1F144A;
+  --color-violet-200: #2D1D6E;
+  --color-violet-300: #4A2D9E;
+  --color-violet-400: #8B5CF6;
+  --color-violet-500: #A78BFA;
+  --color-violet-600: #C4B5FD;
 
   /* Sémantiques (plus vives) */
   --color-danger-50: #1F0D0D;
-  --color-danger-500: #E74C3C;
-  --color-danger-600: #EC7063;
+  --color-danger-500: #F87171;
+  --color-danger-600: #FCA5A5;
 
   --color-warning-50: #1F1A0A;
-  --color-warning-500: #F1C40F;
-  --color-warning-600: #F39C12;
+  --color-warning-500: #FBBF24;
+  --color-warning-600: #FCD34D;
 
   --color-purple-50: #140D1F;
   --color-purple-500: #A569BD;
   --color-purple-600: #BB8FCE;
 
   /* Surfaces (dark premium — noir neutre, reposant pour les yeux) */
-  --color-surface: #0D0D0D;           /* fond principal noir neutre */
-  --color-surface-secondary: #141414;  /* cartes / conteneurs */
-  --color-surface-tertiary: #1C1C1C;   /* hover / surbrillance */
-  --color-border: #222222;             /* bordures subtiles */
+  --color-surface: #0A0A0F;           /* fond principal noir profond */
+  --color-surface-secondary: #12121A;  /* cartes / conteneurs */
+  --color-surface-tertiary: #1A1A26;   /* hover / surbrillance */
+  --color-border: #1E1E30;             /* bordures subtiles */
   --color-text-primary: #EDEEF0;       /* ratio 11.8:1 ✅ */
-  --color-text-secondary: #A8ACBD;     /* ratio 5.1:1 ✅ (amélioration contraste) */
-  --color-text-tertiary: #8B8FA3;      /* ratio 3.2:1 → utilisé pour textes tertiaires */
+  --color-text-secondary: #A8ACBD;     /* ratio 5.1:1 ✅ */
+  --color-text-tertiary: #8B8FA3;      /* ratio 3.2:1 */
 
   /* Ombres & Glow (mode sombre) */
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(90, 159, 224, 0.08);
-  --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(90, 159, 224, 0.06);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(107, 125, 255, 0.1);
+  --shadow-elevated: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(107, 125, 255, 0.08);
 }
 
 @layer base {
@@ -164,5 +192,51 @@
   .dark ::selection {
     @apply bg-brand-500/30 text-brand-100;
   }
+}
+
+/* ===== ANIMATIONS ===== */
+
+/* Fade-in simple */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+}
+
+/* Fade-in + slide up */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+/* Animation au scroll (Intersection Observer) */
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: slide-up-fade 0.6s ease-out forwards;
+}
+
+/* État initial pour les éléments observés */
+.animate-in {
+  opacity: 0;
 }
 
