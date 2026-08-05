@@ -3,12 +3,14 @@ package ibrahima.dickoya.sendme.controller;
 import ibrahima.dickoya.sendme.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+
 
 /**
  * Contrôleur de test pour vérifier la configuration SMTP Brevo.
@@ -28,6 +30,14 @@ public class EmailTestController {
 
     private final EmailService emailService;
     private final JavaMailSender mailSender;
+
+    /**
+     * Adresse email de l'expéditeur, injectée depuis la configuration
+     * (application-local.properties / variable d'environnement APP_MAIL_FROM).
+     */
+    @Value("${app.mail.from}")
+    private String fromEmail;
+
 
     /**
      * Envoie un email de test pour vérifier la configuration SMTP Brevo.
@@ -76,7 +86,8 @@ public class EmailTestController {
             // Construire et envoyer un email simple de manière synchrone
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom("***REMOVED_EMAIL_FROM***", "SendMe Diagnostic");
+            helper.setFrom(fromEmail, "SendMe Diagnostic");
+
             helper.setTo(toEmail);
             helper.setSubject("🔧 SendMe — Test de diagnostic Brevo");
             helper.setText("<h1>Test Brevo</h1><p>Si vous voyez cet email, Brevo fonctionne correctement !</p>", true);
