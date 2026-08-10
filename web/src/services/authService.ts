@@ -15,6 +15,17 @@ export interface LoginPayload {
     password: string;
 }
 
+export interface ForgotPasswordPayload {
+    email: string;
+}
+
+export interface ResetPasswordPayload {
+    token: string;
+    email: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
 /**
  * Service d'authentification — appels vers /api/auth/*
  */
@@ -64,6 +75,24 @@ export const authService = {
      */
     async resendVerification(email: string): Promise<ApiResponse<void>> {
         const { data } = await api.post<ApiResponse<void>>('/auth/resend-verification', { email });
+        return data;
+    },
+
+    /**
+     * Demande un lien de réinitialisation de mot de passe.
+     * POST /api/auth/forgot-password
+     */
+    async forgotPassword(payload: ForgotPasswordPayload): Promise<ApiResponse<void>> {
+        const { data } = await api.post<ApiResponse<void>>('/auth/forgot-password', payload);
+        return data;
+    },
+
+    /**
+     * Réinitialise le mot de passe après clic sur le lien reçu par email.
+     * POST /api/auth/reset-password
+     */
+    async resetPassword(payload: ResetPasswordPayload): Promise<ApiResponse<void>> {
+        const { data } = await api.post<ApiResponse<void>>('/auth/reset-password', payload);
         return data;
     },
 };

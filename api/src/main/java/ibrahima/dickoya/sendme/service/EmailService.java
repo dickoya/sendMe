@@ -122,6 +122,53 @@ public class EmailService {
         }
 
         /**
+         * Envoie l'email de réinitialisation de mot de passe.
+         *
+         * Déclenché par AuthService.requestPasswordReset() quand un utilisateur
+         * clique sur « Mot de passe oublié ». L'utilisateur doit cliquer sur le
+         * lien pour définir un nouveau mot de passe.
+         *
+         * Variables Thymeleaf utilisées dans password-reset.html :
+         * - firstName : prénom de l'utilisateur
+         * - resetLink : lien complet de réinitialisation (token UUID + email)
+         *
+         * @param user  l'utilisateur qui demande la réinitialisation
+         * @param token le token de réinitialisation unique (expiration 1h)
+         */
+        @Async
+        public void sendPasswordResetEmail(User user, String token) {
+                try {
+                        log.info("[EMAIL] Envoi email de réinitialisation de mot de passe à : {}", user.getEmail());
+
+                        // Construire le lien de réinitialisation
+                        String resetLink = "http://localhost:5173/reset-password?token=" + token
+                                        + "&email=" + user.getEmail();
+
+                        // Préparer le contexte avec les variables du template
+                        Context context = new Context();
+                        context.setVariable("firstName", user.getFirstName());
+                        context.setVariable("resetLink", resetLink);
+
+                        // Générer le HTML depuis le template Thymeleaf
+                        String htmlContent = templateEngine.process(
+                                        "emails/password-reset", context);
+
+                        // Envoyer l'email
+                        sendHtmlEmail(
+                                        user.getEmail(),
+                                        "🔑 SendMe — Réinitialisez votre mot de passe",
+                                        htmlContent);
+
+                        log.info("[EMAIL] Email de réinitialisation envoyé à : {}", user.getEmail());
+
+                } catch (Exception e) {
+                        // On ne bloque jamais la requête si l'email échoue
+                        log.error("[EMAIL] Échec email réinitialisation pour {} : {}",
+                                        user.getEmail(), e.getMessage());
+                }
+        }
+
+        /**
          * Envoie l'email de bienvenue après la validation de l'email.
          *
          * Déclenché par AuthService.verifyEmail() après

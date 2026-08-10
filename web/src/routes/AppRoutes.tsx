@@ -15,6 +15,8 @@ import Login from '@/pages/public/Login';
 import Register from '@/pages/public/Register';
 import EmailVerification from '@/pages/public/EmailVerification';
 import VerificationSent from '@/pages/public/VerificationSent';
+import ForgotPassword from '@/pages/public/ForgotPassword';
+import ResetPassword from '@/pages/public/ResetPassword';
 import LegalNotice from '@/pages/public/LegalNotice';
 
 // Pages privées
@@ -57,6 +59,10 @@ function AppRoutes() {
             {/* Routes de vérification d'email (pages autonomes, sans layout) */}
             <Route path="/verify-email" element={<EmailVerification />} />
             <Route path="/verify-email-sent" element={<VerificationSent />} />
+
+            {/* Routes de réinitialisation de mot de passe (pages autonomes, sans layout) */}
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Routes publiques (Login, Register, Legal) */}
             <Route element={<PublicLayout />}>

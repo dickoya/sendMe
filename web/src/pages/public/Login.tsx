@@ -159,6 +159,15 @@ function Login() {
                                     autoComplete="current-password"
                                 />
 
+                                <div className="flex justify-end -mt-1">
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-sm font-medium text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition-colors"
+                                    >
+                                        {t('login.forgotPassword')}
+                                    </Link>
+                                </div>
+
                                 {error && (
                                     <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
                                         {error}

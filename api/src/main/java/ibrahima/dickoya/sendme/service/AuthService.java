@@ -43,6 +43,9 @@ public class AuthService {
     // Durée de validité du token de vérification email (48h)
     private static final long EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 48;
 
+    // Durée de validité du token de réinitialisation de mot de passe (1h)
+    private static final long PASSWORD_RESET_TOKEN_EXPIRY_HOURS = 1;
+
     // Inscription
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
@@ -337,6 +340,112 @@ public class AuthService {
                 .referralCode(user.getReferralCode())
                 .emailVerified(user.getEmailVerified())
                 .build();
+    }
+
+    /**
+     * Demande un lien de réinitialisation de mot de passe.
+     *
+     * Trouve l'utilisateur par email, vérifie que le compte est actif et que
+     * l'email a bien été vérifié, puis envoie un email avec un lien à durée
+     * limitée pour définir un nouveau mot de passe.
+     *
+     * Pour des raisons de sécurité (anti-énumération d'emails), on retourne
+     * toujours un succès, même si l'email n'existe pas ou si le compte est
+     * inactif. Seul le cas « email non vérifié » produit une erreur explicite
+     * afin de rediriger l'utilisateur vers la vérification de son email.
+     *
+     * @param email l'adresse email du compte concerné
+     */
+    public void requestPasswordReset(String email) {
+        var userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) {
+            log.info("[AUTH] Demande de réinitialisation pour un email inconnu : {}", email);
+            return;
+        }
+
+        var user = userOpt.get();
+
+        if (!user.getIsActive()) {
+            log.warn("[AUTH] Demande de réinitialisation pour un compte désactivé : {}", email);
+            return;
+        }
+
+        // Exiger un email vérifié avant toute réinitialisation (sécurité)
+        if (!user.getEmailVerified()) {
+            log.warn("[AUTH] Demande de réinitialisation pour un email non vérifié : {}", email);
+            throw new IllegalArgumentException(
+                    "Veuillez d'abord vérifier votre adresse email avant de réinitialiser votre mot de passe.");
+        }
+
+        // Générer un token unique (un nouveau token invalide le précédent)
+        String resetToken = UUID.randomUUID().toString();
+        user.setResetPasswordToken(resetToken);
+        user.setResetPasswordTokenExpiresAt(LocalDateTime.now().plusHours(PASSWORD_RESET_TOKEN_EXPIRY_HOURS));
+        userRepository.save(user);
+
+        log.info("[AUTH] Token de réinitialisation généré pour : {}", email);
+
+        // Envoyer l'email de réinitialisation
+        try {
+            emailService.sendPasswordResetEmail(user, resetToken);
+        } catch (Exception e) {
+            log.error("[EMAIL] Impossible d'envoyer l'email de réinitialisation : {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Réinitialise le mot de passe d'un utilisateur.
+     *
+     * L'utilisateur clique sur le lien reçu par email (avec token + email),
+     * puis confirme son adresse email et saisit son nouveau mot de passe.
+     *
+     * @param request token, email, nouveau mot de passe et confirmation
+     * @throws IllegalArgumentException si le token est invalide/expiré, si
+     *                                  l'email ne correspond pas, ou si les
+     *                                  mots de passe ne correspondent pas
+     */
+    public void resetPassword(ResetPasswordRequest request) {
+        var user = userRepository.findByResetPasswordToken(request.getToken())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Lien de réinitialisation invalide. Veuillez demander un nouveau lien."));
+
+        // Vérifier l'expiration du token
+        if (user.getResetPasswordTokenExpiresAt() == null ||
+                user.getResetPasswordTokenExpiresAt().isBefore(LocalDateTime.now())) {
+            log.warn("[AUTH] Token de réinitialisation expiré pour : {}", user.getEmail());
+            throw new IllegalArgumentException(
+                    "Le lien de réinitialisation a expiré. Veuillez demander un nouveau lien.");
+        }
+
+        // Confirmer l'adresse email fournie correspond bien à celle du token
+        if (!user.getEmail().equalsIgnoreCase(request.getEmail())) {
+            log.warn("[AUTH] Email de confirmation ne correspond pas au token : {}", request.getEmail());
+            throw new IllegalArgumentException(
+                    "L'adresse email ne correspond pas au compte associé à ce lien.");
+        }
+
+        // Vérifier que les deux mots de passe sont identiques
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            throw new IllegalArgumentException("Les nouveaux mots de passe ne correspondent pas.");
+        }
+
+        // Mettre à jour le mot de passe (hachage BCrypt)
+        user.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+
+        // Purger le token de réinitialisation (usage unique)
+        user.setResetPasswordToken(null);
+        user.setResetPasswordTokenExpiresAt(null);
+        userRepository.save(user);
+
+        log.info("[AUTH] Mot de passe réinitialisé avec succès pour : {}", user.getEmail());
+
+        // Enregistrer un log d'audit
+        try {
+            auditService.logEvent("AUTH", "PASSWORD_RESET", user.getEmail(), user.getId(), "SUCCESS",
+                    "Mot de passe réinitialisé via le lien de réinitialisation");
+        } catch (Exception e) {
+            log.error("[AUDIT] Échec de l'écriture du log d'audit : {}", e.getMessage());
+        }
     }
 
     // Utilitaires

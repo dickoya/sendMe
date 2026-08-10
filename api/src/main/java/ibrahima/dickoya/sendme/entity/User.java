@@ -60,6 +60,12 @@ public class User {
     @Column(name = "email_verification_token_expires_at")
     private LocalDateTime emailVerificationTokenExpiresAt;
 
+    @Column(name = "reset_password_token", unique = true)
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expires_at")
+    private LocalDateTime resetPasswordTokenExpiresAt;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

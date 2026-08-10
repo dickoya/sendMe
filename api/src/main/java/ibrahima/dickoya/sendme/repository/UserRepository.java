@@ -60,6 +60,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmailVerificationToken(String emailVerificationToken);
 
     /**
+     * Recherche un utilisateur par son token de réinitialisation de mot de passe.
+     * Utilisé lors de la réinitialisation du mot de passe après le clic sur le
+     * lien reçu par email.
+     *
+     * @param resetPasswordToken le token de réinitialisation unique
+     * @return Optional<User>
+     */
+    Optional<User> findByResetPasswordToken(String resetPasswordToken);
+
+    /**
      * Compte les utilisateurs ayant un rôle donné.
      * Utilisé pour sécuriser la gestion des rôles admin
      * (ne pas retirer le dernier administrateur de la plateforme).

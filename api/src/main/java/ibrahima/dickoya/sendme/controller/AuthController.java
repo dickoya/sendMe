@@ -209,4 +209,61 @@ public class AuthController {
                                                 .success("Un nouvel email de verification vous a ete envoye.", null));
         }
 
+        /**
+         * Demande un lien de réinitialisation de mot de passe.
+         *
+         * L'utilisateur saisit son adresse email. Si un compte actif et vérifié
+         * existe, un email avec un lien à durée limitée est envoyé.
+         *
+         * Test : POST http://localhost:8080/api/auth/forgot-password
+         * Body : { "email": "user@example.com" }
+         */
+        @PostMapping("/forgot-password")
+        @Operation(summary = "Demander la réinitialisation du mot de passe", description = """
+                        Envoie un email de réinitialisation de mot de passe à l'utilisateur
+                        si le compte existe, est actif et que son email est vérifié.
+
+                        Pour des raisons de sécurité, la réponse reste générique pour
+                        éviter d'énumérer les comptes existants.
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Email de réinitialisation envoyé (ou compte inexistant)"),
+                        @ApiResponse(responseCode = "400", description = "Email non vérifié ou données invalides")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>> forgotPassword(
+                        @Valid @RequestBody ForgotPasswordRequest request) {
+                authService.requestPasswordReset(request.getEmail());
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Si un compte existe pour cet email, un lien de reinitialisation a ete envoye.", null));
+        }
+
+        /**
+         * Réinitialise le mot de passe d'un utilisateur.
+         *
+         * L'utilisateur clique sur le lien reçu par email, confirme son adresse
+         * email et définit un nouveau mot de passe.
+         *
+         * Test : POST http://localhost:8080/api/auth/reset-password
+         * Body : { "token": "uuid", "email": "user@example.com",
+         *          "newPassword": "NouveauMotDePasse123", "confirmPassword": "NouveauMotDePasse123" }
+         */
+        @PostMapping("/reset-password")
+        @Operation(summary = "Réinitialiser le mot de passe", description = """
+                        Définit un nouveau mot de passe après avoir cliqué sur le lien
+                        de réinitialisation reçu par email. L'utilisateur confirme son
+                        adresse email et saisit son nouveau mot de passe.
+                        """, security = @SecurityRequirement(name = ""))
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Mot de passe réinitialisé avec succès"),
+                        @ApiResponse(responseCode = "400", description = "Token invalide/expiré, email non conforme ou mots de passe différents")
+        })
+        public ResponseEntity<ibrahima.dickoya.sendme.dto.response.ApiResponse<Void>> resetPassword(
+                        @Valid @RequestBody ResetPasswordRequest request) {
+                authService.resetPassword(request);
+                return ResponseEntity.ok(
+                                ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                .success("Votre mot de passe a ete reinitialise avec succes. Vous pouvez vous connecter.", null));
+        }
+
 }
