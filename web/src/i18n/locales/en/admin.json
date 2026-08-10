@@ -89,18 +89,26 @@
       "suspend": "Suspend",
       "reactivate": "Reactivate",
       "exportCSV": "Export to CSV",
-      "clearSelection": "Clear selection"
+      "clearSelection": "Clear selection",
+      "promote": "Make admin",
+      "demote": "Remove admin"
     },
     "toasts": {
       "suspended": "{{name}}'s account has been suspended",
       "reactivated": "{{name}}'s account has been reactivated",
-      "exported": "CSV export successful"
+      "exported": "CSV export successful",
+      "promoted": "{{name}} is now an administrator",
+      "demoted": "{{name}} is no longer an administrator"
     },
     "confirm": {
       "suspendTitle": "Confirm suspension",
       "suspendMessage": "Are you sure you want to suspend {{count}} account(s)?",
       "reactivateTitle": "Confirm reactivation",
-      "reactivateMessage": "Are you sure you want to reactivate {{count}} account(s)?"
+      "reactivateMessage": "Are you sure you want to reactivate {{count}} account(s)?",
+      "promoteTitle": "Confirm promotion",
+      "promoteMessage": "Are you sure you want to give the administrator role to {{name}}?",
+      "demoteTitle": "Confirm demotion",
+      "demoteMessage": "Are you sure you want to remove the administrator role from {{name}}?"
     },
     "filters": {
       "searchPlaceholder": "Search by name or email...",
@@ -218,6 +226,7 @@
       "USER_DELETE": "User deletion",
       "FEE_UPDATE": "Fee update",
       "MAINTENANCE": "Maintenance notification",
+      "ROLE_UPDATE": "Role change",
       "LOGIN": "Login"
     },
     "empty": {

@@ -89,18 +89,26 @@
       "suspend": "Suspendre",
       "reactivate": "Réactiver",
       "exportCSV": "Exporter en CSV",
-      "clearSelection": "Effacer la sélection"
+      "clearSelection": "Effacer la sélection",
+      "promote": "Promouvoir admin",
+      "demote": "Retirer admin"
     },
     "toasts": {
       "suspended": "Compte de {{name}} suspendu",
       "reactivated": "Compte de {{name}} réactivé",
-      "exported": "Export CSV réussi"
+      "exported": "Export CSV réussi",
+      "promoted": "{{name}} est maintenant administrateur",
+      "demoted": "{{name}} n'est plus administrateur"
     },
     "confirm": {
       "suspendTitle": "Confirmer la suspension",
       "suspendMessage": "Voulez-vous vraiment suspendre {{count}} compte(s) ?",
       "reactivateTitle": "Confirmer la réactivation",
-      "reactivateMessage": "Voulez-vous vraiment réactiver {{count}} compte(s) ?"
+      "reactivateMessage": "Voulez-vous vraiment réactiver {{count}} compte(s) ?",
+      "promoteTitle": "Confirmer la promotion",
+      "promoteMessage": "Voulez-vous vraiment donner le rôle administrateur à {{name}} ?",
+      "demoteTitle": "Confirmer la rétrogradation",
+      "demoteMessage": "Voulez-vous vraiment retirer le rôle administrateur à {{name}} ?"
     },
     "filters": {
       "searchPlaceholder": "Rechercher par nom ou email...",
@@ -218,6 +226,7 @@
       "USER_DELETE": "Suppression utilisateur",
       "FEE_UPDATE": "Mise à jour des frais",
       "MAINTENANCE": "Notification de maintenance",
+      "ROLE_UPDATE": "Changement de rôle",
       "LOGIN": "Connexion"
     },
     "empty": {

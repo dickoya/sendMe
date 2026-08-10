@@ -12,6 +12,7 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { useToast } from '@/store/notification/toastContext';
 import { getErrorMessage } from '@/lib/utils';
 import { exportCSV } from '@/utils/exportCSV';
+import type { Role, UserResponse } from '@/types';
 
 /**
  * Page de gestion des utilisateurs (admin).
@@ -23,11 +24,13 @@ import { exportCSV } from '@/utils/exportCSV';
 function AdminUsers() {
     const { t } = useTranslation('admin');
     const { t: tCommon } = useTranslation('common');
-    const { users, page, totalPages, setPage, filters, setFilters, isLoading, error, toggleStatus, batchToggle } = useAdminUsers();
+    const { users, page, totalPages, setPage, filters, setFilters, isLoading, error, toggleStatus, batchToggle, updateRole } = useAdminUsers();
     const { showToast } = useToast();
 
     const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
     const [confirmBatch, setConfirmBatch] = useState<{ ids: number[]; active: boolean } | null>(null);
+    const [confirmRole, setConfirmRole] = useState<{ id: number; name: string; newRole: Role } | null>(null);
+    const [roleUpdating, setRoleUpdating] = useState(false);
 
     const handleToggle = async (id: number) => {
         try {
@@ -78,6 +81,31 @@ function AdminUsers() {
             showToast(getErrorMessage(err), 'error');
         } finally {
             setConfirmBatch(null);
+        }
+    };
+
+    // Gestion du rôle admin (promouvoir / rétrograder)
+    const handleRoleClick = (user: UserResponse, newRole: Role) => {
+        setConfirmRole({ id: user.id, name: `${user.firstName} ${user.lastName}`, newRole });
+    };
+
+    const confirmRoleAction = async () => {
+        if (!confirmRole) return;
+        setRoleUpdating(true);
+        try {
+            const updated = await updateRole(confirmRole.id, confirmRole.newRole);
+            showToast(
+                updated.role === 'ROLE_ADMIN'
+                    ? t('users.toasts.promoted', { name: confirmRole.name })
+                    : t('users.toasts.demoted', { name: confirmRole.name }),
+                'success'
+            );
+            setConfirmRole(null);
+        } catch (err) {
+            showToast(getErrorMessage(err), 'error');
+            setConfirmRole(null);
+        } finally {
+            setRoleUpdating(false);
         }
     };
 
@@ -222,16 +250,26 @@ function AdminUsers() {
                                             {new Date(user.createdAt).toLocaleDateString()}
                                         </td>
                                         <td className="py-3">
-                                            <button
-                                                onClick={() => handleToggle(user.id)}
-                                                className={`rounded-lg px-3 py-1 text-xs font-medium ${
-                                                    user.isActive
-                                                        ? 'bg-danger-50 text-danger-600 hover:bg-danger-100 dark:bg-danger-900/20 dark:text-danger-400'
-                                                        : 'bg-accent-50 text-accent-600 hover:bg-accent-100 dark:bg-accent-900/20 dark:text-accent-400'
-                                                }`}
-                                            >
-                                                {user.isActive ? t('users.buttons.suspend') : t('users.buttons.reactivate')}
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button
+                                                    onClick={() =>
+                                                        handleRoleClick(user, user.role === 'ROLE_ADMIN' ? 'ROLE_USER' : 'ROLE_ADMIN')
+                                                    }
+                                                    className="rounded-lg bg-purple-50 px-3 py-1 text-xs font-medium text-purple-600 hover:bg-purple-100 dark:bg-purple-900/20 dark:text-purple-400"
+                                                >
+                                                    {user.role === 'ROLE_ADMIN' ? t('users.buttons.demote') : t('users.buttons.promote')}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleToggle(user.id)}
+                                                    className={`rounded-lg px-3 py-1 text-xs font-medium ${
+                                                        user.isActive
+                                                            ? 'bg-danger-50 text-danger-600 hover:bg-danger-100 dark:bg-danger-900/20 dark:text-danger-400'
+                                                            : 'bg-accent-50 text-accent-600 hover:bg-accent-100 dark:bg-accent-900/20 dark:text-accent-400'
+                                                    }`}
+                                                >
+                                                    {user.isActive ? t('users.buttons.suspend') : t('users.buttons.reactivate')}
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -256,6 +294,32 @@ function AdminUsers() {
                 }
                 confirmLabel={confirmBatch?.active ? t('users.buttons.reactivate') : t('users.buttons.suspend')}
                 variant={confirmBatch?.active ? 'primary' : 'danger'}
+            />
+
+            {/* Confirmation pour changement de rôle */}
+            <ConfirmDialog
+                isOpen={!!confirmRole}
+                onClose={() => {
+                    if (!roleUpdating) setConfirmRole(null);
+                }}
+                onConfirm={confirmRoleAction}
+                title={
+                    confirmRole?.newRole === 'ROLE_ADMIN'
+                        ? t('users.confirm.promoteTitle')
+                        : t('users.confirm.demoteTitle')
+                }
+                message={
+                    confirmRole?.newRole === 'ROLE_ADMIN'
+                        ? t('users.confirm.promoteMessage', { name: confirmRole?.name })
+                        : t('users.confirm.demoteMessage', { name: confirmRole?.name })
+                }
+                confirmLabel={
+                    confirmRole?.newRole === 'ROLE_ADMIN'
+                        ? t('users.buttons.promote')
+                        : t('users.buttons.demote')
+                }
+                variant="primary"
+                isLoading={roleUpdating}
             />
 
         </Card>

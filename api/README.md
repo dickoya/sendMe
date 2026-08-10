@@ -275,6 +275,7 @@ api/src/main/resources/
 | GET | `/api/admin/users` | Liste des utilisateurs | ADMIN |
 | GET | `/api/admin/users/{id}` | Détail d'un utilisateur | ADMIN |
 | PUT | `/api/admin/users/{id}/toggle` | Activer/désactiver un compte | ADMIN |
+| PUT | `/api/admin/users/{id}/role` | Modifier le rôle (promouvoir/rétrograder admin) | ADMIN |
 | GET | `/api/admin/users/filter` | Utilisateurs filtrés | ADMIN |
 | POST | `/api/admin/users/batch-toggle` | Actions en masse | ADMIN |
 | GET | `/api/admin/transactions` | Toutes les transactions | ADMIN |

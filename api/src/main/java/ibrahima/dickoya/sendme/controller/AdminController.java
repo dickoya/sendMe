@@ -3,6 +3,7 @@ package ibrahima.dickoya.sendme.controller;
 import ibrahima.dickoya.sendme.dto.request.ExchangeRateConfigRequest;
 import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
 import ibrahima.dickoya.sendme.dto.request.PaymentChannelRequest;
+import ibrahima.dickoya.sendme.dto.request.RoleUpdateRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
@@ -220,6 +221,34 @@ public class AdminController {
                 String message = user.getIsActive()
                                 ? "Compte utilisateur active"
                                 : "Compte utilisateur desactive";
+
+                return ResponseEntity.ok(ApiResponse.success(message, user));
+        }
+
+        /**
+         * Modifie le rôle d'un utilisateur (ROLE_USER / ROLE_ADMIN).
+         *
+         * Permet à l'admin de promouvoir un utilisateur en administrateur
+         * ou de retirer le rôle admin à un compte.
+         *
+         * @param id      identifiant de l'utilisateur à modifier
+         * @param request nouveau rôle à attribuer
+         * @return 200 OK avec l'utilisateur mis à jour
+         */
+        @PutMapping("/users/{id}/role")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Modifier le rôle d'un utilisateur",
+                        description = "Change le rôle d'un utilisateur (ROLE_USER ou ROLE_ADMIN). "
+                                        +
+                                        "Impossible de retirer le rôle admin au dernier administrateur de la plateforme.")
+        public ResponseEntity<ApiResponse<UserResponse>> updateUserRole(
+                        @PathVariable Long id,
+                        @Valid @RequestBody RoleUpdateRequest request) {
+
+                UserResponse user = adminService.updateUserRole(id, request.getRole());
+                String message = request.getRole() == Role.ROLE_ADMIN
+                                ? "Utilisateur promu administrateur"
+                                : "Rôle administrateur retiré";
 
                 return ResponseEntity.ok(ApiResponse.success(message, user));
         }

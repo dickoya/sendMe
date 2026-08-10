@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { UserResponse } from '@/types';
+import type { Role, UserResponse } from '@/types';
 import { adminService } from '@/services/adminService';
 import { getErrorMessage } from '@/lib/utils';
 import type { UserFiltersState } from '@/components/admin/UserFilters';
@@ -81,6 +81,16 @@ export function useAdminUsers(size = 20) {
         await fetchPage(page, filters);
     };
 
+    /**
+     * Modifie le rôle d'un utilisateur (ROLE_USER / ROLE_ADMIN)
+     * et met à jour la liste locale sans recharger toute la page.
+     */
+    const updateRole = async (id: number, role: Role) => {
+        const updated = await adminService.updateUserRole(id, role);
+        setUsers((prev) => prev.map((u) => (u.id === id ? updated : u)));
+        return updated;
+    };
+
     return {
         users,
         page,
@@ -92,5 +102,6 @@ export function useAdminUsers(size = 20) {
         error,
         toggleStatus,
         batchToggle,
+        updateRole,
     };
 }

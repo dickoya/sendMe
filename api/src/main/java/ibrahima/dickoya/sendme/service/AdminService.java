@@ -232,6 +232,45 @@ public class AdminService {
         }
 
         /**
+         * Modifie le rôle d'un utilisateur (ROLE_USER / ROLE_ADMIN).
+         *
+         * Sécurités appliquées :
+         * - Impossible de retirer le rôle admin au dernier administrateur de la plateforme.
+         *
+         * @param userId  identifiant de l'utilisateur à modifier
+         * @param newRole nouveau rôle à attribuer
+         * @return UserResponse l'utilisateur mis à jour
+         */
+        @Transactional
+        public UserResponse updateUserRole(Long userId, Role newRole) {
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                                "Utilisateur non trouvé : " + userId));
+
+                if (user.getRole() == newRole) {
+                        return toUserResponse(user);
+                }
+
+                // Empêcher de retirer le rôle admin au dernier administrateur
+                if (user.getRole() == Role.ROLE_ADMIN && newRole != Role.ROLE_ADMIN
+                                && userRepository.countByRole(Role.ROLE_ADMIN) <= 1) {
+                        throw new IllegalArgumentException(
+                                        "Impossible de retirer le rôle admin : c'est le dernier administrateur de la plateforme.");
+                }
+
+                user.setRole(newRole);
+                userRepository.save(user);
+
+                log.info("[ADMIN] Rôle de {} (id={}) modifié vers {}", user.getEmail(), user.getId(), newRole);
+
+                auditService.logEvent("ADMIN", "ROLE_UPDATE", user.getEmail(), user.getId(),
+                                "SUCCESS",
+                                "Rôle modifié vers " + newRole + " : " + user.getEmail());
+
+                return toUserResponse(user);
+        }
+
+        /**
          * Récupère toutes les transactions avec pagination.
          * L'admin voit toutes les transactions de tous les utilisateurs.
          *

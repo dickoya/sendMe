@@ -59,6 +59,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findByEmailVerificationToken(String emailVerificationToken);
 
+    /**
+     * Compte les utilisateurs ayant un rôle donné.
+     * Utilisé pour sécuriser la gestion des rôles admin
+     * (ne pas retirer le dernier administrateur de la plateforme).
+     *
+     * @param role rôle à compter
+     * @return nombre d'utilisateurs avec ce rôle
+     */
+    long countByRole(Role role);
+
     // Recherche et filtres pour l'admin
 
     /**

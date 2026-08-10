@@ -2,6 +2,7 @@ import api from './api';
 import type {
     ApiResponse,
     Page,
+    Role,
     UserResponse,
     Transaction,
     DashboardResponse,
@@ -65,6 +66,15 @@ export const adminService = {
      */
     async toggleUserStatus(id: number): Promise<UserResponse> {
         const { data } = await api.put<ApiResponse<UserResponse>>(`/admin/users/${id}/toggle`);
+        return data.data;
+    },
+
+    /**
+     * Modifie le rôle d'un utilisateur (ROLE_USER / ROLE_ADMIN).
+     * PUT /api/admin/users/{id}/role
+     */
+    async updateUserRole(id: number, role: Role): Promise<UserResponse> {
+        const { data } = await api.put<ApiResponse<UserResponse>>(`/admin/users/${id}/role`, { role });
         return data.data;
     },
 
