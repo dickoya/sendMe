@@ -70,10 +70,29 @@ public class EmailService {
         private String fromName;
 
         /**
+         * URL de base du frontend, utilisée pour construire les liens dans les emails.
+         * Injectée depuis application.properties via la variable FRONTEND_URL
+         * (ex. en prod : https://sendme-web.vercel.app).
+         */
+        @Value("${app.frontend-url:http://localhost:5173}")
+        private String frontendUrl;
+
+        /**
          * Format de date utilisé dans tous les emails.
          * Exemple : "09 juin 2025 à 14:32"
          */
         public static final DateTimeFormatter EMAIL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy 'à' HH:mm");
+
+        /**
+         * Crée un contexte Thymeleaf avec l'URL de base du frontend déjà injectée
+         * sous le nom {@code baseUrl}. Utilisée dans tous les templates d'emails
+         * via {@code th:href="${baseUrl}"}.
+         */
+        private Context newContext() {
+                Context context = new Context();
+                context.setVariable("baseUrl", frontendUrl);
+                return context;
+        }
 
         /**
          * Envoie l'email de vérification après l'inscription.
@@ -95,10 +114,10 @@ public class EmailService {
                         log.info("[EMAIL] Envoi email de vérification à : {}", user.getEmail());
 
                         // Construire le lien de vérification
-                        String verificationLink = "http://localhost:5173/verify-email?token=" + verificationToken;
+                        String verificationLink = frontendUrl + "/verify-email?token=" + verificationToken;
 
                         // Préparer le contexte avec les variables du template
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("firstName", user.getFirstName());
                         context.setVariable("verificationLink", verificationLink);
 
@@ -141,11 +160,11 @@ public class EmailService {
                         log.info("[EMAIL] Envoi email de réinitialisation de mot de passe à : {}", user.getEmail());
 
                         // Construire le lien de réinitialisation
-                        String resetLink = "http://localhost:5173/reset-password?token=" + token
+                        String resetLink = frontendUrl + "/reset-password?token=" + token
                                         + "&email=" + user.getEmail();
 
                         // Préparer le contexte avec les variables du template
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("firstName", user.getFirstName());
                         context.setVariable("resetLink", resetLink);
 
@@ -188,7 +207,7 @@ public class EmailService {
                         log.info("[EMAIL] Envoi email de bienvenue à : {}", user.getEmail());
 
                         // Préparer le contexte avec les variables du template
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("firstName", user.getFirstName());
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
@@ -232,7 +251,7 @@ public class EmailService {
                 try {
                         log.info("[EMAIL] Envoi email suspension compte à : {}", user.getEmail());
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("email", user.getEmail());
@@ -273,7 +292,7 @@ public class EmailService {
                 try {
                         log.info("[EMAIL] Envoi email réactivation compte à : {}", user.getEmail());
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("email", user.getEmail());
@@ -366,7 +385,7 @@ public class EmailService {
                         log.info("[EMAIL] Envoi alerte connexion à : {} depuis IP : {}",
                                         user.getEmail(), ipAddress);
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("email", user.getEmail());
@@ -414,7 +433,7 @@ public class EmailService {
                         log.warn("[EMAIL] Envoi alerte activité suspecte à : {} — {} tentatives",
                                         user.getEmail(), attempts);
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("email", user.getEmail());
@@ -478,7 +497,7 @@ public class EmailService {
                         String beneficiaryName = transaction.getBeneficiary().getFirstName()
                                         + " " + transaction.getBeneficiary().getLastName();
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference", transaction.getReference());
@@ -550,7 +569,7 @@ public class EmailService {
                         String beneficiaryName = transaction.getBeneficiary().getFirstName()
                                         + " " + transaction.getBeneficiary().getLastName();
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference", transaction.getReference());
@@ -568,7 +587,7 @@ public class EmailService {
                                         LocalDateTime.now().format(EMAIL_DATE_FORMAT));
                         // URL du reçu PDF — à adapter avec l'URL frontend en production
                         context.setVariable("receiptUrl",
-                                        "http://localhost:3000/transactions/" +
+                                        frontendUrl + "/transactions/" +
                                                         transaction.getId() + "/receipt");
 
                         String htmlContent = templateEngine.process(
@@ -624,7 +643,7 @@ public class EmailService {
                         String beneficiaryName = transaction.getBeneficiary().getFirstName()
                                         + " " + transaction.getBeneficiary().getLastName();
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference", transaction.getReference());
@@ -680,7 +699,7 @@ public class EmailService {
                         java.math.BigDecimal totalDebited = transaction.getAmountSent()
                                         .add(transaction.getFees());
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference", transaction.getReference());
@@ -754,7 +773,7 @@ public class EmailService {
                                         + " " + transaction.getBeneficiary().getLastName();
 
                         // Préparer les variables du template
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference",
@@ -827,7 +846,7 @@ public class EmailService {
                                         .add(transaction.getFees());
 
                         // Préparer les variables du template
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("senderName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("reference",
@@ -884,7 +903,7 @@ public class EmailService {
                 try {
                         log.info("[EMAIL] Envoi email maintenance à : {}", user.getEmail());
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("maintenanceDate", maintenanceDate);
@@ -950,7 +969,7 @@ public class EmailService {
                                         .divide(new java.math.BigDecimal("100"))
                                         .setScale(2, java.math.RoundingMode.HALF_UP);
 
-                        Context context = new Context();
+                        Context context = newContext();
                         context.setVariable("fullName",
                                         user.getFirstName() + " " + user.getLastName());
                         context.setVariable("oldRate", oldRate);
