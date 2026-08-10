@@ -150,7 +150,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         * SUBSTRING_INDEX qui est spécifique à MySQL.
         * Utilise INTEGER au lieu de UNSIGNED (non supporté par H2).
         */
-       @Query(value = "SELECT MAX(CAST(SUBSTRING(t.reference, LOCATE('-', t.reference, LOCATE('-', t.reference) + 1) + 1) AS INTEGER)) FROM transactions t", nativeQuery = true)
+       @Query(value = "SELECT MAX(CAST(SUBSTRING(t.reference, LOCATE('-', t.reference, LOCATE('-', t.reference) + 1) + 1) AS SIGNED)) FROM transactions t", nativeQuery = true)
        Long findMaxReferenceSequence();
 
        // Agrégations pour le dashboard admin
