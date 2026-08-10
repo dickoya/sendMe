@@ -14,8 +14,8 @@ export interface UserTableProps {
 /**
  * Tableau des utilisateurs avec activation/désactivation en ligne.
  *
- * Migration i18n (Phase 11) : namespace "admin" (clés users.table.*,
- * users.roles.*, users.status.*, users.buttons.*).
+ * Namespace "admin" (clés users.table.*, users.roles.*,
+ * users.status.*, users.buttons.*).
  */
 function UserTable({ users, onToggleStatus }: UserTableProps) {
     const { t } = useTranslation('admin');

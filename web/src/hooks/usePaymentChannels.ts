@@ -34,19 +34,6 @@ export function usePaymentChannels() {
     }, [loadChannels]);
 
     /**
-     * Recharge la liste des canaux sans afficher le spinner de chargement.
-     * Utilisé après un toggle pour éviter de cacher la modale de confirmation.
-     */
-    const reloadChannelsSilently = useCallback(async () => {
-        try {
-            const data = await paymentChannelService.getAll();
-            setChannels(data);
-        } catch (err: any) {
-            setError(err?.response?.data?.message || err?.message || 'Erreur de chargement');
-        }
-    }, []);
-
-    /**
      * Ajoute un nouveau canal de paiement.
      */
     const addChannel = async (request: PaymentChannelRequest): Promise<boolean> => {

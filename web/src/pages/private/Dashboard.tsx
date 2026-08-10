@@ -13,7 +13,6 @@ import TransferEvolutionChart from '@/components/dashboard/TransferEvolutionChar
 import ExchangeRateWidget from '@/components/dashboard/ExchangeRateWidget';
 import QuickActions from '@/components/dashboard/QuickActions';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
-import { useState } from 'react';
 import { useAuth } from '@/store/auth/authContext';
 import { useBeneficiary } from '@/hooks/useBeneficiary';
 import { useTransferHistory } from '@/hooks/useTransfer';
@@ -26,9 +25,9 @@ import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 /**
  * Tableau de bord principal de l'utilisateur.
  *
- * Migration i18n (Phase 6) : namespace "dashboard" pour le contenu
- * propre à la page, "common" pour les libellés de canaux (réutilisés
- * via getChannelLabel — voir 6.2) et de statuts.
+ * Namespace "dashboard" pour le contenu propre à la page, "common"
+ * pour les libellés de canaux (réutilisés via getChannelLabel) et de
+ * statuts.
  *
  * Améliorations :
  * - Graphique d'évolution des transferts (mensuel/annuel)

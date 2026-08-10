@@ -12,7 +12,6 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { useToast } from '@/store/notification/toastContext';
 import { getErrorMessage } from '@/lib/utils';
 import { exportCSV } from '@/utils/exportCSV';
-import type { UserResponse } from '@/types';
 
 /**
  * Page de gestion des utilisateurs (admin).

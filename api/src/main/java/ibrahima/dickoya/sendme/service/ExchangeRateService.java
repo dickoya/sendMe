@@ -2,9 +2,9 @@ package ibrahima.dickoya.sendme.service;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import ibrahima.dickoya.sendme.config.CurrencyConfig;
 import ibrahima.dickoya.sendme.entity.ExchangeRate;
 import ibrahima.dickoya.sendme.repository.ExchangeRateRepository;
+
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -302,13 +302,13 @@ public class ExchangeRateService {
         return margin;
     }
 
-    // Méthodes publiques pour le debug et le dashboard admin
+    // Méthodes publiques pour le dashboard admin
 
     /**
      * Récupère le taux brut (sans marge) pour un couple de devises.
-     * Utilisé par l'endpoint debug.
      */
     public BigDecimal getRawRate(String from, String to) {
+
         if (from.equalsIgnoreCase(to)) {
             return BigDecimal.ONE;
         }
@@ -337,10 +337,10 @@ public class ExchangeRateService {
 
     /**
      * Retourne le taux final (avec marge) pour un couple de devises.
-     * Utilisé par l'endpoint debug.
      */
     public BigDecimal getMarginRate(String from, String to) {
         if (from.equalsIgnoreCase(to)) {
+
             return BigDecimal.ONE;
         }
 
@@ -371,33 +371,6 @@ public class ExchangeRateService {
         return marginPct;
     }
 
-    /**
-     * Récupère les taux debug pour toutes les paires de devises supportées.
-     * Utilisé par l'endpoint GET /api/debug/rates.
-     *
-     * @return Liste de maps contenant pour chaque paire :
-     *         from, to, rawRate, marginRate, cacheTimestamp
-     */
-    public java.util.List<java.util.Map<String, Object>> getAllDebugRates() {
-        String[] currencies = CurrencyConfig.getAllCurrencyCodes();
-        java.util.List<java.util.Map<String, Object>> results = new java.util.ArrayList<>();
-
-        for (String from : currencies) {
-            for (String to : currencies) {
-                if (from.equals(to))
-                    continue;
-
-                java.util.Map<String, Object> entry = new java.util.HashMap<>();
-                entry.put("from", from);
-                entry.put("to", to);
-                entry.put("rawRate", getRawRate(from, to));
-                entry.put("marginRate", getMarginRate(from, to));
-                entry.put("cacheTimestamp", getCacheTimestamp(from));
-                results.add(entry);
-            }
-        }
-
-        return results;
-    }
-
 }
+
+

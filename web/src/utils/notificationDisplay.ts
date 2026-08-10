@@ -14,7 +14,7 @@ interface NotificationDisplay {
 
 /**
  * Mapping NotificationType → icône lucide + couleur Tailwind.
- * Purement visuel — indépendant de la langue, pas de migration nécessaire.
+ * Purement visuel — indépendant de la langue.
  */
 export const NOTIFICATION_DISPLAY: Record<NotificationType, NotificationDisplay> = {
     TRANSFER_INITIATED: { icon: Send, className: 'bg-brand-50 text-brand-600' },
@@ -64,10 +64,9 @@ function extractReference(message: string): string | null {
  * transaction extraite du message brut backend (toujours en français,
  * mais le format de référence TXN-... est indépendant de la langue).
  *
- * Option A du plan i18n (Phase 10) : ignore `notification.message`
- * (texte FR backend) sauf pour l'extraction de données structurées
- * (référence). Le texte affiché provient entièrement de
- * notifications.json (FR/EN).
+ * Le message brut `notification.message` (texte FR backend) est
+ * ignoré sauf pour l'extraction de données structurées (référence).
+ * Le texte affiché provient entièrement de notifications.json (FR/EN).
  *
  * @example
  * getNotificationMessage(notif, t)

@@ -10,13 +10,12 @@ import { getErrorMessage } from '@/lib/utils';
 /**
  * Formulaire d'envoi d'une notification de maintenance.
  *
- * Migration i18n (Phase 11) : namespace "admin" (clés settings.maintenance.*).
+ * Namespace "admin" (clés settings.maintenance.*).
  *
- * Limitation documentée (héritée du plan, Phase 9/14) : les champs
- * `date` et `duration` sont en texte libre, envoyés tels quels au
- * backend pour l'email (toujours en français). Si l'admin saisit en
- * anglais ici, l'email résultant mélangera FR/EN — non traité dans ce
- * plan (sur-ingénierie pour le périmètre TFE).
+ * Limitation documentée : les champs `date` et `duration` sont en
+ * texte libre, envoyés tels quels au backend pour l'email (toujours
+ * en français). Si l'admin saisit en anglais ici, l'email résultant
+ * mélangera FR/EN.
  */
 function MaintenanceForm() {
     const { t } = useTranslation('admin');

@@ -20,7 +20,7 @@ export interface FeeSimulatorProps {
 /**
  * Affiche le récapitulatif en temps réel du calcul des frais.
  *
- * Migration i18n (Phase 8) : namespace "transfer" (clés simulator.*).
+ * Namespace "transfer" (clés simulator.*).
  * Le taux de frais est interpolé en pourcentage déjà formaté
  * (ex: "1.5"), la clé contient le symbole "%".
  */

@@ -9,14 +9,14 @@ Application React + TypeScript pour la passerelle de transfert d'argent SendMe.
 | Composant | Technologie |
 |---|---|
 | Framework | React 19 |
-| Langage | TypeScript 6 |
-| Build | Vite 8 |
+| Langage | TypeScript |
+| Build | Vite |
 | CSS | Tailwind CSS v4 |
-| Routing | React Router DOM 7 |
-| État global | Context API (4 providers) |
+| Routing | React Router DOM |
+| État global | Context API (auth, notification, theme) |
 | API | Axios (intercepteurs JWT + refresh automatique) |
 | Paiement | Stripe Elements + Stripe.js |
-| Internationalisation | i18next + react-i18next (13 namespaces FR/EN) |
+| Internationalisation | i18next + react-i18next (FR/EN) |
 | Temps réel | Server-Sent Events (fetch + ReadableStream) |
 | Tests | Vitest + Testing Library |
 | Linting | ESLint + TypeScript-ESLint |
@@ -41,10 +41,10 @@ npm install
 
 ### Configuration
 
-Copier le fichier d'exemple :
+Copier le fichier d'exemple du dépôt racine :
 
 ```powershell
-copy .env.exemple .env
+copy ..\.env.example .env
 ```
 
 Contenu du `.env` :
@@ -68,18 +68,25 @@ L'application est disponible sur `http://localhost:5173`.
 
 ```
 web/src/
-├── components/         # 50+ composants UI réutilisables
+├── components/         # Composants UI réutilisables
 │   ├── ui/             # Composants atomiques (Button, Input, Modal, Badge, Card, etc.)
-│   ├── forms/          # Formulaires complexes (TransferForm, BeneficiaryForm, etc.)
-│   ├── layout/         # Navbar, Sidebar, Footer, Breadcrumb
-│   └── shared/         # Composants partagés (LoadingSpinner, EmptyState, ErrorState, Pagination)
-├── pages/              # 17 pages
+│   ├── forms/          # Formulaires complexes (FeeConfigForm, MaintenanceForm, BankDetailsForm, etc.)
+│   ├── layout/         # Header, Sidebar, LanguageSwitcher, ThemeToggle
+│   ├── admin/          # Composants admin (StatCard, ChannelChart, UserTable, etc.)
+│   ├── beneficiary/    # Bénéficiaires (BeneficiaryList, BeneficiaryForm, etc.)
+│   ├── transfer/       # Tunnel de transfert (FeeSimulator, TransferSummary, StripePaymentForm, etc.)
+│   ├── notification/   # NotificationBell, NotificationList, NotificationItem
+│   ├── onboarding/     # OnboardingTour
+│   ├── referral/       # ReferralCard
+│   └── dashboard/      # StatsCard, QuickActions, ExchangeRateWidget, TransferEvolutionChart
+├── pages/              # Pages
 │   ├── public/         # Pages accessibles sans authentification
 │   │   ├── Home.tsx              # Page d'accueil publique avec simulateur
 │   │   ├── Login.tsx             # Connexion
 │   │   ├── Register.tsx          # Inscription avec code de parrainage
 │   │   ├── EmailVerification.tsx # Vérification d'email
-│   │   └── VerificationSent.tsx  # Confirmation d'envoi de vérification
+│   │   ├── VerificationSent.tsx  # Confirmation d'envoi de vérification
+│   │   └── LegalNotice.tsx       # Mentions légales
 │   ├── private/        # Pages nécessitant authentification
 │   │   ├── Dashboard.tsx         # Tableau de bord utilisateur
 │   │   ├── Transfer.tsx          # Tunnel de transfert (4 étapes)
@@ -96,7 +103,7 @@ web/src/
 │       ├── AdminLogs.tsx             # Logs d'audit
 │       ├── AdminSettings.tsx         # Configuration (frais, maintenance)
 │       └── AdminPaymentChannels.tsx  # Canaux de paiement
-├── layouts/            # 3 layouts
+├── layouts/            # Layouts
 │   ├── PublicLayout.tsx     # Layout pour pages publiques (Login, Register)
 │   ├── PrivateLayout.tsx    # Layout pour pages privées (navbar, sidebar)
 │   └── AdminLayout.tsx      # Layout pour pages admin (navbar, sidebar admin)
@@ -104,7 +111,7 @@ web/src/
 │   ├── AppRoutes.tsx        # Arborescence complète des routes
 │   ├── PrivateRoute.tsx     # Guard d'authentification
 │   └── AdminRoute.tsx       # Guard de rôle ADMIN
-├── services/           # 12 services API (Axios)
+├── services/           # Services API (Axios)
 │   ├── api.ts               # Instance Axios centrale + intercepteurs JWT/refresh
 │   ├── authService.ts       # Authentification (login, register, refresh, verify-email)
 │   ├── transferService.ts   # Transferts et transactions
@@ -114,69 +121,45 @@ web/src/
 │   ├── profileService.ts    # Profil
 │   ├── referralService.ts   # Parrainage
 │   ├── adminService.ts      # Administration
-│   ├── countryService.ts    # Pays et devises
+│   ├── auditLogService.ts   # Logs d'audit admin
 │   ├── channelService.ts    # Canaux de paiement
+│   ├── paymentChannelService.ts # Gestion des canaux de paiement (admin)
 │   └── stripeService.ts     # Stripe (payment intent)
-├── hooks/              # 12 hooks personnalisés
+├── hooks/              # Hooks personnalisés
 │   ├── useSSE.ts            # Connexion SSE avec reconnexion automatique
-│   ├── usePagination.ts     # Pagination générique
 │   ├── useDebounce.ts       # Debounce pour la recherche
-│   ├── useLocalStorage.ts   # Persistance localStorage typée
-│   ├── useMediaQuery.ts     # Media queries responsive
-│   ├── useOnClickOutside.ts # Détection clic extérieur
-│   ├── useScrollToTop.ts    # Scroll to top on navigation
-│   ├── useDocumentTitle.ts  # Mise à jour du titre de page
-│   ├── useFormValidation.ts # Validation de formulaire
-│   ├── useCountdown.ts      # Compte à rebours
 │   ├── useOnboarding.ts     # Tour guidé onboarding
 │   ├── useDashboard.ts      # Données du dashboard
 │   ├── useBeneficiary.ts    # Gestion des bénéficiaires
+│   ├── useReferral.ts       # Parrainage
 │   ├── useTransfer.ts       # Tunnel de transfert
 │   ├── useAdminDashboard.ts # Dashboard admin
 │   ├── useAdminUsers.ts     # Gestion utilisateurs admin
 │   ├── useAdminTransactions.ts # Transactions admin
 │   ├── useAdminAnalytics.ts # Analytics admin
 │   └── usePaymentChannels.ts # Canaux de paiement admin
-├── store/              # 4 Context API
+├── store/              # Context API
 │   ├── auth/               # AuthContext (user, login, register, logout)
-│   ├── notification/       # NotificationContext (SSE, historique, compteur)
-│   │   ├── notificationContext.tsx
-│   │   └── toastContext.tsx
-│   ├── theme/              # ThemeContext (clair/sombre)
-│   └── transfer/           # TransferContext (état du tunnel 4 étapes)
+│   ├── notification/       # NotificationContext (SSE, historique, compteur) + toastContext
+│   └── theme/              # ThemeContext (clair/sombre)
 ├── i18n/               # Internationalisation
 │   ├── index.ts            # Configuration i18next
-│   └── locales/            # 26 fichiers de traduction
-│       ├── fr/             # 13 namespaces français
-│       │   ├── common.json
-│       │   ├── auth.json
-│       │   ├── dashboard.json
-│       │   ├── beneficiaries.json
-│       │   ├── transfer.json
-│       │   ├── history.json
-│       │   ├── notifications.json
-│       │   ├── admin.json
-│       │   ├── home.json
-│       │   ├── profile.json
-│       │   ├── referral.json
-│       │   ├── onboarding.json
-│       │   └── faq.json
-│       └── en/             # 13 namespaces anglais (mêmes clés)
-│           ├── common.json
-│           ├── auth.json
-│           ├── ...
-│           └── faq.json
-├── types/              # Types TypeScript
-│   └── index.ts            # Tous les types (miroir des DTOs backend)
+│   └── locales/            # Fichiers de traduction FR/EN (14 namespaces)
+│       ├── fr/             # common, auth, dashboard, beneficiaries, transfer, history,
+│       │                   # notifications, admin, home, profile, referral, onboarding, faq, legal
+│       └── en/             # Mêmes namespaces en anglais
+├── types/              # Types TypeScript (miroir des DTOs backend)
+│   ├── index.ts
+│   └── paymentChannel.ts
 ├── utils/              # Helpers
 │   ├── constants.ts        # Constantes (canaux, statuts, pays, devises, langues)
-│   ├── format.ts           # Formatage (monnaie, dates, pourcentages)
-│   ├── validation.ts       # Règles de validation
+│   ├── formatCurrency.ts   # Formatage monétaire
+│   ├── formatDate.ts       # Formatage des dates
 │   ├── notificationDisplay.ts # Messages de notification traduits
-│   ├── exportCsv.ts        # Export CSV des transactions
-│   └── formatCurrency.ts   # Formatage monétaire
+│   └── exportCSV.ts        # Export CSV des transactions
 ├── lib/                # Fonctions utilitaires
 │   └── utils.ts            # getErrorMessage, cn (classnames)
+├── assets/             # Images (hero.png, vite.svg)
 ├── App.tsx             # Composant racine (providers)
 ├── main.tsx            # Point d'entrée
 └── index.css           # Styles globaux + Tailwind
@@ -195,6 +178,7 @@ web/src/
 | `/register` | Register | Inscription avec code de parrainage optionnel |
 | `/verify-email` | EmailVerification | Vérification d'email |
 | `/verify-email-sent` | VerificationSent | Confirmation d'envoi |
+| `/legal` | LegalNotice | Mentions légales |
 
 ### Pages privées (authentification requise)
 
@@ -226,10 +210,10 @@ web/src/
 
 Le transfert se déroule en 4 étapes dans un tunnel dédié :
 
-1. **Étape 1 — Montant** : Saisie du montant, sélection des devises, simulation en temps réel
-2. **Étape 2 — Bénéficiaire** : Sélection ou création d'un bénéficiaire
-3. **Étape 3 — Paiement** : Formulaire de carte Stripe (Elements)
-4. **Étape 4 — Confirmation** : Récapitulatif et statut en temps réel
+1. **Étape 1 — Formulaire** : sélection du bénéficiaire et du canal, saisie du montant, simulation en temps réel
+2. **Étape 2 — Récapitulatif** : résumé de la transaction (montant, frais, taux de change)
+3. **Étape 3 — Paiement** : formulaire de carte Stripe (Elements)
+4. **Étape 4 — Succès** : confirmation et récapitulatif final
 
 ---
 
@@ -242,7 +226,7 @@ Le transfert se déroule en 4 étapes dans un tunnel dédié :
 - **Graphiques** — volume par jour, taux de succès, répartition par canal (Recharts)
 - **Thème clair/sombre** — persistance en localStorage
 - **Internationalisation** — bascule FR/EN avec détection navigateur
-- **Notifications temps réel** — SSE avec reconnexion automatique (5s)
+- **Notifications temps réel** — SSE avec reconnexion automatique
 - **Badge de notifications** — compteur non lues dans la navbar
 - **Onboarding** — tour guidé pour les nouveaux utilisateurs
 - **Export CSV** — export de l'historique des transactions
@@ -261,37 +245,10 @@ npm run build      # Build de production
 npm run preview    # Prévisualisation du build
 npm run test       # Tests unitaires (Vitest)
 npm run lint       # Linting ESLint
-npm run check:i18n # Vérification des clés de traduction i18n
-```
-
----
-
-## Dépendances principales
-
-```json
-{
-  "react": "^19.2.6",
-  "react-router-dom": "^7.17.0",
-  "axios": "^1.17.0",
-  "@stripe/react-stripe-js": "^6.6.0",
-  "@stripe/stripe-js": "^9.8.0",
-  "i18next": "^26.3.1",
-  "react-i18next": "^17.0.8",
-  "i18next-browser-languagedetector": "^8.2.1",
-  "recharts": "^3.8.1",
-  "tailwindcss": "^4.3.1",
-  "vite": "^8.0.12",
-  "vitest": "^4.1.9",
-  "typescript": "~6.0.2",
-  "lucide-react": "^1.18.0",
-  "date-fns": "^4.4.0",
-  "class-variance-authority": "^0.7.1",
-  "tailwind-merge": "^3.6.0"
-}
 ```
 
 ---
 
 ## Auteur
 
-**Ibrahima Dickoya** — TFE 2024–2025
+**Ibrahima Dickoya** — TFE 2025–2026

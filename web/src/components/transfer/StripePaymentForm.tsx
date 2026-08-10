@@ -28,13 +28,13 @@ const CARD_ELEMENT_OPTIONS = {
 /**
  * Formulaire de paiement par carte via Stripe Elements.
  *
- * Migration i18n (Phase 8) : namespace "transfer" (clés payment.*).
+ * Namespace "transfer" (clés payment.*).
  *
  * Note importante : les messages d'erreur Stripe.js eux-mêmes
  * (`error.message` retourné par stripe.createPaymentMethod()) sont
  * déjà dans la bonne langue grâce à `getStripe(i18n.language)`
- * (locale Stripe activée au niveau de <Elements> dans Transfer.tsx —
- * voir 8.6). On ne traduit donc PAS ces messages ici : ils proviennent
+ * (locale Stripe activée au niveau de <Elements> dans Transfer.tsx).
+ * On ne traduit donc PAS ces messages ici : ils proviennent
  * directement de Stripe, déjà localisés. `genericCardError` ne sert
  * que de repli si `error.message` est absent.
  */

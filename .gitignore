@@ -54,8 +54,5 @@ api/api.log
 mobile/
 
 
-### Scripts temporaires ###
-web/scripts/
-.claude/
+### Divers ###
 api/src/main/resources/static/logo
-### Rapp

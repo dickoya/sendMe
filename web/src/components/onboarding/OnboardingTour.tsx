@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
-import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OnboardingStep } from '@/hooks/useOnboarding';
 
@@ -23,7 +23,6 @@ interface OnboardingTourProps {
  * - Dégradés dynamiques
  */
 const CANVA_GRADIENT = 'from-[#6C5CE7] via-[#A29BFE] to-[#FD79A8]';
-const CANVA_GRADIENT_DARK = 'from-[#6C5CE7] via-[#A29BFE] to-[#FD79A8]';
 
 function OnboardingTour({
                             isActive,

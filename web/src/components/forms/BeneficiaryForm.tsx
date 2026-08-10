@@ -5,7 +5,7 @@ import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import BeneficiaryChannelForm from '@/components/beneficiary/BeneficiaryChannelForm';
 import { getErrorMessage } from '@/lib/utils';
-import type { Beneficiary, BeneficiaryFormData, BeneficiaryChannelFormData, ChannelType } from '@/types';
+import type { Beneficiary, BeneficiaryFormData, BeneficiaryChannelFormData } from '@/types';
 
 export interface BeneficiaryFormProps {
     initialData?: Beneficiary;

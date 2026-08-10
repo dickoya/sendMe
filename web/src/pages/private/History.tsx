@@ -17,8 +17,8 @@ import type { Transaction } from '@/types';
 /**
  * Page d'historique des transactions.
  *
- * Migration i18n (Phase 9) : namespace "history" pour le contenu
- * propre à la page, "common" pour les états de chargement.
+ * Namespace "history" pour le contenu propre à la page,
+ * "common" pour les états de chargement.
  */
 function History() {
     const { t } = useTranslation('history');

@@ -8,8 +8,8 @@ import NotificationList from './NotificationList';
 /**
  * Cloche de notifications dans le Header.
  *
- * Migration i18n (Phase 10) : namespace "notifications" pour le titre,
- * "tout marquer comme lu" et le lien vers le centre complet ;
+ * Namespace "notifications" pour le titre, « tout marquer comme lu »
+ * et le lien vers le centre complet ;
  * "common" pour le aria-label de la cloche elle-même.
  */
 function NotificationBell() {

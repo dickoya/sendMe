@@ -127,6 +127,14 @@ public class TransferController {
                 var response = transferService.processTransfer(
                                 request, userDetails.getUsername());
 
+                // Garde-fou : le service ne doit normalement jamais retourner null,
+                // mais on s'assure que la réponse est toujours exploitable.
+                if (response == null) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                        .body(ibrahima.dickoya.sendme.dto.response.ApiResponse
+                                                        .error("Paiement refuse par votre banque. Veuillez verifier vos informations de carte et reessayer."));
+                }
+
                 // Si la transaction est en échec, retourner une erreur 400
                 // avec le message explicite plutôt qu'un 201 trompeur
                 var status = response.getStatus();

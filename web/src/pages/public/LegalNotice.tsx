@@ -41,7 +41,7 @@ const iconMap: Record<string, React.ElementType> = {
  * pour un service de transfert d'argent (type Wise / Revolut).
  */
 function LegalNotice() {
-    const { t, i18n } = useTranslation('legal');
+    const { t } = useTranslation('legal');
     const [search, setSearch] = useState('');
     const [activeCategory, setActiveCategory] = useState('all');
     const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());

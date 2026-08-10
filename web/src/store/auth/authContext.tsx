@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const register = async (payload: RegisterPayload) => {
         setError(null);
         try {
-            const response = await authService.register(payload);
+            await authService.register(payload);
             // Après inscription, l'utilisateur doit vérifier son email avant de pouvoir se connecter.
             // L'API ne retourne pas de tokens JWT tant que l'email n'est pas vérifié.
             // On ne persiste donc pas la session ici.

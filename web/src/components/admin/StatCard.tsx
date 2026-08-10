@@ -8,13 +8,12 @@ export interface StatCardProps {
     subtext?: string;
 }
 
-/**
- * Carte de statistique pour le tableau de bord admin.
- *
- * Pas de migration i18n directe — `label` et `subtext` sont fournis
- * déjà traduits par le composant appelant (AdminDashboard, Phase 11).
- * Inchangé depuis l'Étape 9.
- */
+ /**
+  * Carte de statistique pour le tableau de bord admin.
+  *
+  * `label` et `subtext` sont fournis déjà traduits par le composant
+  * appelant (AdminDashboard).
+  */
 function StatCard({ label, value, icon, iconClassName, subtext }: StatCardProps) {
     return (
         <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-[#222222] dark:bg-[#141414]">

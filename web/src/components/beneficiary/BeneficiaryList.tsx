@@ -12,7 +12,7 @@ export interface BeneficiaryListProps {
 /**
  * Liste des bénéficiaires avec état vide illustré.
  *
- * Migration i18n (Phase 7) : namespace "beneficiaries" (clés empty.*).
+ * Namespace "beneficiaries" (clés empty.*).
  */
 function BeneficiaryList({ beneficiaries, onEdit, onDelete }: BeneficiaryListProps) {
     const { t } = useTranslation('beneficiaries');

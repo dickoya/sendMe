@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    Search, ChevronDown, ChevronUp, Mail, MessageSquare, HelpCircle,
-    Info, DollarSign, Send, Users, ShieldCheck, Settings
+    Search, ChevronDown, Mail, HelpCircle,
+    Info, DollarSign, Send, Users, ShieldCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

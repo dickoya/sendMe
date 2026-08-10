@@ -89,6 +89,9 @@ class TransferServiceTest {
         private ReferralService referralService;
 
         @Mock
+        private AuditService auditService;
+
+        @Mock
         private PlatformTransactionManager transactionManager;
 
         @InjectMocks
@@ -342,7 +345,7 @@ class TransferServiceTest {
                 }
 
                 @Test
-                @DisplayName("Paiement Stripe refusé (StripeException) - Doit sauvegarder transaction FAILED et retourner null")
+                @DisplayName("Paiement Stripe refusé (StripeException) - Doit sauvegarder transaction FAILED et retourner TransactionResponse FAILED")
                 void processTransfer_ShouldHandleStripeException_WhenPaymentFails() throws StripeException {
                         // Arrange
                         when(transactionRepository.findByIdempotencyKey(IDEMPOTENCY_KEY)).thenReturn(Optional.empty());
@@ -360,7 +363,8 @@ class TransferServiceTest {
                         TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
 
                         // Assert
-                        assertThat(response).isNull();
+                        assertThat(response).isNotNull();
+                        assertThat(response.getStatus()).isEqualTo(TransactionStatus.FAILED);
 
                         verify(transactionRepository, times(1)).save(any(Transaction.class)); // createPendingTransaction
                         verify(transactionPersistenceService).saveFailedTransaction(any(), anyString(), anyString());
@@ -369,7 +373,7 @@ class TransferServiceTest {
                 }
 
                 @Test
-                @DisplayName("Paiement Stripe non confirmé - Doit sauvegarder transaction FAILED et retourner null")
+                @DisplayName("Paiement Stripe non confirmé - Doit sauvegarder transaction FAILED et retourner TransactionResponse FAILED")
                 void processTransfer_ShouldHandlePaymentNotSucceeded_WhenStripePaymentNotConfirmed()
                                 throws StripeException {
                         // Arrange
@@ -390,7 +394,8 @@ class TransferServiceTest {
                         TransactionResponse response = transferService.processTransfer(transferRequest, USER_EMAIL);
 
                         // Assert
-                        assertThat(response).isNull();
+                        assertThat(response).isNotNull();
+                        assertThat(response.getStatus()).isEqualTo(TransactionStatus.FAILED);
 
                         verify(transactionRepository, times(1)).save(any(Transaction.class)); // createPendingTransaction
                         verify(transactionPersistenceService).saveFailedTransaction(any(), anyString(), anyString());

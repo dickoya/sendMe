@@ -8,9 +8,9 @@ import Header from '@/components/layout/Header';
 /**
  * Layout des pages privées (utilisateur connecté).
  *
- * Migration i18n (Phase 4) : le titre affiché dans le Header est
- * déterminé dynamiquement selon la route, via les clés du namespace
- * "common" (nav.*) — garantit la cohérence avec les libellés de la Sidebar.
+ * Le titre affiché dans le Header est déterminé dynamiquement selon
+ * la route, via les clés du namespace "common" (nav.*) — garantit la
+ * cohérence avec les libellés de la Sidebar.
  */
 function PrivateLayout() {
     const { t } = useTranslation('common');

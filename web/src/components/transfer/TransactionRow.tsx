@@ -17,10 +17,8 @@ export interface TransactionRowProps {
 /**
  * Ligne de transaction dans l'historique.
  *
- * Migration i18n (Phase 9) : libellé/icône de canal via les helpers
- * de Phase 6, aria-labels via "common", formatDate sensible à la
- * langue (voir Phase 12 — pour l'instant formatDate reste en fr,
- * sera adapté globalement en Phase 12).
+ * Libellé/icône de canal via les helpers de canal, aria-labels via
+ * "common", formatDate sensible à la langue.
  */
 function TransactionRow({ transaction, onDownload, onPreview, isDownloading, isPreviewing }: TransactionRowProps) {
     const { t: tCommon } = useTranslation('common');

@@ -24,7 +24,6 @@ import org.thymeleaf.context.Context;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -80,43 +79,6 @@ class EmailServiceTest {
         // Injecter les valeurs @Value via ReflectionTestUtils
         ReflectionTestUtils.setField(emailService, "fromEmail", "noreply@sendme.com");
         ReflectionTestUtils.setField(emailService, "fromName", "SendMe");
-    }
-
-    @Nested
-    @DisplayName("Tests de sendTestEmail")
-    class SendTestEmailTests {
-
-        @Test
-        @DisplayName("sendTestEmail - Doit envoyer un email de test")
-        void sendTestEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-            when(templateEngine.process(eq("emails/test"), any(Context.class)))
-                    .thenReturn("<html>Test</html>");
-
-            // Act
-            emailService.sendTestEmail("test@sendme.com");
-
-            // Assert
-            verify(mailSender).send(mimeMessage);
-        }
-
-        @Test
-        @DisplayName("sendTestEmail - Doit lever une exception si l'envoi échoue")
-        void sendTestEmail_ShouldThrow_WhenSendingFails() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
-            when(templateEngine.process(eq("emails/test"), any(Context.class)))
-                    .thenReturn("<html>Test</html>");
-            doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(MimeMessage.class));
-
-            // Act & Assert
-            assertThatThrownBy(() -> emailService.sendTestEmail("test@sendme.com"))
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessageContaining("Échec envoi email de test");
-        }
     }
 
     @Nested

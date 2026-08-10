@@ -6,7 +6,6 @@ import ibrahima.dickoya.sendme.dto.request.PaymentChannelRequest;
 import ibrahima.dickoya.sendme.dto.response.*;
 import ibrahima.dickoya.sendme.enums.Role;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
-import ibrahima.dickoya.sendme.service.AdminAuditLogService;
 import ibrahima.dickoya.sendme.service.AdminService;
 import ibrahima.dickoya.sendme.service.ExchangeRateService;
 import ibrahima.dickoya.sendme.service.PaymentChannelService;
@@ -73,7 +72,6 @@ public class AdminController {
         /** Service contenant toute la logique métier admin. */
         private final AdminService adminService;
         private final ExchangeRateService exchangeRateService;
-        private final AdminAuditLogService adminAuditLogService;
         private final PaymentChannelService paymentChannelService;
 
         /**
@@ -103,27 +101,6 @@ public class AdminController {
                                 ApiResponse.success("Tableau de bord administrateur", dashboard));
         }
 
-        @GetMapping("/debug/rate")
-        @PreAuthorize("hasRole('ADMIN')")
-        @Operation(summary = "Debug taux de change", description = "Retourne le taux brut, le taux avec marge et le timestamp du cache.")
-        public ResponseEntity<ApiResponse<Map<String, Object>>> debugRate(
-                        @RequestParam(defaultValue = "EUR") String from,
-                        @RequestParam(defaultValue = "XOF") String to) {
-
-                Map<String, Object> debugInfo = new HashMap<>();
-                BigDecimal rawRate = exchangeRateService.getRawRate(from, to);
-                BigDecimal marginRate = exchangeRateService.getRate(from, to);
-
-                debugInfo.put("from", from.toUpperCase());
-                debugInfo.put("to", to.toUpperCase());
-                debugInfo.put("rawRate", rawRate);
-                debugInfo.put("marginRate", marginRate);
-                debugInfo.put("cacheTimestamp", exchangeRateService.getCacheTimestamp(from));
-
-                return ResponseEntity.ok(
-                                ApiResponse.success("Debug taux de change", debugInfo));
-        }
-
         /**
          * Retourne la configuration actuelle des taux de change.
          * Utilisé par le dashboard admin pour afficher les valeurs en cours.
@@ -141,6 +118,31 @@ public class AdminController {
                 config.put("marginPercent", exchangeRateService.getMarginPercentage());
                 return ResponseEntity.ok(
                                 ApiResponse.success("Configuration des taux de change", config));
+        }
+
+        /**
+         * Retourne les informations debug d'un taux de change pour un couple de devises.
+         * Utilisé par le dashboard admin pour afficher le taux brut, le taux avec marge
+         * et le timestamp du cache.
+         *
+         * GET /api/admin/debug/rate?from=EUR&to=XOF
+         *
+         * @return 200 OK avec { from, to, rawRate, marginRate, cacheTimestamp }
+         */
+        @GetMapping("/debug/rate")
+        @PreAuthorize("hasRole('ADMIN')")
+        @Operation(summary = "Taux de change debug", description = "Retourne le taux brut, le taux avec marge et le timestamp du cache pour un couple de devises.")
+        public ResponseEntity<ApiResponse<Map<String, Object>>> getExchangeRateDebug(
+                        @RequestParam(defaultValue = "EUR") String from,
+                        @RequestParam(defaultValue = "XOF") String to) {
+                Map<String, Object> data = new HashMap<>();
+                data.put("from", from);
+                data.put("to", to);
+                data.put("rawRate", exchangeRateService.getRawRate(from, to));
+                data.put("marginRate", exchangeRateService.getMarginRate(from, to));
+                data.put("cacheTimestamp", exchangeRateService.getCacheTimestamp(from));
+                return ResponseEntity.ok(
+                                ApiResponse.success("Taux de change debug", data));
         }
 
         /**
@@ -471,29 +473,6 @@ public class AdminController {
                 List<SuccessRateDataPoint> data = adminService.getSuccessRateByDay(days);
                 return ResponseEntity.ok(
                                 ApiResponse.success("Taux de succès par jour", data));
-        }
-
-        /**
-         * Récupère les logs d'activité admin avec pagination et filtres.
-         */
-        @GetMapping("/logs")
-        @PreAuthorize("hasRole('ADMIN')")
-        @Operation(summary = "Logs d'activité", description = "Retourne les logs d'activité des administrateurs avec filtres.")
-        public ResponseEntity<ApiResponse<Page<AdminLogResponse>>> getAdminLogs(
-                        @RequestParam(defaultValue = "0") int page,
-                        @RequestParam(defaultValue = "50") int size,
-                        @RequestParam(required = false) String action,
-                        @RequestParam(required = false) String adminEmail,
-                        @RequestParam(required = false) LocalDate dateFrom,
-                        @RequestParam(required = false) LocalDate dateTo) {
-
-                Pageable pageable = PageRequest.of(page, size,
-                                Sort.by("createdAt").descending());
-
-                Page<AdminLogResponse> logs = adminAuditLogService.getFilteredLogs(
-                                action, adminEmail, dateFrom, dateTo, pageable);
-                return ResponseEntity.ok(
-                                ApiResponse.success("Logs d'activité", logs));
         }
 
         // GESTION DES CANAUX DE PAIEMENT

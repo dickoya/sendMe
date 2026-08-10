@@ -12,16 +12,16 @@ API REST de SendMe, développée avec **Java 21** et **Spring Boot 3.2.5**.
 | Framework | Spring Boot 3.2.5 |
 | Build | Maven 3.9+ |
 | Base de données | MySQL 8.0+ |
-| Migrations | Flyway 9.22.3 (22 migrations V1–V22) |
+| Migrations | Flyway (24 migrations V1–V24) |
 | ORM | Spring Data JPA + Hibernate 6 |
 | Sécurité | Spring Security 6 + JWT (jjwt 0.12.6) |
-| Paiement | Stripe SDK Java 25.3.0 |
-| Emails | Spring Mail + Thymeleaf (14 templates) |
+| Paiement | Stripe SDK Java |
+| Emails | Spring Mail + Thymeleaf (templates sous `templates/emails/`) |
 | PDF | iText7 (itext7-core 7.2.5) |
 | Taux de change | OpenExchangeRates API |
-| Rate Limiting | Bucket4j 8.7.0 + Caffeine |
+| Rate Limiting | Bucket4j + Caffeine |
 | Cache | Spring Cache + Caffeine |
-| Documentation | SpringDoc OpenAPI 2.5.0 (Swagger UI) |
+| Documentation | SpringDoc OpenAPI (Swagger UI) |
 | Validation | Jakarta Validation |
 | Internationalisation | Spring MessageSource (FR/EN) |
 | Tests | JUnit 5, Mockito, AssertJ |
@@ -68,7 +68,7 @@ spring.datasource.username=root
 spring.datasource.password=ton_mot_de_passe
 
 # ── Stripe (mode Sandbox) ────────────────────────────────────────────────
-stripe.secret.key=pk_test_ta_cle_secrete
+stripe.secret.key=sk_test_ta_cle_secrete
 stripe.publishable.key=pk_test_ta_cle_publishable
 stripe.webhook.secret=whsec_ton_webhook_secret
 
@@ -102,113 +102,30 @@ L'API démarre sur `http://localhost:8080`.
 
 ```
 api/src/main/java/ibrahima/dickoya/sendme/
-├── annotation/          # @Auditable + AuditAspect (AOP)
-├── config/              # 8 classes de configuration
-│   ├── SecurityConfig.java          # Spring Security, CORS, JWT filter, Rate Limiting
-│   ├── OpenApiConfig.java           # Swagger/OpenAPI documentation
-│   ├── StripeConfig.java            # Stripe API key initialization
-│   ├── CurrencyConfig.java          # OpenExchangeRates client
-│   ├── MessageSourceConfig.java     # i18n FR/EN
-│   ├── SwaggerConfig.java           # Swagger UI customization
-│   ├── SchedulingConfig.java        # @Scheduled tasks
-│   └── FlywayRepairConfig.java      # Flyway repair on startup
-├── controller/          # 14 contrôleurs REST
-│   ├── AuthController.java          # /api/auth (register, login, refresh, verify-email, resend-verification)
-│   ├── TransferController.java      # /api/transfers, /api/transactions, /api/channels/active
-│   ├── BeneficiaryController.java   # /api/beneficiaries (CRUD)
-│   ├── NotificationController.java  # /api/notifications (SSE, historique, read, read-all, unread-count)
-│   ├── DashboardController.java     # /api/dashboard (stats, evolution, exchange rates)
-│   ├── ProfileController.java       # /api/profile (update, password, delete, login-history)
-│   ├── ReferralController.java      # /api/referral (code, coupons, discount, verify)
-│   ├── CountryController.java       # /api/countries, /api/currencies (public)
-│   ├── AdminController.java         # /api/admin (dashboard, users, transactions, config, logs, channels, analytics)
+├── config/              # Configurations (Security, Stripe, Swagger, Currency, Scheduling, MessageSource)
+├── controller/          # Contrôleurs REST
+│   ├── AuthController.java             # /api/auth (register, login, refresh, verify-email, resend-verification)
+│   ├── TransferController.java         # /api/transfers, /api/transactions, /api/channels/active
+│   ├── BeneficiaryController.java      # /api/beneficiaries (CRUD)
+│   ├── NotificationController.java     # /api/notifications (SSE, historique, read, read-all, unread-count)
+│   ├── DashboardController.java        # /api/dashboard (stats, evolution, exchange rates)
+│   ├── ProfileController.java          # /api/profile (update, password, delete, login-history)
+│   ├── ReferralController.java         # /api/referral (code, coupons, discount, verify)
+│   ├── CountryController.java          # /api/countries, /api/currencies (public)
+│   ├── AdminController.java            # /api/admin (dashboard, users, transactions, config, logs, channels, analytics)
 │   ├── ExchangeRateHistoryController.java  # /api/admin/exchange-rates/history
-│   ├── StripeWebhookController.java # /api/webhooks/stripe
-│   ├── DebugController.java         # /api/debug (rate, rates)
-│   ├── EmailTestController.java     # /api/test/email (diagnostic)
-│   └── RepairController.java        # /api/repair (à supprimer en production)
+│   ├── AuditLogController.java         # /api/admin/audit-logs
+│   ├── StripeWebhookController.java    # /api/webhooks/stripe
+│   └── ...
 ├── dto/                 # Request/Response DTOs
-│   ├── request/         # 12 classes de requête
-│   └── response/        # 18 classes de réponse
-├── entity/              # 10 entités JPA
-│   ├── User.java                    # Utilisateurs (BCrypt, email vérifié, parrainage)
-│   ├── Beneficiary.java             # Bénéficiaires
-│   ├── BeneficiaryChannel.java      # Canaux multiples par bénéficiaire (V15)
-│   ├── Transaction.java             # Transactions (idempotence, Stripe, référence)
-│   ├── Notification.java            # Notifications (SSE + historique)
-│   ├── ReferralCoupon.java          # Coupons de réduction
-│   ├── LoginHistory.java            # Historique des connexions (V19)
-│   ├── AdminAuditLog.java           # Logs d'audit admin (V21)
-│   ├── PaymentChannel.java          # Canaux de paiement dynamiques (V22)
-│   ├── ExchangeRate.java            # Taux de change historiques
-│   └── BlockedIp.java               # IPs bloquées (V11)
-├── enums/               # 4 énumérations
-│   ├── ChannelType.java             # BANK_TRANSFER, ORANGE_MONEY, MTN_MOBILE_MONEY, WAVE, MOOV_MONEY, AIRTEL_MONEY
-│   ├── TransactionStatus.java       # PENDING, PROCESSING, COMPLETED, FAILED, REFUNDED
-│   ├── NotificationType.java        # TRANSFER_*, PAYMENT_*, INFO
-│   └── Role.java                    # ROLE_USER, ROLE_ADMIN
-├── exception/           # 6 exceptions personnalisées + GlobalExceptionHandler
-│   ├── EmailAlreadyExistsException.java
-│   ├── EmailNotVerifiedException.java
-│   ├── RateLimitExceededException.java
-│   ├── ResourceNotFoundException.java
-│   ├── TransferException.java
-│   ├── ReferralException.java
-│   ├── MissingStrategyException.java
-│   └── GlobalExceptionHandler.java
-├── repository/          # 10 interfaces Spring Data JPA
-│   ├── UserRepository.java
-│   ├── BeneficiaryRepository.java
-│   ├── TransactionRepository.java
-│   ├── NotificationRepository.java
-│   ├── ReferralCouponRepository.java
-│   ├── LoginHistoryRepository.java
-│   ├── AdminAuditLogRepository.java
-│   ├── PaymentChannelRepository.java
-│   ├── ExchangeRateRepository.java
-│   ├── BeneficiaryChannelRepository.java
-│   └── BlockedIpRepository.java
-├── security/            # JWT, Rate Limiting, UserDetails
-│   ├── JwtService.java              # Génération/validation JWT (access 24h, refresh 7j)
-│   ├── JwtAuthenticationFilter.java # Filtre d'extraction JWT
-│   ├── RateLimitingFilter.java      # Bucket4j + exponential backoff
-│   └── UserDetailsServiceImpl.java  # UserDetailsService personnalisé
-├── service/             # 17 services métier
-│   ├── AuthService.java             # Inscription, connexion, refresh, vérification email
-│   ├── TransferService.java         # Orchestration complète des transferts
-│   ├── SimulatorService.java        # Simulation des frais et taux de change
-│   ├── BeneficiaryService.java      # CRUD bénéficiaires
-│   ├── NotificationService.java     # Création et envoi de notifications
-│   ├── SseEmitterService.java       # Gestion des connexions SSE
-│   ├── DashboardService.java        # Statistiques utilisateur
-│   ├── ProfileService.java          # Gestion du profil
-│   ├── ReferralService.java         # Parrainage et coupons
-│   ├── AdminService.java            # Logique métier admin
-│   ├── AdminAuditLogService.java    # Consultation des logs d'audit
-│   ├── ExchangeRateService.java     # Taux de change (cache + marge 2%)
-│   ├── StripePaymentService.java    # Paiement Stripe (débit, confirmation, remboursement)
-│   ├── StripeWebhookService.java    # Traitement des webhooks Stripe
-│   ├── EmailService.java            # Envoi d'emails asynchrones (14 templates)
-│   ├── ReceiptPdfService.java       # Génération de reçus PDF (iText7)
-│   ├── PaymentChannelService.java   # Gestion dynamique des canaux de paiement
-│   ├── LoginAttemptService.java     # Suivi des tentatives de connexion
-│   ├── IpBlockingService.java       # Exponential backoff IP
-│   ├── RefreshTokenService.java     # Rate limiting des refresh tokens
-│   └── TransactionPersistenceService.java # Persistance des transactions en échec
-├── strategy/            # Strategy Pattern pour les transferts
-│   ├── TransferStrategy.java        # Interface commune
-│   ├── BaseTransferStrategy.java    # Template Method (simulation, délais, masquage)
-│   ├── TransferResult.java          # Objet résultat
-│   ├── BankTransferStrategy.java    # Virement bancaire SEPA/SWIFT
-│   ├── OrangeMoneyStrategy.java     # Orange Money
-│   ├── MtnMobileMoneyStrategy.java  # MTN Mobile Money
-│   ├── WaveStrategy.java            # Wave
-│   ├── MoovMoneyStrategy.java       # Moov Money
-│   └── AirtelMoneyStrategy.java     # Airtel Money
-└── utils/               # 3 utilitaires
-    ├── CurrencyByCountry.java       # Mapping pays → devise (ISO 3166-1 alpha-3 → ISO 4217)
-    ├── DataMaskingUtils.java        # Masquage téléphone, IBAN, carte, email
-    └── MessageUtils.java            # Accès simplifié aux messages i18n
+├── entity/              # Entités JPA (User, Beneficiary, BeneficiaryChannel, Transaction, Notification, ReferralCoupon, LoginHistory, AuditLog, PaymentChannel, ExchangeRate, BlockedIp)
+├── enums/               # ChannelType, TransactionStatus, NotificationType, Role
+├── exception/           # Exceptions personnalisées + GlobalExceptionHandler
+├── repository/          # Interfaces Spring Data JPA
+├── security/            # JwtService, JwtAuthenticationFilter, RateLimitingFilter, UserDetailsServiceImpl
+├── service/             # Services métier (Auth, Transfer, Simulator, Beneficiary, Notification, SSE, Dashboard, Profile, Referral, Admin, Audit, ExchangeRate, StripePayment, StripeWebhook, Email, ReceiptPdf, PaymentChannel, LoginAttempt, IpBlocking, RefreshToken, TransactionPersistence)
+├── strategy/            # TransferStrategy + BaseTransferStrategy + 6 implémentations (Bank, Orange, MTN, Wave, Moov, Airtel) + TransferResult
+└── utils/               # CurrencyByCountry, DataMaskingUtils, MessageUtils
 ```
 
 ---
@@ -217,27 +134,46 @@ api/src/main/java/ibrahima/dickoya/sendme/
 
 ```
 api/src/main/resources/
-├── db/migration/       # 22 migrations Flyway (V1__init.sql → V22__payment_channels.sql)
-├── templates/          # 14 templates email Thymeleaf
-│   ├── email-verification.html
-│   ├── transfer-initiated.html
-│   ├── transfer-completed.html
-│   ├── transfer-failed.html
-│   ├── transfer-refunded.html
-│   ├── maintenance-notification.html
-│   ├── welcome.html
-│   ├── password-changed.html
-│   ├── account-deleted.html
-│   ├── account-suspended.html
-│   ├── account-reactivated.html
-│   ├── suspicious-login.html
-│   ├── referral-coupon.html
-│   └── test-email.html
+├── db/migration/       # 24 migrations Flyway (V1__... → V24__...)
+├── templates/emails/   # Templates email Thymeleaf
 ├── static/             # Logos des opérateurs Mobile Money
 ├── messages_fr.properties   # Messages backend en français
 ├── messages_en.properties   # Messages backend en anglais
 └── application.properties   # Configuration principale
 ```
+
+---
+
+## Migrations Flyway
+
+24 migrations de V1 à V24 :
+
+| Migration | Description |
+|---|---|
+| V1 | Table users |
+| V2 | Table beneficiaries |
+| V3 | Table bank_details |
+| V4 | Table mobile_money_details |
+| V5 | Table transactions |
+| V6 | Table notifications |
+| V7 | Colonnes Stripe sur transactions |
+| V8 | Colonne type sur notifications |
+| V9 | Insertion admin par défaut |
+| V10 | Table exchange_rates |
+| V11 | Table blocked_ips |
+| V12 | Système de parrainage |
+| V13 | Support multi-devises |
+| V14 | Extension colonne statut Stripe |
+| V15 | Table beneficiary_channels |
+| V16 | Nettoyage tables obsolètes |
+| V17 | Colonne discount sur transactions |
+| V18 | Suppression colonne canal sur bénéficiaires |
+| V19 | Table login_history |
+| V20 | Vérification email |
+| V21 | Table admin_audit_log |
+| V22 | Table audit_logs |
+| V23 | Table payment_channels |
+| V24 | Suppression admin_audit_log |
 
 ---
 
@@ -303,7 +239,7 @@ api/src/main/resources/
 | GET | `/api/dashboard/stats` | Statistiques personnelles | ✅ |
 | GET | `/api/dashboard/evolution` | Évolution des transferts | ✅ |
 | GET | `/api/dashboard/exchange-rates` | Taux de change en direct | ✅ |
-| GET | `/api/dashboard/exchange-rates/history/{from}/{to}` | Historique des taux (7 jours) | ✅ |
+| GET | `/api/dashboard/exchange-rates/history/{from}/{to}` | Historique des taux | ✅ |
 
 ### Profil (`/api/profile`)
 
@@ -345,6 +281,7 @@ api/src/main/resources/
 | PUT | `/api/admin/config/fees` | Modifier le taux de commission | ADMIN |
 | POST | `/api/admin/notifications/maintenance` | Notifier une maintenance | ADMIN |
 | GET | `/api/admin/logs` | Logs d'activité admin | ADMIN |
+| GET | `/api/admin/audit-logs` | Logs d'audit (AuditLog) | ADMIN |
 | GET | `/api/admin/analytics/volume` | Volume par jour | ADMIN |
 | GET | `/api/admin/analytics/success-rate` | Taux de succès par jour | ADMIN |
 | GET | `/api/admin/payment-channels` | Liste des canaux de paiement | ADMIN |
@@ -353,62 +290,11 @@ api/src/main/resources/
 | GET | `/api/admin/exchange-rates/history` | Historique des taux de change | ADMIN |
 | GET | `/api/admin/exchange-rates/history/{from}/{to}` | Historique filtré par devises | ADMIN |
 
-### Debug (`/api/debug`)
-
-| Méthode | Endpoint | Description | Auth |
-|---|---|---|---|
-| GET | `/api/debug/rate` | Debug taux de change | ❌ |
-| GET | `/api/debug/rates` | Debug tous les taux | ❌ |
-
 ### Webhooks (`/api/webhooks`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
 | POST | `/api/webhooks/stripe` | Webhook Stripe | Signature |
-
-### Test (`/api/test`)
-
-| Méthode | Endpoint | Description | Auth |
-|---|---|---|---|
-| POST | `/api/test/email` | Test email asynchrone | ❌ |
-| POST | `/api/test/email/diagnostic` | Test email synchrone | ❌ |
-
-### Repair (`/api/repair`)
-
-| Méthode | Endpoint | Description | Auth |
-|---|---|---|---|
-| POST | `/api/repair/create-exchange-rates-table` | Créer la table exchange_rates | ❌ |
-
----
-
-## Migrations Flyway
-
-22 migrations de V1 à V22 :
-
-| Migration | Description |
-|---|---|
-| V1 | Structure initiale (users, beneficiaries, transactions, notifications) |
-| V2 | Ajout des colonnes de vérification email |
-| V3 | Ajout des colonnes de parrainage |
-| V4 | Ajout des colonnes de suppression de compte |
-| V5 | Ajout des colonnes de notification |
-| V6 | Ajout des colonnes de bénéficiaire |
-| V7 | Ajout des colonnes de transaction |
-| V8 | Ajout des index de notification |
-| V9 | Table referral_coupons |
-| V10 | Table exchange_rates |
-| V11 | Table blocked_ips + rate limiting |
-| V12 | Ajout des colonnes de bénéficiaire |
-| V13 | Ajout des colonnes de transaction |
-| V14 | Ajout des colonnes de notification |
-| V15 | Table beneficiary_channels (multi-canaux) |
-| V16 | Ajout des colonnes de parrainage |
-| V17 | Ajout des colonnes de transaction |
-| V18 | Ajout des colonnes de notification |
-| V19 | Table login_history |
-| V20 | Ajout des colonnes de vérification email |
-| V21 | Table admin_audit_log |
-| V22 | Table payment_channels |
 
 ---
 
@@ -435,7 +321,7 @@ app.jwt.expiration=86400000          # 24h
 app.jwt.refresh-expiration=604800000 # 7j
 
 # Stripe
-stripe.secret.key=pk_test_...
+stripe.secret.key=sk_test_...
 stripe.publishable.key=pk_test_...
 stripe.webhook.secret=whsec_...
 
@@ -481,4 +367,4 @@ Le dossier `api/http/` contient des fichiers `.http` utilisables avec l'extensio
 
 ## Auteur
 
-**Ibrahima Dickoya** — TFE 2024–2025
+**Ibrahima Dickoya** — TFE 2025–2026

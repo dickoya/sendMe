@@ -7,7 +7,7 @@ import MaintenanceForm from '@/components/forms/MaintenanceForm';
 /**
  * Page de paramètres de la plateforme (admin).
  *
- * Migration i18n (Phase 11) : titres de Card via namespace "admin".
+ * Titres de Card via namespace "admin".
  */
 function AdminSettings() {
     const { t } = useTranslation('admin');

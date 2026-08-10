@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Elements } from '@stripe/react-stripe-js';
-import { ArrowLeft, Smartphone, Landmark } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -19,7 +19,7 @@ import { getStripe } from '@/services/stripeService';
 import { transferService } from '@/services/transferService';
 import { referralService } from '@/services/referralService';
 import { getErrorMessage } from '@/lib/utils';
-import { getChannelLabel, getChannelIcon, getCurrencyForChannel } from '@/utils/constants';
+import { getChannelLabel, getChannelIcon } from '@/utils/constants';
 import { formatCurrency } from '@/utils/formatCurrency';
 import type { SimulateResponse, Transaction, Beneficiary, BeneficiaryChannel } from '@/types';
 
@@ -28,12 +28,10 @@ type Step = 'form' | 'summary' | 'payment' | 'success';
 /**
  * Tunnel de transfert en plusieurs étapes.
  *
- * Migration i18n (Phase 8) :
- * - namespace "transfer" pour tous les libellés du tunnel
- * - "common" pour les boutons génériques (back, continue)
- * - <Elements stripe={...}> utilise désormais getStripe(i18n.language)
- *   (Phase 3) au lieu du singleton stripePromise — Stripe affichera
- *   ses propres messages d'erreur dans la langue active
+ * Namespace "transfer" pour tous les libellés du tunnel, "common"
+ * pour les boutons génériques (back, continue). <Elements stripe={...}>
+ * utilise getStripe(i18n.language) au lieu du singleton stripePromise —
+ * Stripe affiche ses propres messages d'erreur dans la langue active.
  */
 function Transfer() {
     const { t, i18n } = useTranslation('transfer');
@@ -178,7 +176,7 @@ function Transfer() {
             <Elements stripe={getStripe(i18n.language)}>
             <Card title={stepTitle(step, t)}>
 
-                {/* ÉTAPE 1 : FORMULAIRE */}
+                {/* Étape 1 : formulaire */}
                 {step === 'form' && (
                     <div className="flex flex-col gap-5">
                         <BeneficiarySelector
@@ -280,7 +278,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ÉTAPE 2 : RÉCAPITULATIF */}
+                {/* Étape 2 : récapitulatif */}
                 {step === 'summary' && selectedBeneficiary && simulation && (
                     <div className="flex flex-col gap-5">
                         <TransferSummary
@@ -301,7 +299,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ÉTAPE 3 : PAIEMENT STRIPE */}
+                {/* Étape 3 : paiement Stripe */}
                 {step === 'payment' && simulation && (
                     <div className="flex flex-col gap-4">
                         <button
@@ -325,7 +323,7 @@ function Transfer() {
                     </div>
                 )}
 
-                {/* ÉTAPE 4 : SUCCÈS */}
+                {/* Étape 4 : succès */}
                 {step === 'success' && completedTransaction && (
                     <TransferSuccess transaction={completedTransaction} onNewTransfer={resetTunnel} />
                 )}

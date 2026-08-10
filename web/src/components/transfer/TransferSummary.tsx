@@ -14,10 +14,10 @@ export interface TransferSummaryProps {
 /**
  * Récapitulatif complet du transfert affiché avant le paiement.
  *
- * Migration i18n (Phase 8) : réutilise les clés "transfer.simulator.*"
- * pour les libellés financiers (déjà traduits en Phase 2 — éviter la
- * duplication entre simulateur et récapitulatif), et "transfer.summary.*"
- * pour les éléments propres à cette étape.
+ * Réutilise les clés "transfer.simulator.*" pour les libellés
+ * financiers (déjà traduits auparavant — évite la duplication entre
+ * simulateur et récapitulatif), et "transfer.summary.*" pour les
+ * éléments propres à cette étape.
  */
 function TransferSummary({ beneficiary, simulation, currencyFrom, selectedChannel }: TransferSummaryProps) {
     const { t } = useTranslation('transfer');

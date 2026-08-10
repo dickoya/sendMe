@@ -7,8 +7,7 @@ import Header from '@/components/layout/Header';
 /**
  * Layout des pages d'administration.
  *
- * Migration i18n (Phase 4) : même principe que PrivateLayout,
- * avec les clés common.nav.admin.*.
+ * Même principe que PrivateLayout, avec les clés common.nav.admin.*.
  */
 function AdminLayout() {
     const { t } = useTranslation('common');

@@ -19,9 +19,9 @@ import type { Transaction } from '@/types';
 /**
  * Page admin — toutes les transactions de la plateforme.
  *
- * Migration i18n (Phase 11) : namespace "admin" (clés transactions.*),
- * "transfer" pour les libellés financiers réutilisés dans la modale
- * de détail (cohérence avec History — Phase 9).
+ * Namespace "admin" (clés transactions.*), "transfer" pour les
+ * libellés financiers réutilisés dans la modale de détail
+ * (cohérence avec History).
  */
 function AdminTransactions() {
     const { t } = useTranslation('admin');

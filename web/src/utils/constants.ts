@@ -5,6 +5,15 @@ export const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
 export const API_BASE_URL = 'http://localhost:8080/api';
 
 /**
+ * Compte Stripe attendu (préfixe de compte extrait des clés Stripe).
+ * Utilisé par stripeService pour REFUSER toute clé publique d'un AUTRE compte —
+ * empêche un bundle frontend construit avec une ancienne clé (web/.env modifié
+ * sans relance/rebuild) d'envoyer des pm_ du mauvais compte au backend.
+ * À adapter uniquement si le compte Stripe du projet change.
+ */
+export const EXPECTED_STRIPE_ACCOUNT = '1U15b7';
+
+/**
  * Icônes par canal — statiques, indépendantes de la langue.
  */
 export const CHANNEL_ICONS: Record<ChannelType, string> = {

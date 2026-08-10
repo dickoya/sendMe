@@ -38,7 +38,7 @@ export const adminService = {
     },
 
     /**
-     * Infos debug du taux EUR -> XOF affichees dans le dashboard admin.
+     * Infos debug du taux EUR -> XOF affichées dans le dashboard admin.
      * GET /api/admin/debug/rate?from=EUR&to=XOF
      */
     async getExchangeRateDebug(from = 'EUR', to = 'XOF'): Promise<ExchangeRateDebug> {
@@ -81,7 +81,7 @@ export const adminService = {
 
     /**
      * Met à jour le taux de commission de la plateforme.
-     * Déclenche l'envoi d'un email à tous les utilisateurs actifs (Phase F backend).
+     * Déclenche l'envoi d'un email à tous les utilisateurs actifs.
      * PUT /api/admin/config/fees
      */
     async updateFeeRate(payload: FeeConfigPayload): Promise<void> {

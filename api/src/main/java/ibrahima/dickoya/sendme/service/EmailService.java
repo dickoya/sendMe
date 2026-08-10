@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
  *
  * Architecture :
  * - Une méthode privée centrale : sendHtmlEmail()
- * - Des méthodes publiques par type d'email (ajoutées phase par phase)
+ * - Des méthodes publiques par type d'email
  * - Toutes les méthodes publiques sont @Async pour ne pas bloquer les requêtes
  * HTTP
  *
@@ -74,47 +74,6 @@ public class EmailService {
          * Exemple : "09 juin 2025 à 14:32"
          */
         public static final DateTimeFormatter EMAIL_DATE_FORMAT = DateTimeFormatter.ofPattern("dd MMMM yyyy 'à' HH:mm");
-
-        /**
-         * Méthode de test — envoie un email simple pour vérifier
-         * que la configuration SMTP fonctionne correctement.
-         *
-         * À appeler UNE SEULE FOIS après la configuration
-         * pour valider la connexion Mailtrap.
-         * * Méthode de diagnostic — peut être réutilisée pour
-         * * tester la configuration SMTP en cas de problème futur.
-         * * Non exposée via API (endpoint supprimé après Phase A).
-         * 
-         * @param toEmail adresse email de destination pour le test
-         */
-        @Async
-        public void sendTestEmail(String toEmail) {
-                try {
-                        log.info("[EMAIL] Envoi de l'email de test vers : {}", toEmail);
-
-                        // Préparer le contexte Thymeleaf avec les variables du template
-                        Context context = new Context();
-                        context.setVariable("testDate",
-                                        LocalDateTime.now().format(EMAIL_DATE_FORMAT));
-                        context.setVariable("toEmail", toEmail);
-
-                        // Générer le HTML à partir du template Thymeleaf
-                        String htmlContent = templateEngine.process(
-                                        "emails/test", context);
-
-                        // Envoyer l'email
-                        sendHtmlEmail(
-                                        toEmail,
-                                        "✅ SendMe — Test de configuration email",
-                                        htmlContent);
-
-                        log.info("[EMAIL] Email de test envoyé avec succès vers : {}", toEmail);
-
-                } catch (Exception e) {
-                        log.error("[EMAIL] Échec envoi email de test : {}", e.getMessage());
-                        throw new RuntimeException("Échec envoi email de test : " + e.getMessage());
-                }
-        }
 
         /**
          * Envoie l'email de vérification après l'inscription.

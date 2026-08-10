@@ -10,9 +10,9 @@ export interface TransactionStatusBadgeProps {
 /**
  * Badge coloré affichant le statut d'une transaction.
  *
- * Migration i18n (Phase 9) : libellé via getStatusLabel(status, t)
- * (namespace "common"). STATUS_VARIANT reste inchangé — purement
- * visuel, indépendant de la langue.
+ * Libellé via getStatusLabel(status, t) (namespace "common").
+ * STATUS_VARIANT reste inchangé — purement visuel, indépendant
+ * de la langue.
  */
 function TransactionStatusBadge({ status }: TransactionStatusBadgeProps) {
     const { t } = useTranslation('common');

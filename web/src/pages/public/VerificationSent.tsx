@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Mail, ArrowLeft, RefreshCw, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
@@ -15,7 +15,6 @@ import { authService } from '@/services/authService';
 function VerificationSent() {
     const { t } = useTranslation('common');
     const location = useLocation();
-    const navigate = useNavigate();
     const email = (location.state as { email?: string })?.email || '';
 
     const [resendStatus, setResendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');

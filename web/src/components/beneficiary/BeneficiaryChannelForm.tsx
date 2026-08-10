@@ -3,7 +3,7 @@ import { X, Landmark, Hash, Globe, Smartphone } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import ChannelSelector from '@/components/transfer/ChannelSelector';
 import { COUNTRIES } from '@/utils/constants';
-import type { BeneficiaryChannelFormData, ChannelType } from '@/types';
+import type { BeneficiaryChannelFormData } from '@/types';
 
 export interface BeneficiaryChannelFormProps {
     index: number;

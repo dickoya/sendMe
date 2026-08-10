@@ -18,10 +18,9 @@ const ALL_CHANNELS: ChannelType[] = [
 /**
  * Graphique en barres horizontales de la répartition par canal.
  *
- * Migration i18n (Phase 11) : libellés via getChannelLabel (namespace
- * "common", déjà utilisé depuis la Phase 6) ; "Aucune donnée disponible"
- * via common.states.noData (clé déjà existante depuis Phase 2 — pas de
- * nouvelle clé nécessaire).
+ * Libellés via getChannelLabel (namespace "common", déjà utilisé
+ * auparavant) ; "Aucune donnée disponible" via common.states.noData
+ * (clé existante depuis le début — pas de nouvelle clé nécessaire).
  */
 function ChannelChart({ data }: ChannelChartProps) {
     const { t } = useTranslation('common');

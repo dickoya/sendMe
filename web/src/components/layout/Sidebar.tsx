@@ -16,8 +16,8 @@ export interface SidebarProps {
 /**
  * Barre latérale de navigation — variante utilisateur ou admin.
  *
- * Migration i18n (Phase 4) : tous les libellés proviennent du
- * namespace "common" (clés nav.*), partagé avec Header pour
+ * Tous les libellés proviennent du namespace "common" (clés nav.*),
+ * partagé avec Header pour
  * cohérence terminologique entre les deux composants.
  */
 function Sidebar({ isOpen, onClose, variant }: SidebarProps) {

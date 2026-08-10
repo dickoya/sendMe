@@ -161,30 +161,6 @@ class ExchangeRateServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("Tests de getAllDebugRates")
-    class GetAllDebugRatesTests {
-
-        @Test
-        @DisplayName("getAllDebugRates - Doit retourner une liste non vide")
-        void getAllDebugRates_ShouldReturnNonEmptyList() {
-            // Act
-            var rates = exchangeRateService.getAllDebugRates();
-
-            // Assert
-            assertThat(rates).isNotEmpty();
-        }
-
-        @Test
-        @DisplayName("getAllDebugRates - Chaque entrée doit contenir les champs requis")
-        void getAllDebugRates_ShouldContainRequiredFields() {
-            // Act
-            var rates = exchangeRateService.getAllDebugRates();
-
-            // Assert
-            for (var entry : rates) {
-                assertThat(entry).containsKeys("from", "to", "rawRate", "marginRate", "cacheTimestamp");
-            }
-        }
-    }
 }
+
+

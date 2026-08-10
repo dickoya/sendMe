@@ -16,11 +16,11 @@ const PERIOD_OPTIONS: PeriodOption[] = [7, 30, 90];
 /**
  * Tableau de bord administrateur.
  *
- * Migration i18n (Phase 11) : namespace "admin" (clés dashboard.*),
+ * Namespace "admin" (clés dashboard.*),
  * "common" pour l'état de chargement.
  *
- * Étape : ajout des graphiques interactifs (volume,
- * répartition par canal, taux de succès) avec filtres de période.
+ * Affiche des graphiques interactifs (volume, répartition par canal,
+ * taux de succès) avec filtres de période.
  */
 function AdminDashboard() {
     const { t } = useTranslation('admin');

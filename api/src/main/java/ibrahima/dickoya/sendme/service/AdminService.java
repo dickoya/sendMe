@@ -1,6 +1,5 @@
 package ibrahima.dickoya.sendme.service;
 
-import ibrahima.dickoya.sendme.annotation.Auditable;
 import ibrahima.dickoya.sendme.dto.request.FeeConfigRequest;
 import ibrahima.dickoya.sendme.dto.response.DashboardResponse;
 import ibrahima.dickoya.sendme.dto.response.SuccessRateDataPoint;
@@ -198,7 +197,6 @@ public class AdminService {
          * @return UserResponse l'utilisateur mis à jour
          */
         @Transactional
-        @Auditable(action = "USER_TOGGLE", entityType = "USER", entityIdExpression = "#userId")
         public UserResponse toggleUserStatus(Long userId) {
 
                 User user = userRepository.findById(userId)
@@ -272,7 +270,6 @@ public class AdminService {
          *
          * @param request le nouveau taux et la raison du changement
          */
-        @Auditable(action = "FEE_UPDATE", entityType = "CONFIG")
         public void updateFeeRate(FeeConfigRequest request) {
 
                 // Récupérer l'ancien taux AVANT la mise à jour
@@ -369,7 +366,6 @@ public class AdminService {
          * @param duration        durée estimée (ex: "2 heures")
          */
         @Transactional(readOnly = true)
-        @Auditable(action = "MAINTENANCE", entityType = "NOTIFICATION")
         public void sendMaintenanceNotification(
                         String maintenanceDate,
                         String duration) {
@@ -446,7 +442,6 @@ public class AdminService {
          * @return nombre de comptes modifiés avec succès
          */
         @Transactional
-        @Auditable(action = "BATCH_TOGGLE", entityType = "USER")
         public int batchToggleUsers(List<Long> userIds, boolean suspend) {
                 int count = 0;
                 for (Long userId : userIds) {

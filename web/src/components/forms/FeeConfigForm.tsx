@@ -10,7 +10,7 @@ import { getErrorMessage } from '@/lib/utils';
 /**
  * Formulaire de modification du taux de commission.
  *
- * Migration i18n (Phase 11) : namespace "admin" (clés settings.fees.*).
+ * Namespace "admin" (clés settings.fees.*).
  */
 function FeeConfigForm() {
     const { t } = useTranslation('admin');

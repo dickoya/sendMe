@@ -11,7 +11,7 @@ export interface NotificationListProps {
 /**
  * Liste de notifications avec état vide illustré.
  *
- * Migration i18n (Phase 10) : namespace "notifications" (clés empty.*).
+ * Namespace "notifications" (clés empty.*).
  */
 function NotificationList({ notifications, onItemClick }: NotificationListProps) {
     const { t } = useTranslation('notifications');

@@ -17,8 +17,8 @@ import type { Beneficiary, BeneficiaryFormData } from '@/types';
 /**
  * Page de gestion du carnet de bénéficiaires (CRUD complet avec pagination).
  *
- * Migration i18n (Phase 7) : namespace "beneficiaries" pour le contenu
- * propre à la page, "common" pour les actions/boutons génériques.
+ * Namespace "beneficiaries" pour le contenu propre à la page,
+ * "common" pour les actions/boutons génériques.
  */
 function Beneficiaries() {
     const { t } = useTranslation('beneficiaries');

@@ -12,9 +12,9 @@ export interface NotificationItemProps {
 /**
  * Ligne de notification individuelle.
  *
- * Migration i18n (Phase 10) : le message affiché provient de
- * getNotificationMessage() (reconstruction frontend — Option A),
- * et non plus de notification.message (FR backend brut).
+ * Le message affiché provient de getNotificationMessage()
+ * (reconstruction frontend), et non plus de notification.message
+ * (texte FR brut envoyé par le backend).
  */
 function NotificationItem({ notification, onClick }: NotificationItemProps) {
     const { t } = useTranslation('notifications');

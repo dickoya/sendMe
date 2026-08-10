@@ -20,10 +20,9 @@ const STATUSES: (TransactionStatus | 'ALL')[] = [
 /**
  * Barre de filtres par statut sous forme de pills cliquables.
  *
- * Migration i18n (Phase 9) : "ALL" est traité comme une clé de statut
- * à part entière dans common.json (status.ALL = "Toutes"/"All"),
- * donc getStatusLabel() fonctionne uniformément pour toutes les
- * valeurs sans cas particulier.
+ * "ALL" est traité comme une clé de statut à part entière dans
+ * common.json (status.ALL = "Toutes"/"All"), donc getStatusLabel()
+ * fonctionne uniformément pour toutes les valeurs, sans cas particulier.
  */
 function StatusFilter({ value, onChange }: StatusFilterProps) {
     const { t } = useTranslation('common');

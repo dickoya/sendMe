@@ -17,7 +17,6 @@ import {
     XCircle,
     Monitor,
     AlertTriangle,
-    Gift,
     Ticket,
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
@@ -28,7 +27,6 @@ import Avatar from '@/components/ui/Avatar';
 import Alert from '@/components/ui/Alert';
 import EmptyState from '@/components/ui/EmptyState';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
-import Modal from '@/components/ui/Modal';
 import { useAuth } from '@/store/auth/authContext';
 import { useTheme } from '@/store/theme/themeContext';
 import { useToast } from '@/store/notification/toastContext';

@@ -91,13 +91,10 @@ export const notificationService = {
                     const lines = buffer.split('\n');
                     buffer = '';
 
-                    let currentEvent = '';
                     let currentData = '';
 
                     for (const line of lines) {
-                        if (line.startsWith('event: ')) {
-                            currentEvent = line.slice(7).trim();
-                        } else if (line.startsWith('data: ')) {
+                        if (line.startsWith('data: ')) {
                             currentData = line.slice(6).trim();
                         } else if (line === '' && currentData) {
                             // Fin d'un événement SSE
@@ -107,7 +104,6 @@ export const notificationService = {
                             } catch {
                                 // Ignorer les événements non-JSON (ex: CONNECTED)
                             }
-                            currentEvent = '';
                             currentData = '';
                         }
                     }

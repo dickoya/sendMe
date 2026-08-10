@@ -14,7 +14,7 @@ export interface ChannelDetailsFormProps {
 /**
  * Sous-formulaire affichant les champs adaptés au canal sélectionné.
  *
- * Migration i18n (Phase 7) : namespace "beneficiaries" (clés form.*).
+ * Namespace "beneficiaries" (clés form.*).
  */
 function ChannelDetailsForm({
                                 channel,

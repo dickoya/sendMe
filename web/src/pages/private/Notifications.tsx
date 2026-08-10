@@ -9,7 +9,7 @@ import { useNotification } from '@/store/notification/notificationContext';
 /**
  * Centre de notifications complet.
  *
- * Migration i18n (Phase 10) : namespace "notifications".
+ * Namespace "notifications".
  */
 function Notifications() {
     const { t } = useTranslation('notifications');

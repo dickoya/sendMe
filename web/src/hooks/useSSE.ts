@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import type { Notification, NotificationType } from '@/types';
+import type { Notification } from '@/types';
 import { notificationService } from '@/services/notificationService';
 
 type SSEEventHandler = (notification: Notification) => void;

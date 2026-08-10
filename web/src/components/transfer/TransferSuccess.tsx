@@ -13,7 +13,7 @@ export interface TransferSuccessProps {
 /**
  * Écran de confirmation affiché après un transfert COMPLETED.
  *
- * Migration i18n (Phase 8) : namespace "transfer" (clés success.*).
+ * Namespace "transfer" (clés success.*).
  */
 function TransferSuccess({ transaction, onNewTransfer }: TransferSuccessProps) {
     const { t } = useTranslation('transfer');

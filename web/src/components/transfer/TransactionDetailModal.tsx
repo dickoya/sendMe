@@ -21,9 +21,9 @@ export interface TransactionDetailModalProps {
 /**
  * Modale de détail complet d'une transaction.
  *
- * Migration i18n (Phase 9) : namespace "history" pour les libellés
- * propres à cette modale, "transfer" pour les libellés financiers
- * réutilisés (amountSent, exchangeRate — déjà traduits en Phase 8,
+ * Namespace "history" pour les libellés propres à cette modale,
+ * "transfer" pour les libellés financiers réutilisés
+ * (amountSent, exchangeRate — déjà traduits auparavant,
  * évite la duplication).
  */
 function TransactionDetailModal({

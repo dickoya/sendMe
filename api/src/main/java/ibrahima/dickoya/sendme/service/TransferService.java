@@ -220,10 +220,12 @@ public class TransferService {
                                 simulation);
 
                 // ÉTAPE 5 : Débiter la carte via Stripe
-                PaymentIntent paymentIntent = debitCard(totalToDebit, request, transaction, user);
-                if (paymentIntent == null) {
-                        // Le paiement a échoué, la transaction FAILED a déjà été retournée
-                        return null; // Ne devrait pas arriver car debitCard retourne via return
+                TransactionResponse failedResponse = debitCard(totalToDebit, request, transaction, user);
+                if (failedResponse != null) {
+                        // Le paiement a échoué : la transaction FAILED a déjà été persistée
+                        // et notifiée. On la retourne pour que le contrôleur puisse renvoyer
+                        // une erreur 400 avec le message Stripe explicite.
+                        return failedResponse;
                 }
 
                 // NOTIFICATION 1 : Transfert initié
@@ -236,7 +238,7 @@ public class TransferService {
                 TransferStrategy strategy = resolveStrategy(selectedChannel);
                 if (strategy == null) {
                         return refundStripeAndFail(
-                                        paymentIntent.getId(),
+                                        transaction.getStripePaymentIntentId(),
                                         transaction,
                                         user,
                                         messageUtils.get("error.transfer.channel.unsupported",
@@ -252,7 +254,7 @@ public class TransferService {
                         return handleSuccessfulStrategy(transaction, user, simulation, request);
                 } else {
                         log.error("Strategie echouee : {}. Remboursement en cours...", result.getMessage());
-                        return refundStripeAndFail(paymentIntent.getId(), transaction, user, result.getMessage());
+                        return refundStripeAndFail(transaction.getStripePaymentIntentId(), transaction, user, result.getMessage());
                 }
         }
 
@@ -398,15 +400,17 @@ public class TransferService {
         /**
          * Débite la carte via Stripe.
          * En cas d'échec, marque la transaction comme FAILED, notifie l'utilisateur
-         * et retourne null.
+         * et retourne la réponse correspondante (statut FAILED) afin que le
+         * contrôleur puisse renvoyer une erreur 400 avec le message Stripe explicite.
          *
          * @param totalToDebit le montant total à débiter
          * @param request      la requête de transfert
          * @param transaction  la transaction associée
          * @param user         l'utilisateur à notifier en cas d'échec
-         * @return le PaymentIntent si réussi, null si échec (transaction déjà gérée)
+         * @return TransactionResponse de la transaction FAILED si le paiement échoue,
+         *         null si le paiement a réussi
          */
-        private PaymentIntent debitCard(BigDecimal totalToDebit, TransferRequest request,
+        private TransactionResponse debitCard(BigDecimal totalToDebit, TransferRequest request,
                         Transaction transaction, User user) {
                 log.info("[STRIPE] Debit de {} {} sur la carte", totalToDebit, request.getCurrency());
 
@@ -431,7 +435,7 @@ public class TransferService {
                                 emailService.sendTransferFailedEmail(user, failedTransaction,
                                                 "Paiement non confirme par Stripe. Statut : "
                                                                 + paymentIntent.getStatus());
-                                return null;
+                                return toResponse(failedTransaction);
                         }
 
                         log.info("[STRIPE] Carte debitee avec succes. PaymentIntent : {}", paymentIntent.getId());
@@ -441,7 +445,7 @@ public class TransferService {
                         transaction.setStripePaymentStatus(paymentIntent.getStatus());
                         transactionRepository.save(transaction);
 
-                        return paymentIntent;
+                        return null;
 
                 } catch (StripeException e) {
                         log.error("[STRIPE] Paiement refuse : {}", e.getMessage());
@@ -455,7 +459,7 @@ public class TransferService {
                                         NotificationType.TRANSFER_FAILED,
                                         failedTransaction);
                         emailService.sendTransferFailedEmail(user, failedTransaction, e.getMessage());
-                        return null;
+                        return toResponse(failedTransaction);
                 }
         }
 

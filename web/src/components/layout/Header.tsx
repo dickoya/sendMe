@@ -14,12 +14,11 @@ export interface HeaderProps {
 /**
  * En-tête commun aux layouts privé et admin.
  *
- * Migration i18n (Phase 4) : "Déconnexion" et le aria-label du bouton
- * menu mobile proviennent du namespace "common".
+ * Le libellé « Déconnexion » et le aria-label du bouton menu mobile
+ * proviennent du namespace "common".
  *
  * Note : `title`, s'il est fourni par les pages (PrivateLayout/AdminLayout),
- * reste de la responsabilité de la page appelante de le traduire —
- * voir Phases 6-11 pour la migration des titres de page.
+ * reste de la responsabilité de la page appelante de le traduire.
  */
 function Header({ title, onMenuClick }: HeaderProps) {
     const { t } = useTranslation('common');
