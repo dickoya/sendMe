@@ -339,6 +339,42 @@ strategy.failure-rate=5
 
 ---
 
+## Déploiement (Railway)
+
+Le backend est déployé sur **Railway** avec une base **MySQL Aiven** (externe).
+
+- **Root Directory** : `api`
+- **Builder** : Railpack / Nixpacks
+- **Start Command** : `java -jar target/sendme-0.0.1-SNAPSHOT.jar`
+
+**Variables Railway (Backend) :**
+
+```env
+DB_URL=jdbc:mysql://<HOST>:<PORT>/<DB>?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_USER=<USER>
+DB_PASSWORD=<PASSWORD>
+FRONTEND_URL=https://<frontend-url>
+CORS_ALLOWED_ORIGINS=https://<frontend-url>
+STRIPE_RETURN_URL=https://<frontend-url>/payment/callback
+JWT_SECRET=<une chaîne aléatoire ≥32 caractères>
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+OPENEXCHANGE_APP_ID=...
+SPRING_MAIL_HOST=smtp-relay.brevo.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=...
+SPRING_MAIL_PASSWORD=...
+APP_MAIL_FROM=...
+APP_MAIL_NAME=SendMe
+```
+
+Au premier démarrage, **Flyway** applique les migrations (V1 → V26). L'API écoute sur le port injecté par Railway (`server.port=${PORT:8080}` dans `application.properties`).
+
+> 💡 **Base de données MySQL 8.4+** : les requêtes natives doivent utiliser `CAST(... AS SIGNED)` (MySQL ne supporte pas `AS INTEGER`).
+
+---
+
 ## Tests
 
 ```powershell

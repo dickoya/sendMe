@@ -105,6 +105,96 @@ npm run dev
 L'application est disponible sur `http://localhost:5173`.
 
 ---
+## Déploiement (Production)
+
+L'application est déployée sur **Railway** (backend + frontend) avec une base **MySQL Aiven** (externe).
+
+### Architecture
+
+| Service | Plateforme | Root Directory | Description |
+|---|---|---|---|
+| **Backend** (`api`) | Railway | `api` | API Spring Boot (Java 21 / Maven) |
+| **Frontend** (`web`) | Railway (ou Vercel) | `web` | React + Vite (build statique) |
+| **Base MySQL** | Aiven (Hobbyist, gratuit) | — | Base de données relationnelle |
+
+> ⚠️ Sur Railway, **sans plan gratuit** : le plan gratuit met les services en veille et limite le réseau privé → utiliser une base **Aiven** (hôte public) est la solution fiable.
+
+### 1. Créer la base MySQL sur Aiven
+
+1. [console.aiven.io](https://console.aiven.io) → **Create service** → **MySQL** → plan **Hobbyist** (gratuit).
+2. Note les infos : **Host**, **Port**, **Database**, **User**, **Password** (SSL requis).
+
+### 2. Services Railway (2 services dans un même projet)
+
+**Backend** — `Settings` :
+- **Root Directory** : `api`
+- **Builder** : Railpack / Nixpacks
+- **Start Command** : `java -jar target/sendme-0.0.1-SNAPSHOT.jar`
+
+**Frontend** — `Settings` :
+- **Root Directory** : `web`
+- **Builder** : Railpack / Nixpacks (Vite détecté automatiquement)
+
+### 3. Variables d'environnement
+
+**Backend → Variables :**
+
+```env
+# Base de données (Aiven)
+DB_URL=jdbc:mysql://<HOST>:<PORT>/<DB>?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+DB_USER=<USER>
+DB_PASSWORD=<PASSWORD>
+
+# URLs
+FRONTEND_URL=https://<frontend-url>
+CORS_ALLOWED_ORIGINS=https://<frontend-url>
+STRIPE_RETURN_URL=https://<frontend-url>/payment/callback
+
+# Sécurité / services
+JWT_SECRET=<une chaîne aléatoire ≥32 caractères>
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+OPENEXCHANGE_APP_ID=...
+
+# Email (Brevo)
+SPRING_MAIL_HOST=smtp-relay.brevo.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=...
+SPRING_MAIL_PASSWORD=...
+APP_MAIL_FROM=...
+APP_MAIL_NAME=SendMe
+```
+
+**Frontend → Variables :**
+
+```env
+VITE_API_BASE_URL=https://<backend-url>/api
+VITE_STRIPE_PUBLIC_KEY=pk_test_...
+```
+
+> ⚠️ `VITE_API_BASE_URL` est figée au **build** (Vite). Il faut **Redeploy** le frontend après toute modification de cette variable.
+
+### 4. Générer les domaines + CORS
+
+- **Backend → Networking → Generate Domain** → note l'URL.
+- **Frontend → Networking → Generate Domain** → note l'URL.
+- Mets l'URL du **frontend** dans `CORS_ALLOWED_ORIGINS` du backend (sans slash final).
+- Vérifie que `VITE_API_BASE_URL` pointe vers le **backend** (`https://<backend-url>/api`).
+
+### 5. Redéploiement
+
+- Railway redéploie automatiquement à chaque `git push` sur `main`.
+- Au premier démarrage, **Flyway** applique les migrations (V1 → V26) : création des tables + compte admin.
+
+### 6. Vérifications
+
+- API / Swagger : `https://<backend-url>/swagger-ui/index.html`
+- Frontend : `https://<frontend-url>` → page de connexion
+- Admin : `admin@sendme.com` / `Admin@sendme2025`
+
+---
+
 
 ## Canaux supportés
 

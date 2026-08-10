@@ -237,6 +237,29 @@ Le transfert se déroule en 4 étapes dans un tunnel dédié :
 
 ---
 
+## Déploiement (Railway / Vercel)
+
+Le frontend (React + Vite) est un **site statique** : après `npm run build`, il peut être hébergé sur **Railway** (même projet que le backend) ou sur **Vercel** (gratuit).
+
+- **Root Directory** : `web`
+- **Builder** : Railpack / Nixpacks (détection Vite) — ou Vercel avec `npm run build` / `dist`.
+
+**Variables d'environnement (au moment du build) :**
+
+```env
+VITE_API_BASE_URL=https://<backend-url>/api
+VITE_STRIPE_PUBLIC_KEY=pk_test_...
+```
+
+> ⚠️ **`VITE_API_BASE_URL` est figée au moment du build** (Vite l'injecte via `import.meta.env`). Après toute modification de cette variable, il faut **Redéployer** le frontend, sinon l'ancien bundle (avec l'ancienne URL) reste servi.
+>
+> `VITE_API_BASE_URL` doit pointer vers le **backend** (`https://<backend-url>/api`), pas vers le frontend — sinon erreur `405 Method Not Allowed` à la connexion.
+
+**Routage SPA :** pour les URLs profondes (`/login`, `/dashboard`, …), un fichier de routage est fourni :
+- Vercel : `vercel.json` (rewrites vers `index.html`).
+
+---
+
 ## Scripts disponibles
 
 ```powershell
