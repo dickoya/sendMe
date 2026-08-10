@@ -2,7 +2,7 @@ import type { ChannelType, TransactionStatus, NotificationType } from '@/types';
 import type { TFunction } from 'i18next';
 
 export const STRIPE_PUBLIC_KEY = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
-export const API_BASE_URL = 'http://localhost:8080/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
 /**
  * Compte Stripe attendu (préfixe de compte extrait des clés Stripe).
