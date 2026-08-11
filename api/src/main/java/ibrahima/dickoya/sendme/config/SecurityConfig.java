@@ -54,6 +54,9 @@ public class SecurityConfig {
             // Stripe Webhook
             "/api/webhooks/**",
 
+            // Health check public (keep-alive contre le cold start Railway)
+            "/api/health",
+
             // Swagger UI / OpenAPI / Actuator
             "/swagger-ui.html",
             "/swagger-ui/**",
