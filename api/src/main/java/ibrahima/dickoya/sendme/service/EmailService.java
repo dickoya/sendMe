@@ -1,11 +1,9 @@
 package ibrahima.dickoya.sendme.service;
 
-import jakarta.mail.internet.MimeMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
@@ -13,8 +11,16 @@ import org.thymeleaf.context.Context;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.entity.Transaction;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service central gérant l'envoi de tous les emails transactionnels SendMe.
@@ -26,13 +32,17 @@ import java.time.format.DateTimeFormatter;
  * HTTP
  *
  * Stack technique :
- * - JavaMailSender : client SMTP fourni par Spring Boot
+ * - HttpClient (JDK) : appel de l'API REST Brevo en HTTPS (port 443)
  * - TemplateEngine : moteur Thymeleaf pour générer le HTML des emails
- * - MimeMessageHelper : helper Spring pour construire les emails HTML
  *
- * En sandbox Mailtrap :
- * Aucun vrai email n'est envoyé — tout est intercepté et visible
- * dans la boîte Mailtrap pour vérification et débogage.
+ * Pourquoi une API HTTP plutôt que SMTP ?
+ * Railway bloque les connexions sortantes SMTP (ports 25/465/587),
+ * alors que le trafic HTTPS (443) est autorisé. On envoie donc les
+ * emails via l'API Brevo : POST https://api.brevo.com/v3/smtp/email
+ *
+ * En local (sans BREVO_API_KEY) :
+ * Aucun vrai email n'est envoyé — la méthode sendHtmlEmail() lève
+ * une exception attrapée par les méthodes publiques (log d'erreur).
  */
 @Service
 @RequiredArgsConstructor
@@ -40,18 +50,33 @@ import java.time.format.DateTimeFormatter;
 public class EmailService {
 
         /**
-         * Client SMTP injecté par Spring Boot.
-         * Configuré automatiquement via les propriétés spring.mail.*
-         * dans application-local.properties.
-         */
-        private final JavaMailSender mailSender;
-
-        /**
          * Moteur de templates Thymeleaf.
          * Transforme les fichiers HTML (templates/emails/*.html)
          * en emails HTML personnalisés avec les variables de contexte.
          */
         private final TemplateEngine templateEngine;
+
+        /**
+         * ObjectMapper Jackson pour sérialiser le corps JSON de l'API Brevo.
+         * Fourni automatiquement par Spring Boot (spring-boot-starter-web).
+         */
+        private final ObjectMapper objectMapper;
+
+        /**
+         * Client HTTP natif (JDK) utilisé pour appeler l'API Brevo en HTTPS (port 443).
+         * Non injecté : initialisé en interne, mais jamais utilisé quand BREVO_API_KEY
+         * est absente (ce qui évite tout appel réseau dans les tests unitaires).
+         */
+        private final HttpClient httpClient = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(15))
+                .build();
+
+        /**
+         * Clé API Brevo (commence par "xkeysib-...") pour l'envoi via HTTPS.
+         * Surchargée via la variable d'environnement BREVO_API_KEY.
+         */
+        @Value("${brevo.api-key:}")
+        private String brevoApiKey;
 
         /**
          * Adresse email de l'expéditeur.
@@ -319,46 +344,62 @@ public class EmailService {
          * Méthode centrale privée pour envoyer un email HTML.
          *
          * Toutes les méthodes publiques de ce service appellent
-         * cette méthode pour l'envoi effectif via SMTP.
+         * cette méthode pour l'envoi effectif.
          *
-         * Paramètres MimeMessageHelper :
-         * - multipart = true : nécessaire pour les emails HTML avec pièces jointes
-         * - encoding = UTF-8 : support des caractères accentués (français)
+         * Envoi via l'API REST Brevo en HTTPS (port 443) :
+         * POST https://api.brevo.com/v3/smtp/email
+         *
+         * Pourquoi une API HTTP plutôt que SMTP ?
+         * Railway bloque les connexions sortantes SMTP (ports 25/465/587),
+         * alors que le trafic HTTPS (443) est autorisé.
          *
          * @param to          adresse email du destinataire
          * @param subject     objet de l'email affiché dans le client email
          * @param htmlContent contenu HTML généré par Thymeleaf
-         * @throws Exception si l'envoi SMTP échoue
+         * @throws Exception si l'envoi échoue
          */
         protected void sendHtmlEmail(
                         String to,
                         String subject,
                         String htmlContent) throws Exception {
 
-                // Créer le message MIME (format standard des emails HTML)
-                MimeMessage message = mailSender.createMimeMessage();
+                // Sécurité : ne rien envoyer si la clé API Brevo n'est pas configurée
+                if (brevoApiKey == null || brevoApiKey.isBlank()) {
+                        log.warn("[EMAIL] BREVO_API_KEY non configurée — email non envoyé à {}", to);
+                        throw new IllegalStateException(
+                                        "BREVO_API_KEY non configurée, impossible d'envoyer l'email");
+                }
 
-                // Helper Spring pour construire facilement le message
-                MimeMessageHelper helper = new MimeMessageHelper(
-                                message,
-                                true, // multipart = true pour supporter HTML + pièces jointes
-                                "UTF-8" // encodage pour les accents et caractères spéciaux
-                );
+                // Construire la charge utile JSON attendue par l'API Brevo
+                Map<String, Object> payload = new LinkedHashMap<>();
+                payload.put("sender", Map.of(
+                                "name", fromName == null ? "SendMe" : fromName,
+                                "email", fromEmail));
+                payload.put("to", List.of(Map.of("email", to)));
+                payload.put("subject", subject);
+                payload.put("htmlContent", htmlContent);
 
-                // Expéditeur affiché : "SendMe <noreply@sendme.com>"
-                helper.setFrom(fromEmail, fromName);
+                String json = objectMapper.writeValueAsString(payload);
 
-                // Destinataire
-                helper.setTo(to);
+                // Requête HTTPS vers l'API Brevo (port 443, autorisé par Railway)
+                HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                                .timeout(Duration.ofSeconds(30))
+                                .header("Accept", "application/json")
+                                .header("Content-Type", "application/json")
+                                .header("api-key", brevoApiKey)
+                                .POST(HttpRequest.BodyPublishers.ofString(json))
+                                .build();
 
-                // Objet de l'email
-                helper.setSubject(subject);
+                HttpResponse<String> response = httpClient.send(
+                                request,
+                                HttpResponse.BodyHandlers.ofString());
 
-                // Corps de l'email en HTML (true = HTML, false = texte brut)
-                helper.setText(htmlContent, true);
-
-                // Envoyer via SMTP (Mailtrap en sandbox)
-                mailSender.send(message);
+                if (response.statusCode() != 201) {
+                        throw new RuntimeException(
+                                        "Brevo a répondu " + response.statusCode()
+                                                        + " : " + response.body());
+                }
 
                 log.debug("[EMAIL] Email envoyé → {} | Objet : {}", to, subject);
         }

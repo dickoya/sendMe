@@ -1,47 +1,50 @@
 package ibrahima.dickoya.sendme.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ibrahima.dickoya.sendme.entity.Beneficiary;
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.entity.User;
 import ibrahima.dickoya.sendme.enums.ChannelType;
-import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+/**
+ * Tests unitaires pour EmailService.
+ *
+ * Note : EmailService envoie désormais les emails via l'API REST Brevo (HTTPS,
+ * port 443) et non plus via SMTP. Ces tests ne font AUCUN appel réseau : la clé
+ * BREVO_API_KEY n'étant pas configurée dans le test, la méthode interne
+ * sendHtmlEmail() court-circuite l'envoi (exception attrapée par les méthodes
+ * publiques). On vérifie donc que le bon template Thymeleaf est bien généré.
+ */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tests unitaires pour EmailService")
 class EmailServiceTest {
 
     @Mock
-    private JavaMailSender mailSender;
+    private TemplateEngine templateEngine;
 
     @Mock
-    private TemplateEngine templateEngine;
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private EmailService emailService;
-
-    @Captor
-    private ArgumentCaptor<Context> contextCaptor;
 
     private User user;
     private Transaction transaction;
@@ -86,33 +89,27 @@ class EmailServiceTest {
     class SendEmailVerificationEmailTests {
 
         @Test
-        @DisplayName("sendEmailVerificationEmail - Doit envoyer l'email de vérification")
-        void sendEmailVerificationEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template email-verification")
+        void shouldProcessEmailVerificationTemplate() {
             when(templateEngine.process(eq("emails/email-verification"), any(Context.class)))
                     .thenReturn("<html>Vérification</html>");
 
-            // Act
             emailService.sendEmailVerificationEmail(user, "token-123");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/email-verification"), any(Context.class));
         }
 
         @Test
-        @DisplayName("sendEmailVerificationEmail - Ne doit pas bloquer si l'envoi échoue")
-        void sendEmailVerificationEmail_ShouldNotThrow_WhenSendingFails() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Ne doit pas lever d'exception si l'envoi échoue (pas de BREVO_API_KEY)")
+        void shouldNotThrowWhenSendingFails() {
             when(templateEngine.process(eq("emails/email-verification"), any(Context.class)))
                     .thenReturn("<html>Vérification</html>");
-            doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(MimeMessage.class));
 
-            // Act (ne doit pas lever d'exception)
+            // Aucune BREVO_API_KEY configurée : sendHtmlEmail() lève une exception,
+            // mais la méthode publique ne doit pas la propager.
             emailService.sendEmailVerificationEmail(user, "token-123");
+
+            verify(templateEngine).process(eq("emails/email-verification"), any(Context.class));
         }
     }
 
@@ -121,19 +118,14 @@ class EmailServiceTest {
     class SendWelcomeEmailTests {
 
         @Test
-        @DisplayName("sendWelcomeEmail - Doit envoyer l'email de bienvenue avec le code de parrainage")
-        void sendWelcomeEmail_ShouldSendWithReferralCode() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template welcome")
+        void shouldProcessWelcomeTemplate() {
             when(templateEngine.process(eq("emails/welcome"), any(Context.class)))
                     .thenReturn("<html>Bienvenue</html>");
 
-            // Act
             emailService.sendWelcomeEmail(user);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/welcome"), any(Context.class));
         }
     }
 
@@ -142,19 +134,14 @@ class EmailServiceTest {
     class SendLoginAlertEmailTests {
 
         @Test
-        @DisplayName("sendLoginAlertEmail - Doit envoyer l'alerte de connexion")
-        void sendLoginAlertEmail_ShouldSendAlert() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template login-alert")
+        void shouldProcessLoginAlertTemplate() {
             when(templateEngine.process(eq("emails/login-alert"), any(Context.class)))
                     .thenReturn("<html>Alerte</html>");
 
-            // Act
             emailService.sendLoginAlertEmail(user, "192.168.1.1");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/login-alert"), any(Context.class));
         }
     }
 
@@ -163,19 +150,14 @@ class EmailServiceTest {
     class SendSuspiciousLoginEmailTests {
 
         @Test
-        @DisplayName("sendSuspiciousLoginEmail - Doit envoyer l'alerte d'activité suspecte")
-        void sendSuspiciousLoginEmail_ShouldSendAlert() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template suspicious-login")
+        void shouldProcessSuspiciousLoginTemplate() {
             when(templateEngine.process(eq("emails/suspicious-login"), any(Context.class)))
                     .thenReturn("<html>Suspect</html>");
 
-            // Act
             emailService.sendSuspiciousLoginEmail(user, "192.168.1.1", 5);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/suspicious-login"), any(Context.class));
         }
     }
 
@@ -184,19 +166,14 @@ class EmailServiceTest {
     class SendTransferInitiatedEmailTests {
 
         @Test
-        @DisplayName("sendTransferInitiatedEmail - Doit envoyer l'email d'initiation")
-        void sendTransferInitiatedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template transfer-initiated")
+        void shouldProcessTransferInitiatedTemplate() {
             when(templateEngine.process(eq("emails/transfer-initiated"), any(Context.class)))
                     .thenReturn("<html>Initiation</html>");
 
-            // Act
             emailService.sendTransferInitiatedEmail(user, transaction);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/transfer-initiated"), any(Context.class));
         }
     }
 
@@ -205,40 +182,31 @@ class EmailServiceTest {
     class SendTransferCompletedEmailTests {
 
         @Test
-        @DisplayName("sendTransferCompletedEmail - Doit envoyer l'email de confirmation")
-        void sendTransferCompletedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template transfer-completed")
+        void shouldProcessTransferCompletedTemplate() {
             when(templateEngine.process(eq("emails/transfer-completed"), any(Context.class)))
                     .thenReturn("<html>Complété</html>");
 
-            // Act
             emailService.sendTransferCompletedEmail(user, transaction);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/transfer-completed"), any(Context.class));
         }
     }
+
 
     @Nested
     @DisplayName("Tests de sendTransferFailedEmail")
     class SendTransferFailedEmailTests {
 
         @Test
-        @DisplayName("sendTransferFailedEmail - Doit envoyer l'email d'échec")
-        void sendTransferFailedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template transfer-failed")
+        void shouldProcessTransferFailedTemplate() {
             when(templateEngine.process(eq("emails/transfer-failed"), any(Context.class)))
                     .thenReturn("<html>Échec</html>");
 
-            // Act
             emailService.sendTransferFailedEmail(user, transaction, "Erreur de transfert");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/transfer-failed"), any(Context.class));
         }
     }
 
@@ -247,19 +215,14 @@ class EmailServiceTest {
     class SendTransferRefundedEmailTests {
 
         @Test
-        @DisplayName("sendTransferRefundedEmail - Doit envoyer l'email de remboursement")
-        void sendTransferRefundedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template transfer-refunded")
+        void shouldProcessTransferRefundedTemplate() {
             when(templateEngine.process(eq("emails/transfer-refunded"), any(Context.class)))
                     .thenReturn("<html>Remboursement</html>");
 
-            // Act
             emailService.sendTransferRefundedEmail(user, transaction);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/transfer-refunded"), any(Context.class));
         }
     }
 
@@ -268,19 +231,14 @@ class EmailServiceTest {
     class SendPaymentConfirmedEmailTests {
 
         @Test
-        @DisplayName("sendPaymentConfirmedEmail - Doit envoyer l'email de confirmation de paiement")
-        void sendPaymentConfirmedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template payment-confirmed")
+        void shouldProcessPaymentConfirmedTemplate() {
             when(templateEngine.process(eq("emails/payment-confirmed"), any(Context.class)))
                     .thenReturn("<html>Paiement confirmé</html>");
 
-            // Act
             emailService.sendPaymentConfirmedEmail(user, transaction);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/payment-confirmed"), any(Context.class));
         }
     }
 
@@ -289,40 +247,31 @@ class EmailServiceTest {
     class SendPaymentFailedEmailTests {
 
         @Test
-        @DisplayName("sendPaymentFailedEmail - Doit envoyer l'email d'échec de paiement")
-        void sendPaymentFailedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template payment-failed")
+        void shouldProcessPaymentFailedTemplate() {
             when(templateEngine.process(eq("emails/payment-failed"), any(Context.class)))
                     .thenReturn("<html>Paiement refusé</html>");
 
-            // Act
             emailService.sendPaymentFailedEmail(user, transaction, "Carte refusée");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/payment-failed"), any(Context.class));
         }
     }
+
 
     @Nested
     @DisplayName("Tests de sendAccountDisabledEmail")
     class SendAccountDisabledEmailTests {
 
         @Test
-        @DisplayName("sendAccountDisabledEmail - Doit envoyer l'email de suspension")
-        void sendAccountDisabledEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template account-disabled")
+        void shouldProcessAccountDisabledTemplate() {
             when(templateEngine.process(eq("emails/account-disabled"), any(Context.class)))
                     .thenReturn("<html>Compte suspendu</html>");
 
-            // Act
             emailService.sendAccountDisabledEmail(user);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/account-disabled"), any(Context.class));
         }
     }
 
@@ -331,19 +280,14 @@ class EmailServiceTest {
     class SendAccountReactivatedEmailTests {
 
         @Test
-        @DisplayName("sendAccountReactivatedEmail - Doit envoyer l'email de réactivation")
-        void sendAccountReactivatedEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template account-reactivated")
+        void shouldProcessAccountReactivatedTemplate() {
             when(templateEngine.process(eq("emails/account-reactivated"), any(Context.class)))
                     .thenReturn("<html>Compte réactivé</html>");
 
-            // Act
             emailService.sendAccountReactivatedEmail(user);
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/account-reactivated"), any(Context.class));
         }
     }
 
@@ -352,19 +296,14 @@ class EmailServiceTest {
     class SendMaintenanceEmailTests {
 
         @Test
-        @DisplayName("sendMaintenanceEmail - Doit envoyer l'email de maintenance")
-        void sendMaintenanceEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template maintenance")
+        void shouldProcessMaintenanceTemplate() {
             when(templateEngine.process(eq("emails/maintenance"), any(Context.class)))
                     .thenReturn("<html>Maintenance</html>");
 
-            // Act
             emailService.sendMaintenanceEmail(user, "15 juin 2025 à 02:00", "2 heures");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/maintenance"), any(Context.class));
         }
     }
 
@@ -373,19 +312,15 @@ class EmailServiceTest {
     class SendFeeUpdateEmailTests {
 
         @Test
-        @DisplayName("sendFeeUpdateEmail - Doit envoyer l'email de changement de tarifs")
-        void sendFeeUpdateEmail_ShouldSendEmail() throws Exception {
-            // Arrange
-            MimeMessage mimeMessage = mock(MimeMessage.class);
-            when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        @DisplayName("Doit générer le template fee-update")
+        void shouldProcessFeeUpdateTemplate() {
             when(templateEngine.process(eq("emails/fee-update"), any(Context.class)))
                     .thenReturn("<html>Changement tarifs</html>");
 
-            // Act
             emailService.sendFeeUpdateEmail(user, new BigDecimal("1.5"), new BigDecimal("2.0"), "01 août 2025");
 
-            // Assert
-            verify(mailSender).send(mimeMessage);
+            verify(templateEngine).process(eq("emails/fee-update"), any(Context.class));
         }
     }
 }
+
