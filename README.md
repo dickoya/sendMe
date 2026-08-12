@@ -17,7 +17,7 @@ Projet réalisé dans le cadre d'un Travail de Fin d'Études (TFE).
 | Backend | Java 21, Spring Boot 3.2.5, Maven, Flyway, MySQL |
 | Frontend | React 19 + TypeScript, Vite, Tailwind CSS v4 |
 | Paiement | Stripe (mode Sandbox) |
-| Emails | Spring Mail + Thymeleaf + Mailtrap/Brevo (Sandbox) |
+| Emails | API Brevo (HTTPS) + Thymeleaf |
 | Temps réel | Server-Sent Events (SSE) |
 | PDF | iText7 |
 | Taux de change | OpenExchangeRates API |
@@ -47,7 +47,7 @@ sendMe/
 │   │   ├── strategy/      # TransferStrategy + implémentations + BaseTransferStrategy
 │   │   └── utils/         # Utilitaires (CurrencyByCountry, DataMaskingUtils, MessageUtils)
 │   ├── src/main/resources/
-│   │   ├── db/migration/  # Migrations Flyway (V1–V24)
+│   │   ├── db/migration/  # Migrations Flyway (V1–V26)
 │   │   ├── templates/     # Templates email Thymeleaf
 │   │   ├── static/        # Logos des opérateurs Mobile Money
 │   │   ├── messages_fr.properties / messages_en.properties
@@ -166,7 +166,7 @@ VITE_API_BASE_URL=https://<backend-url>/api
 VITE_STRIPE_PUBLIC_KEY=pk_test_...
 ```
 
-> ⚠️ `VITE_API_BASE_URL` est figée au **build** (Vite). Il faut **Redeploy** le frontend après toute modification de cette variable.
+> `VITE_API_BASE_URL` est figée au build (Vite). Il faut redéployer le frontend après toute modification de cette variable.
 
 ### 4. Générer les domaines + CORS
 
@@ -191,14 +191,14 @@ VITE_STRIPE_PUBLIC_KEY=pk_test_...
 
 ## Canaux supportés
 
-| Canal | Type | Icône |
-|---|---|---|
-| Virement bancaire (SEPA/SWIFT) | `BANK_TRANSFER` | 🏦 |
-| Orange Money | `ORANGE_MONEY` | 🟠 |
-| MTN Mobile Money | `MTN_MOBILE_MONEY` | 🟡 |
-| Wave | `WAVE` | 🔵 |
-| Moov Money | `MOOV_MONEY` | 🟢 |
-| Airtel Money | `AIRTEL_MONEY` | 🔴 |
+| Canal | Type |
+|---|---|
+| Virement bancaire (SEPA/SWIFT) | `BANK_TRANSFER` |
+| Orange Money | `ORANGE_MONEY` |
+| MTN Mobile Money | `MTN_MOBILE_MONEY` |
+| Wave | `WAVE` |
+| Moov Money | `MOOV_MONEY` |
+| Airtel Money | `AIRTEL_MONEY` |
 
 ---
 

@@ -12,11 +12,11 @@ API REST de SendMe, développée avec **Java 21** et **Spring Boot 3.2.5**.
 | Framework | Spring Boot 3.2.5 |
 | Build | Maven 3.9+ |
 | Base de données | MySQL 8.0+ |
-| Migrations | Flyway (24 migrations V1–V24) |
+| Migrations | Flyway (26 migrations V1–V26) |
 | ORM | Spring Data JPA + Hibernate 6 |
 | Sécurité | Spring Security 6 + JWT (jjwt 0.12.6) |
 | Paiement | Stripe SDK Java |
-| Emails | Spring Mail + Thymeleaf (templates sous `templates/emails/`) |
+| Emails | API Brevo (HTTPS) + Thymeleaf (templates sous `templates/emails/`) |
 | PDF | iText7 (itext7-core 7.2.5) |
 | Taux de change | OpenExchangeRates API |
 | Rate Limiting | Bucket4j + Caffeine |
@@ -36,7 +36,7 @@ API REST de SendMe, développée avec **Java 21** et **Spring Boot 3.2.5**.
 - **MySQL 8.0+** (ou MariaDB 10.5+)
 - **Compte Stripe** (mode Sandbox) — [stripe.com](https://stripe.com)
 - **Clé API OpenExchangeRates** — [openexchangerates.org](https://openexchangerates.org)
-- **Compte SMTP** (Mailtrap/Brevo pour le développement)
+- **Clé API Brevo** (envoi d'emails via l'API HTTPS) — [brevo.com](https://www.brevo.com)
 
 ---
 
@@ -75,13 +75,11 @@ stripe.webhook.secret=whsec_ton_webhook_secret
 # ── OpenExchangeRates ────────────────────────────────────────────────────
 app.openexchangerates.app-id=ta_cle_api
 
-# ── Email (Mailtrap / Brevo) ─────────────────────────────────────────────
-spring.mail.host=smtp-relay.brevo.com
-spring.mail.port=2525
-spring.mail.username=ton_username
-spring.mail.password=ton_password
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
+# ── Email (API Brevo) ─────────────────────────────────────────────────────
+# Railway bloque les ports SMTP sortants → envoi via l'API Brevo en HTTPS.
+brevo.api-key=xkeysib-ta_cle_api_brevo
+app.mail.from=ton_expediteur_verifie@example.com
+app.mail.name=SendMe
 
 # ── Mode simulation des stratégies de transfert ──────────────────────────
 strategy.simulation-mode=true
@@ -134,7 +132,7 @@ api/src/main/java/ibrahima/dickoya/sendme/
 
 ```
 api/src/main/resources/
-├── db/migration/       # 24 migrations Flyway (V1__... → V24__...)
+├── db/migration/       # 26 migrations Flyway (V1__... → V26__...)
 ├── templates/emails/   # Templates email Thymeleaf
 ├── static/             # Logos des opérateurs Mobile Money
 ├── messages_fr.properties   # Messages backend en français
@@ -146,7 +144,7 @@ api/src/main/resources/
 
 ## Migrations Flyway
 
-24 migrations de V1 à V24 :
+26 migrations de V1 à V26 :
 
 | Migration | Description |
 |---|---|
@@ -174,6 +172,8 @@ api/src/main/resources/
 | V22 | Table audit_logs |
 | V23 | Table payment_channels |
 | V24 | Suppression admin_audit_log |
+| V25 | Réinitialisation du mot de passe |
+| V26 | Correction du mot de passe admin par défaut |
 
 ---
 
@@ -183,18 +183,18 @@ api/src/main/resources/
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| POST | `/api/auth/register` | Inscription | ❌ |
-| POST | `/api/auth/login` | Connexion | ❌ |
-| POST | `/api/auth/refresh` | Rafraîchir les tokens | ❌ |
-| GET | `/api/auth/verify-email` | Vérifier l'email | ❌ |
-| POST | `/api/auth/resend-verification` | Renvoyer l'email de vérification | ❌ |
+| POST | `/api/auth/register` | Inscription | Non |
+| POST | `/api/auth/login` | Connexion | Non |
+| POST | `/api/auth/refresh` | Rafraîchir les tokens | Non |
+| GET | `/api/auth/verify-email` | Vérifier l'email | Non |
+| POST | `/api/auth/resend-verification` | Renvoyer l'email de vérification | Non |
 
 ### Transferts (`/api/transfers`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| POST | `/api/transfers/simulate` | Simuler les frais | ❌* |
-| POST | `/api/transfers` | Initier un transfert | ✅ |
+| POST | `/api/transfers/simulate` | Simuler les frais | Non* |
+| POST | `/api/transfers` | Initier un transfert | Oui |
 
 *\*Public mais détecte le JWT pour appliquer la réduction de parrainage*
 
@@ -202,70 +202,70 @@ api/src/main/resources/
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/transactions` | Historique paginé | ✅ |
-| GET | `/api/transactions/{id}` | Détail d'une transaction | ✅ |
-| GET | `/api/transactions/{id}/receipt` | Télécharger le reçu PDF | ✅ |
-| GET | `/api/transactions/{id}/receipt/preview` | Prévisualiser le reçu PDF | ✅ |
+| GET | `/api/transactions` | Historique paginé | Oui |
+| GET | `/api/transactions/{id}` | Détail d'une transaction | Oui |
+| GET | `/api/transactions/{id}/receipt` | Télécharger le reçu PDF | Oui |
+| GET | `/api/transactions/{id}/receipt/preview` | Prévisualiser le reçu PDF | Oui |
 
 ### Canaux de paiement (`/api/channels`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/channels/active` | Canaux de paiement actifs | ❌ |
+| GET | `/api/channels/active` | Canaux de paiement actifs | Non |
 
 ### Bénéficiaires (`/api/beneficiaries`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/beneficiaries` | Liste paginée | ✅ |
-| POST | `/api/beneficiaries` | Créer un bénéficiaire | ✅ |
-| PUT | `/api/beneficiaries/{id}` | Modifier un bénéficiaire | ✅ |
-| DELETE | `/api/beneficiaries/{id}` | Supprimer un bénéficiaire | ✅ |
+| GET | `/api/beneficiaries` | Liste paginée | Oui |
+| POST | `/api/beneficiaries` | Créer un bénéficiaire | Oui |
+| PUT | `/api/beneficiaries/{id}` | Modifier un bénéficiaire | Oui |
+| DELETE | `/api/beneficiaries/{id}` | Supprimer un bénéficiaire | Oui |
 
 ### Notifications (`/api/notifications`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/notifications/stream` | Flux SSE temps réel | ✅ |
-| GET | `/api/notifications` | Historique paginé | ✅ |
-| GET | `/api/notifications/unread-count` | Nombre de notifications non lues | ✅ |
-| PUT | `/api/notifications/{id}/read` | Marquer comme lue | ✅ |
-| PUT | `/api/notifications/read-all` | Tout marquer comme lu | ✅ |
+| GET | `/api/notifications/stream` | Flux SSE temps réel | Oui |
+| GET | `/api/notifications` | Historique paginé | Oui |
+| GET | `/api/notifications/unread-count` | Nombre de notifications non lues | Oui |
+| PUT | `/api/notifications/{id}/read` | Marquer comme lue | Oui |
+| PUT | `/api/notifications/read-all` | Tout marquer comme lu | Oui |
 
 ### Dashboard (`/api/dashboard`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/dashboard/stats` | Statistiques personnelles | ✅ |
-| GET | `/api/dashboard/evolution` | Évolution des transferts | ✅ |
-| GET | `/api/dashboard/exchange-rates` | Taux de change en direct | ✅ |
-| GET | `/api/dashboard/exchange-rates/history/{from}/{to}` | Historique des taux | ✅ |
+| GET | `/api/dashboard/stats` | Statistiques personnelles | Oui |
+| GET | `/api/dashboard/evolution` | Évolution des transferts | Oui |
+| GET | `/api/dashboard/exchange-rates` | Taux de change en direct | Oui |
+| GET | `/api/dashboard/exchange-rates/history/{from}/{to}` | Historique des taux | Oui |
 
 ### Profil (`/api/profile`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/profile` | Récupérer le profil | ✅ |
-| PUT | `/api/profile` | Mettre à jour le profil | ✅ |
-| PUT | `/api/profile/password` | Changer le mot de passe | ✅ |
-| DELETE | `/api/profile` | Supprimer le compte | ✅ |
-| GET | `/api/profile/login-history` | Historique des connexions | ✅ |
+| GET | `/api/profile` | Récupérer le profil | Oui |
+| PUT | `/api/profile` | Mettre à jour le profil | Oui |
+| PUT | `/api/profile/password` | Changer le mot de passe | Oui |
+| DELETE | `/api/profile` | Supprimer le compte | Oui |
+| GET | `/api/profile/login-history` | Historique des connexions | Oui |
 
 ### Parrainage (`/api/referral`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/referral/my-code` | Mon code de parrainage | ✅ |
-| GET | `/api/referral/coupons` | Mes coupons de réduction | ✅ |
-| GET | `/api/referral/discount` | Montant de réduction disponible | ✅ |
-| GET | `/api/referral/verify` | Vérifier un code de parrainage | ❌ |
+| GET | `/api/referral/my-code` | Mon code de parrainage | Oui |
+| GET | `/api/referral/coupons` | Mes coupons de réduction | Oui |
+| GET | `/api/referral/discount` | Montant de réduction disponible | Oui |
+| GET | `/api/referral/verify` | Vérifier un code de parrainage | Non |
 
 ### Pays et Devises (`/api`)
 
 | Méthode | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | `/api/countries` | Liste des pays supportés | ❌ |
-| GET | `/api/currencies` | Liste des devises supportées | ❌ |
+| GET | `/api/countries` | Liste des pays supportés | Non |
+| GET | `/api/currencies` | Liste des devises supportées | Non |
 
 ### Administration (`/api/admin`)
 
@@ -368,7 +368,7 @@ APP_MAIL_NAME=SendMe
 
 Au premier démarrage, **Flyway** applique les migrations (V1 → V26). L'API écoute sur le port injecté par Railway (`server.port=${PORT:8080}` dans `application.properties`).
 
-> 💡 **Base de données MySQL 8.4+** : les requêtes natives doivent utiliser `CAST(... AS SIGNED)` (MySQL ne supporte pas `AS INTEGER`).
+> **Base de données MySQL 8.4+** : les requêtes natives doivent utiliser `CAST(... AS SIGNED)` (MySQL ne supporte pas `AS INTEGER`).
 
 ---
 

@@ -48,7 +48,7 @@ Content-Type: application/json
 POST http://localhost:8080/api/admin/notifications/maintenance?date=15 juin 2025 à 02:00&duration=2 heures
 Authorization: Bearer <admin_token>
 
-#Dans Mailtrap tu dois voir, pour chaque utilisateur actif :
+#Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir, pour chaque utilisateur actif :
 #
 #Objet :  SendMe — Maintenance programmée le 15 juin 2025 à 02:00
 #Date, durée, et liste des impacts affichés

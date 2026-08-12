@@ -12,7 +12,7 @@ Content-Type: application/json
     "email": "ibrahima@sendme.com",
     "password": "motdepasse123"
 }
-### Dans Mailtrap tu dois voir :
+### Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir :
 
 ### Objet :  Nouvelle connexion détectée sur votre compte SendMe
 ### IP affichée : 127.0.0.1 (localhost)
@@ -41,7 +41,7 @@ Content-Type: application/json
 "paymentMethodId": "pm_card_visa",
 "idempotencyKey": "test-uuid-d-001"
 }
-### Dans Mailtrap tu dois voir dans l'ordre :
+### Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir dans l'ordre :
 
 ### Email 1 — Objet :  Transfert TXN-XXX initié — Traitement en cours
 ### Email 2 — Objet :  Transfert TXN-XXX complété — Mamadou a reçu 128745 XOF
@@ -53,6 +53,6 @@ Content-Type: application/json
     "paymentMethodId": "pm_card_visa_chargeDeclined",
     "idempotencyKey": "test-uuid-d-002"
 }
-###  Dans Mailtrap tu dois voir :
+###  Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir :
 
 # Email — Objet :  Remboursement TXN-XXX confirmé ou Transfert TXN-XXX échoué

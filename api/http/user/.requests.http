@@ -9,7 +9,7 @@ Content-Type: application/json
    "password": "motdepasse123",
    "phoneNumber": "+224620000001"
 }
-###  Dans Mailtrap tu dois voir :
+###  Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir :
 
 #Objet :  Bienvenue sur SendMe — Votre compte est prêt !
 #Prénom affiché correctement
@@ -18,7 +18,7 @@ Content-Type: application/json
 ###  Test email suspension — désactive un utilisateur :
 PUT http://localhost:8080/api/admin/users/2/toggle
 Authorization: Bearer <admin_token>
-# Dans Mailtrap tu dois voir :
+# Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir :
 #
 #Objet :  Votre compte SendMe a été suspendu
 #Date de suspension affichée
@@ -27,5 +27,5 @@ Authorization: Bearer <admin_token>
 ### 4. Test email réactivation — réactive le même utilisateur :
 PUT http://localhost:8080/api/admin/users/2/toggle
 Authorization: Bearer <admin_token>
-# Dans Mailtrap tu dois voir :
+# Dans la boîte de réception de l'email (via l'API Brevo) tu dois voir :
 #Objet :  Votre compte SendMe a été réactivé
