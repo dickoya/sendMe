@@ -2,6 +2,7 @@ package ibrahima.dickoya.sendme.repository;
 
 import ibrahima.dickoya.sendme.entity.Transaction;
 import ibrahima.dickoya.sendme.enums.TransactionStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,6 +17,10 @@ import java.util.Optional;
 @Repository
 
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+       // @EntityGraph : charge le bénéficiaire avec les transactions pour éviter
+       // la LazyInitializationException hors transaction (open-in-view=false),
+       // notamment dans DashboardService.findFavoriteBeneficiary().
+       @EntityGraph(attributePaths = "beneficiary")
        Page<Transaction> findBySenderIdOrderByCreatedAtDesc(Long senderId, Pageable pageable);
 
        Optional<Transaction> findByReference(String reference);

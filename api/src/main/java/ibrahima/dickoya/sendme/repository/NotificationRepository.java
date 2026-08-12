@@ -3,6 +3,7 @@ package ibrahima.dickoya.sendme.repository;
 import ibrahima.dickoya.sendme.entity.Notification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,6 +25,9 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
      * Récupère les notifications d'un utilisateur avec pagination.
      * Version paginée pour améliorer les performances.
      */
+    // @EntityGraph : charge la transaction liée pour éviter la
+    // LazyInitializationException hors transaction (open-in-view=false).
+    @EntityGraph(attributePaths = "transaction")
     Page<Notification> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
     /**
