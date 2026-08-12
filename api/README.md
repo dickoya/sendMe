@@ -341,7 +341,7 @@ strategy.failure-rate=5
 
 ## Déploiement (Railway)
 
-Le backend est déployé sur **Railway** avec une base **MySQL Aiven** (externe).
+Le backend est déployé sur **Railway** avec la base **MySQL Railway** (service MySQL intégré).
 
 - **Root Directory** : `api`
 - **Builder** : Railpack / Nixpacks
@@ -350,9 +350,8 @@ Le backend est déployé sur **Railway** avec une base **MySQL Aiven** (externe)
 **Variables Railway (Backend) :**
 
 ```env
-DB_URL=jdbc:mysql://<HOST>:<PORT>/<DB>?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USER=<USER>
-DB_PASSWORD=<PASSWORD>
+# Base de données (Railway MySQL — injectées automatiquement par le plugin MySQL)
+# MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD
 FRONTEND_URL=https://<frontend-url>
 CORS_ALLOWED_ORIGINS=https://<frontend-url>
 STRIPE_RETURN_URL=https://<frontend-url>/payment/callback
@@ -361,11 +360,9 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 OPENEXCHANGE_APP_ID=...
-SPRING_MAIL_HOST=smtp-relay.brevo.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=...
-SPRING_MAIL_PASSWORD=...
-APP_MAIL_FROM=...
+# Email (API Brevo — Railway bloque les ports SMTP sortants, on envoie via l'API HTTPS)
+BREVO_API_KEY=xkeysib-...
+APP_MAIL_FROM=<expéditeur vérifié dans Brevo>
 APP_MAIL_NAME=SendMe
 ```
 

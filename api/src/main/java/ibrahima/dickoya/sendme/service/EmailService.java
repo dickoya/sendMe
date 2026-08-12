@@ -97,7 +97,7 @@ public class EmailService {
         /**
          * URL de base du frontend, utilisée pour construire les liens dans les emails.
          * Injectée depuis application.properties via la variable FRONTEND_URL
-         * (ex. en prod : https://sendme-web.vercel.app).
+         * (ex. en prod : https://sendme-web-production.up.railway.app).
          */
         @Value("${app.frontend-url:http://localhost:5173}")
         private String frontendUrl;

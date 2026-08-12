@@ -107,22 +107,20 @@ L'application est disponible sur `http://localhost:5173`.
 ---
 ## Déploiement (Production)
 
-L'application est déployée sur **Railway** (backend + frontend) avec une base **MySQL Aiven** (externe).
+L'application est déployée sur **Railway** (backend + frontend + base de données MySQL).
 
 ### Architecture
 
 | Service | Plateforme | Root Directory | Description |
 |---|---|---|---|
 | **Backend** (`api`) | Railway | `api` | API Spring Boot (Java 21 / Maven) |
-| **Frontend** (`web`) | Railway (ou Vercel) | `web` | React + Vite (build statique) |
-| **Base MySQL** | Aiven (Hobbyist, gratuit) | — | Base de données relationnelle |
+| **Frontend** (`web`) | Railway | `web` | React + Vite (build statique) |
+| **Base MySQL** | Railway | — | Base de données relationnelle (service MySQL de Railway) |
 
-> ⚠️ Sur Railway, **sans plan gratuit** : le plan gratuit met les services en veille et limite le réseau privé → utiliser une base **Aiven** (hôte public) est la solution fiable.
+### 1. Créer la base MySQL sur Railway
 
-### 1. Créer la base MySQL sur Aiven
-
-1. [console.aiven.io](https://console.aiven.io) → **Create service** → **MySQL** → plan **Hobbyist** (gratuit).
-2. Note les infos : **Host**, **Port**, **Database**, **User**, **Password** (SSL requis).
+1. Dans Railway → **New → Database → MySQL** (le service MySQL fournit automatiquement les variables `MYSQLHOST`, `MYSQLPORT`, `MYSQLDATABASE`, `MYSQLUSER`, `MYSQLPASSWORD`).
+2. Relie le service **backend** à cette base : les variables `MYSQL*` sont injectées automatiquement.
 
 ### 2. Services Railway (2 services dans un même projet)
 
@@ -140,10 +138,8 @@ L'application est déployée sur **Railway** (backend + frontend) avec une base 
 **Backend → Variables :**
 
 ```env
-# Base de données (Aiven)
-DB_URL=jdbc:mysql://<HOST>:<PORT>/<DB>?useSSL=true&requireSSL=true&verifyServerCertificate=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-DB_USER=<USER>
-DB_PASSWORD=<PASSWORD>
+# Base de données (Railway MySQL — injectées automatiquement par le plugin MySQL)
+# MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD
 
 # URLs
 FRONTEND_URL=https://<frontend-url>
@@ -157,12 +153,9 @@ STRIPE_PUBLISHABLE_KEY=pk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 OPENEXCHANGE_APP_ID=...
 
-# Email (Brevo)
-SPRING_MAIL_HOST=smtp-relay.brevo.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=...
-SPRING_MAIL_PASSWORD=...
-APP_MAIL_FROM=...
+# Email (API Brevo — Railway bloque les ports SMTP sortants, on envoie via l'API HTTPS)
+BREVO_API_KEY=xkeysib-...
+APP_MAIL_FROM=<expéditeur vérifié dans Brevo>
 APP_MAIL_NAME=SendMe
 ```
 
