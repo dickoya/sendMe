@@ -12,6 +12,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.async.AsyncRequestTimeoutException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.util.HashMap;
@@ -150,6 +151,15 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(429)
                                 .header("Retry-After", String.valueOf(ex.getRetryAfterSeconds()))
                                 .body(ApiResponse.error(ex.getMessage()));
+        }
+
+        // Timeout des connexions asynchrones (SSE) — comportement NORMAL.
+        // Les connexions SSE expirent régulièrement (délai async dépassé).
+        // On ignore silencieusement pour éviter le flood de logs et la tentative
+        // d'écrire un ApiResponse en 'text/event-stream' (HttpMessageNotWritableException).
+        @ExceptionHandler(AsyncRequestTimeoutException.class)
+        public void handleAsyncRequestTimeout(AsyncRequestTimeoutException ex) {
+                log.debug("Timeout requête asynchrone (SSE) ignoré");
         }
 
         // Generic error — 500
