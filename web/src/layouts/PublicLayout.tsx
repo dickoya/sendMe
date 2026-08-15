@@ -1,15 +1,18 @@
 import { useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Scale } from 'lucide-react';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import ThemeToggle from '@/components/layout/ThemeToggle';
 import { useTheme } from '@/store/theme/themeContext';
+import { useAuth } from '@/store/auth/authContext';
 
 function PublicLayout() {
     const { t } = useTranslation('common');
     const location = useLocation();
     const { setTheme } = useTheme();
+    const navigate = useNavigate();
+    const { isAuthenticated, logout } = useAuth();
     const isLegalPage = location.pathname === '/legal';
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
     const isContactPage = location.pathname === '/contact';
@@ -20,6 +23,11 @@ function PublicLayout() {
             setTheme('light');
         }
     }, [isAuthPage, setTheme]);
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-[#0D0D0D]">
@@ -74,18 +82,38 @@ function PublicLayout() {
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
                         <LanguageSwitcher />
-                        <Link
-                            to="/login"
-                            className="hidden rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-700 sm:inline-flex dark:bg-brand-500 dark:hover:bg-brand-600"
-                        >
-                            {t('nav.login', 'Connexion')}
-                        </Link>
-                        <Link
-                            to="/register"
-                            className="hidden rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 sm:inline-flex dark:border-[#333333] dark:text-[#C0C4D0] dark:hover:bg-[#1A1A1A]"
-                        >
-                            {t('nav.register', 'S\'inscrire')}
-                        </Link>
+                        {isAuthenticated ? (
+                            <>
+                                <Link
+                                    to="/dashboard"
+                                    className="hidden rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-700 sm:inline-flex dark:bg-brand-500 dark:hover:bg-brand-600"
+                                >
+                                    {t('nav.dashboard', 'Tableau de bord')}
+                                </Link>
+                                <button
+                                    type="button"
+                                    onClick={handleLogout}
+                                    className="hidden rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 sm:inline-flex dark:border-[#333333] dark:text-[#C0C4D0] dark:hover:bg-[#1A1A1A]"
+                                >
+                                    {t('nav.logout', 'Déconnexion')}
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    to="/login"
+                                    className="hidden rounded-xl bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-brand-700 sm:inline-flex dark:bg-brand-500 dark:hover:bg-brand-600"
+                                >
+                                    {t('nav.login', 'Connexion')}
+                                </Link>
+                                <Link
+                                    to="/register"
+                                    className="hidden rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 sm:inline-flex dark:border-[#333333] dark:text-[#C0C4D0] dark:hover:bg-[#1A1A1A]"
+                                >
+                                    {t('nav.register', 'S\'inscrire')}
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </header>

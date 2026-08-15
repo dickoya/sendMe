@@ -89,7 +89,6 @@ function AppRoutes() {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/referral" element={<ReferralPage />} />
                         <Route path="/faq" element={<Faq />} />
-                        <Route path="/legal" element={<LegalNotice />} />
                     </Route>
                 </Route>
 
