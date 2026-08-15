@@ -16,7 +16,8 @@
         "message": "Your message",
         "messagePlaceholder": "Describe your request in a few lines...",
         "submit": "Send message",
-        "success": "Thank you! Your email client opened with your pre-filled message. All that's left is to send it.",
+        "success": "Thank you! Your message has been sent successfully. We will get back to you as soon as possible.",
+        "sendError": "An error occurred while sending your message. Please try again in a few moments.",
         "errors": {
             "name": "Please provide your name",
             "email": "Please enter a valid email address",

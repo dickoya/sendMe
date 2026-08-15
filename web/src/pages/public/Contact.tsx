@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Mail, LifeBuoy, Clock, Scale, Send, CheckCircle } from 'lucide-react';
+import { Mail, LifeBuoy, Clock, Scale, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import api from '@/services/api';
 
 /**
  * Page Contact — design moderne et épuré, cohérent avec l'accueil.
@@ -21,6 +22,8 @@ function Contact() {
     const [message, setMessage] = useState('');
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [submitted, setSubmitted] = useState(false);
+    const [sending, setSending] = useState(false);
+    const [sendError, setSendError] = useState<string | null>(null);
 
     const validate = () => {
         const next: Record<string, string> = {};
@@ -31,16 +34,25 @@ function Contact() {
         return Object.keys(next).length === 0;
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
 
-        const subjectLine = t(`subjects.${subject}`);
-        const body = `${t('page.name')}: ${name}\n${t('page.email')}: ${email}\n\n${message}`;
-        const href = `mailto:contact@sendme-tfe.fr?subject=${encodeURIComponent(subjectLine)}&body=${encodeURIComponent(body)}`;
-
-        window.location.href = href;
-        setSubmitted(true);
+        setSending(true);
+        setSendError(null);
+        try {
+            await api.post('/contact', {
+                name,
+                email,
+                subject: t(`subjects.${subject}`),
+                message,
+            });
+            setSubmitted(true);
+        } catch {
+            setSendError(t('page.sendError'));
+        } finally {
+            setSending(false);
+        }
     };
 
     return (
@@ -75,6 +87,13 @@ function Contact() {
                                 <div className="mt-5 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-700/40 dark:bg-emerald-900/20">
                                     <CheckCircle size={18} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                                     <p className="text-sm text-emerald-800 dark:text-emerald-300">{t('page.success')}</p>
+                                </div>
+                            )}
+
+                            {sendError && (
+                                <div className="mt-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-700/40 dark:bg-red-900/20">
+                                    <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
+                                    <p className="text-sm text-red-700 dark:text-red-300">{sendError}</p>
                                 </div>
                             )}
 
@@ -131,7 +150,7 @@ function Contact() {
                                     )}
                                 </div>
 
-                                <Button type="submit" size="lg" icon={<Send size={16} />}>
+                                <Button type="submit" size="lg" icon={<Send size={16} />} loading={sending}>
                                     {t('page.submit')}
                                 </Button>
                             </form>
