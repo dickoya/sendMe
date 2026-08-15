@@ -95,6 +95,14 @@ public class EmailService {
         private String fromName;
 
         /**
+         * Adresse destinataire des messages du formulaire de contact.
+         * Surchargée via la variable d'environnement APP_MAIL_CONTACT_RECIPIENT
+         * (par défaut : takoudiakatou@gmail.com).
+         */
+        @Value("${app.mail.contact-recipient:takoudiakatou@gmail.com}")
+        private String contactRecipient;
+
+        /**
          * URL de base du frontend, utilisée pour construire les liens dans les emails.
          * Injectée depuis application.properties via la variable FRONTEND_URL
          * (ex. en prod : https://sendme-web-production.up.railway.app).
@@ -362,6 +370,23 @@ public class EmailService {
                         String to,
                         String subject,
                         String htmlContent) throws Exception {
+                sendHtmlEmail(to, subject, htmlContent, null);
+        }
+
+        /**
+         * Envoie un email HTML via l'API Brevo (HTTPS, port 443).
+         *
+         * @param to          adresse email du destinataire
+         * @param subject     objet de l'email affiché dans le client email
+         * @param htmlContent contenu HTML généré par Thymeleaf
+         * @param replyTo     adresse de réponse (facultatif, ex. l'email du visiteur)
+         * @throws Exception si l'envoi échoue
+         */
+        protected void sendHtmlEmail(
+                        String to,
+                        String subject,
+                        String htmlContent,
+                        String replyTo) throws Exception {
 
                 // Sécurité : ne rien envoyer si la clé API Brevo n'est pas configurée
                 if (brevoApiKey == null || brevoApiKey.isBlank()) {
@@ -378,6 +403,9 @@ public class EmailService {
                 payload.put("to", List.of(Map.of("email", to)));
                 payload.put("subject", subject);
                 payload.put("htmlContent", htmlContent);
+                if (replyTo != null && !replyTo.isBlank()) {
+                        payload.put("replyTo", Map.of("email", replyTo));
+                }
 
                 String json = objectMapper.writeValueAsString(payload);
 
@@ -402,6 +430,59 @@ public class EmailService {
                 }
 
                 log.debug("[EMAIL] Email envoyé → {} | Objet : {}", to, subject);
+        }
+
+        /**
+         * Envoie le message du formulaire de contact vers l'adresse de contact.
+         *
+         * Déclenché par ContactController (POST /api/contact).
+         * Le destinataire est configuré via app.mail.contact-recipient
+         * (par défaut : takoudiakatou@gmail.com). Le replyTo est l'email du
+         * visiteur afin de pouvoir lui répondre directement.
+         *
+         * Variables Thymeleaf utilisées dans contact-form.html :
+         * - name : nom complet du visiteur
+         * - email : email du visiteur
+         * - subject : sujet de la demande
+         * - message : contenu du message
+         * - sentDate : date d'envoi
+         *
+         * @param name    nom complet du visiteur
+         * @param email   email du visiteur (utilisé en replyTo)
+         * @param subject sujet de la demande
+         * @param message contenu du message
+         */
+        @Async
+        public void sendContactEmail(String name, String email, String subject, String message) {
+                try {
+                        String recipient = (contactRecipient == null || contactRecipient.isBlank())
+                                        ? "takoudiakatou@gmail.com" : contactRecipient;
+
+                        log.info("[EMAIL] Nouveau message de contact de {} ({}) → {}", name, email, recipient);
+
+                        Context context = newContext();
+                        context.setVariable("name", name);
+                        context.setVariable("email", email);
+                        context.setVariable("subject", subject);
+                        context.setVariable("message", message);
+                        context.setVariable("sentDate",
+                                        LocalDateTime.now().format(EMAIL_DATE_FORMAT));
+
+                        String htmlContent = templateEngine.process(
+                                        "emails/contact-form", context);
+
+                        sendHtmlEmail(
+                                        recipient,
+                                        "📬 SendMe — Nouveau message de contact de " + name,
+                                        htmlContent,
+                                        email);
+
+                        log.info("[EMAIL] Message de contact envoyé → {}", recipient);
+
+                } catch (Exception e) {
+                        // Ne jamais bloquer la requête si l'envoi échoue
+                        log.error("[EMAIL] Échec envoi message de contact : {}", e.getMessage());
+                }
         }
 
         /**

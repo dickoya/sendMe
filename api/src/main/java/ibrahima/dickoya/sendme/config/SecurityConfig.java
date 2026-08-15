@@ -50,6 +50,9 @@ public class SecurityConfig {
             // Simulation de transfert (page d'accueil publique)
             "/api/transfers/simulate",
 
+            // Formulaire de contact public
+            "/api/contact",
+
             // Vérification publique d'un code de parrainage
             "/api/referral/verify",
 
