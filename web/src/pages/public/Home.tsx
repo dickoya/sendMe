@@ -418,6 +418,22 @@ function Home() {
                 <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-gray-50 to-transparent dark:from-[#0A0A0F]" />
             </section>
 
+            {/* ===== BANDEAU PROMOTIONNEL ===== */}
+            <section className="bg-gray-50 py-10 dark:bg-[#0A0A0F]">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <h2 className="mb-6 text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-gray-100">
+                        {t('promo.title')}
+                    </h2>
+                    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-[#1E1E30] dark:bg-[#12121A]">
+                        <img
+                            src="/publicitesendme.jpeg"
+                            alt="SendMe — promotion"
+                            className="h-auto w-full object-cover"
+                        />
+                    </div>
+                </div>
+            </section>
+
             {/* ===== SECTION FONCTIONNALITÉS ===== */}
             <section id="features" className="bg-gray-50 py-24 sm:py-32 dark:bg-[#0A0A0F]">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

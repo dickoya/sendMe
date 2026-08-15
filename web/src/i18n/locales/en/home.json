@@ -5,6 +5,9 @@
     "cta": "Get started",
     "trustBadge": "Trusted by thousands of users"
   },
+  "promo": {
+    "title": "SendMe — your money arrives before your message"
+  },
   "simulator": {
     "title": "Simulate your transfer",
     "subtitle": "See how much your recipient will receive before you send",
