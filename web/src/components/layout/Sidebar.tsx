@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
     LayoutDashboard, Users, Send, History, Bell, User, Gift,
     LayoutGrid, UserCog, ArrowRightLeft, Settings, ArrowLeft,
-    HelpCircle, ClipboardList, CreditCard,
+    HelpCircle, ClipboardList, CreditCard, Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +33,7 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
         { to: '/notifications', label: t('nav.notifications'), icon: Bell },
         { to: '/profile', label: t('nav.profile'), icon: User },
         { to: '/faq', label: t('nav.faq'), icon: HelpCircle },
+        { to: '/contact', label: t('nav.contact', 'Contact'), icon: Mail },
     ];
 
     const adminLinks = [
@@ -42,6 +43,7 @@ function Sidebar({ isOpen, onClose, variant }: SidebarProps) {
         { to: '/admin/payment-channels', label: t('nav.admin.paymentChannels'), icon: CreditCard },
         { to: '/admin/logs', label: t('nav.admin.logs'), icon: ClipboardList },
         { to: '/admin/settings', label: t('nav.admin.settings'), icon: Settings },
+        { to: '/contact', label: t('nav.contact', 'Contact'), icon: Mail },
     ];
 
     const links = variant === 'admin' ? adminLinks : userLinks;
