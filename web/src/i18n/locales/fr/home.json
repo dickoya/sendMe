@@ -70,10 +70,10 @@
   },
   "stats": {
     "title": "SendMe en chiffres",
-    "transactions": "Transactions traitées",
-    "users": "Utilisateurs actifs",
-    "countries": "Pays couverts",
-    "speed": "Vitesse de transfert"
+    "currencies": "Devises supportées",
+    "channels": "Canaux de paiement",
+    "receiving": "Devises de réception",
+    "available": "Service en ligne"
   },
   "cta": {
     "title": "Prêt à commencer ?",

@@ -293,8 +293,8 @@ function Register() {
                         © {new Date().getFullYear()} SendMe. Tous droits réservés.
                     </p>
                     <div className="flex items-center gap-6">
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">Confidentialité</a>
-                        <a href="#" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">CGU</a>
+                        <Link to="/legal" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">Confidentialité</Link>
+                        <Link to="/legal" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">CGU</Link>
                         <a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-600 transition-colors dark:text-gray-300 dark:hover:text-brand-400">Aide</a>
                     </div>
                 </div>

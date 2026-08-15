@@ -70,10 +70,10 @@
   },
   "stats": {
     "title": "SendMe by the numbers",
-    "transactions": "Transactions processed",
-    "users": "Active users",
-    "countries": "Countries covered",
-    "speed": "Transfer speed"
+    "currencies": "Supported currencies",
+    "channels": "Payment channels",
+    "receiving": "Receiving currencies",
+    "available": "Online service"
   },
   "cta": {
     "title": "Ready to get started?",

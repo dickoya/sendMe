@@ -108,12 +108,12 @@ function Home() {
         }
     };
 
-    // Statistiques
+    // Statistiques — valeurs réelles de l'application (devises, canaux, couverture)
     const stats = [
-        { value: '50K+', label: t('stats.transactions'), icon: Send },
-        { value: '10K+', label: t('stats.users'), icon: Users },
-        { value: '8', label: t('stats.countries'), icon: Globe },
-        { value: '< 30s', label: t('stats.speed'), icon: Zap },
+        { value: '13', label: t('stats.currencies'), icon: Euro },
+        { value: '6', label: t('stats.channels'), icon: Smartphone },
+        { value: '8', label: t('stats.receiving'), icon: Globe },
+        { value: '24/7', label: t('stats.available'), icon: Clock },
     ];
 
     // Fonctionnalités
@@ -645,15 +645,15 @@ function Home() {
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.product')}</h4>
                             <ul className="mt-4 space-y-2">
                                 <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.features')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.support')}</a></li>
+                                <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li>
+                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.support')}</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.company')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.about')}</a></li>
-                                <li><a href="#" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
+                                <li><a href="#how-it-works" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.about')}</a></li>
+                                <li><a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.contact')}</a></li>
                                 <li><Link to="/legal" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.legal')}</Link></li>
                             </ul>
                         </div>
