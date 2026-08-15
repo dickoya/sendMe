@@ -242,7 +242,7 @@ function LegalNotice() {
                         {t('footer.contactSub')}
                     </p>
                     <a
-                        href="mailto:legal@sendme.com"
+                        href="mailto:ib2diallo@gmail.com"
                         className="mt-5 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm transition-all hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 dark:bg-brand-500 dark:hover:bg-brand-600"
                     >
                         {t('footer.contactButton')}

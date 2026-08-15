@@ -1,25 +1,25 @@
 {
     "meta": {
-        "title": "Informations légales — SendMe",
-        "description": "Mentions légales, politique de confidentialité, conditions d'utilisation et conformité réglementaire de SendMe"
+        "title": "Informations légales — SendMe (Projet de fin d'études)",
+        "description": "Mentions légales, politique de confidentialité, conditions d'utilisation et cadrage réglementaire du projet SendMe (TFE)"
     },
     "page": {
         "title": "Informations légales",
-        "subtitle": "Transparence et conformité sont au cœur de notre engagement. Retrouvez ici l'ensemble des documents légaux et réglementaires qui encadrent nos services de transfert d'argent.",
-        "lastUpdate": "Dernière mise à jour : juillet 2026",
-        "searchPlaceholder": "Rechercher dans les documents légaux...",
+        "subtitle": "Ce document présente le cadrage légal et réglementaire du projet SendMe. Il a été rédigé dans un esprit de transparence et de professionnalisme, dans le cadre d'un travail de fin d'études à visée pédagogique et de démonstration.",
+        "lastUpdate": "Dernière mise à jour : août 2026",
+        "searchPlaceholder": "Rechercher dans les documents...",
         "noResults": "Aucun document trouvé",
         "noResultsSub": "Essayez de modifier votre recherche ou de sélectionner une autre catégorie."
     },
     "categories": {
         "all": "Tout afficher",
         "general": "Mentions légales",
-        "personalData": "Données personnelles & GDPR",
+        "personalData": "Données personnelles & RGPD",
         "cookies": "Politique des cookies",
         "terms": "Conditions d'utilisation",
         "privacy": "Vie privée & sécurité",
         "aml": "Lutte anti-blanchiment (AML)",
-        "complaints": "Réclamations & médiation"
+        "complaints": "Contact & évaluation"
     },
     "sections": [
         {
@@ -29,40 +29,44 @@
             "icon": "Building2",
             "content": [
                 {
-                    "subtitle": "Éditeur du service",
-                    "text": "SendMe est un service de transfert d'argent en ligne édité par la société <strong>SendMe Technologies SA</strong>, immatriculée au Registre du Commerce sous le numéro <strong>BE 0768.945.321</strong>."
+                    "subtitle": "Contexte du projet",
+                    "text": "SendMe est une application web de transfert d'argent développée dans le cadre d'un <strong>Travail de Fin d'Études (TFE)</strong>. Il s'agit d'une <strong>démonstration technique et d'une maquette fonctionnelle</strong> : SendMe n'est ni un service commercial, ni un établissement de paiement, ni une institution financière."
                 },
                 {
-                    "subtitle": "Siège social",
-                    "text": "SendMe Technologies SA<br/>Avenue de la Toison d'Or 25<br/>1050 Bruxelles, Belgique"
+                    "subtitle": "Réalisation",
+                    "text": "Le projet a été conçu et réalisé par un étudiant dans le cadre de son cursus de fin d'études. Il couvre l'architecture full-stack (interface React, API Java & Spring Boot, base de données), la sécurité et les fonctionnalités métier d'une plateforme de transfert d'argent."
                 },
                 {
-                    "subtitle": "Autorité de régulation",
-                    "text": "SendMe est agréé en tant qu'établissement de paiement par la <strong>Banque Nationale de Belgique (BNB)</strong> sous le numéro d'agrément <strong>BNB-PAY-2024-0042</strong>. Nos activités sont exercées sous la supervision de la BNB et de l'Autorité des Services et Marchés Financiers (FSMA)."
+                    "subtitle": "Nature de la démonstration",
+                    "text": "Les comptes, montants et transactions présentés sont des <strong>données fictives de test</strong>. Aucune opération financière réelle n'est effectuée par la plateforme."
+                },
+                {
+                    "subtitle": "Hébergement",
+                    "text": "L'application est déployée sur un <strong>environnement de démonstration</strong> à des fins exclusivement pédagogiques. Aucun paiement réel n'est traité."
                 },
                 {
                     "subtitle": "Contact",
-                    "text": "Email : <a href=\"mailto:legal@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">legal@sendme.com</a><br/>Téléphone : +32 (0)2 123 45 67<br/>Service client : <a href=\"mailto:support@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">support@sendme.com</a>"
+                    "text": "Pour toute question relative au projet : <a href=\"mailto:ib2diallo@gmail.com\" class=\"text-brand-600 dark:text-brand-400 underline\">ib2diallo@gmail.com</a>"
                 }
             ]
         },
         {
             "id": "general-2",
             "category": "general",
-            "title": "Directive sur les services de paiement (DSP2)",
+            "title": "Cadre réglementaire de référence",
             "icon": "Landmark",
             "content": [
                 {
-                    "subtitle": "Conformité DSP2",
-                    "text": "SendMe se conforme à la Directive (UE) 2015/2366 relative aux services de paiement dans le marché intérieur (DSP2). Cette directive renforce la sécurité des paiements en ligne et protège les consommateurs contre la fraude."
+                    "subtitle": "Objectif pédagogique",
+                    "text": "Afin de refléter les exigences du secteur des services de paiement, le prototype intègre des <strong>mécanismes inspirés de la réglementation</strong> : directive européenne sur les services de paiement (DSP2), Règlement général sur la protection des données (RGPD) et lutte anti-blanchiment (AML). Ces éléments sont implémentés à des fins pédagogiques et d'illustration."
                 },
                 {
                     "subtitle": "Authentification forte (SCA)",
-                    "text": "Conformément à la DSP2, toutes les transactions effectuées via SendMe sont soumises à une <strong>authentification forte du client (Strong Customer Authentication - SCA)</strong>. Cela peut inclure une vérification par code SMS, email ou application d'authentification."
+                    "text": "Les transactions de la démonstration simulent une <strong>authentification forte du client (SCA)</strong>, conformément aux bonnes pratiques inspirées de la DSP2 : vérification par code SMS, email ou application d'authentification."
                 },
                 {
-                    "subtitle": "Délais d'exécution",
-                    "text": "Les transferts d'argent sont exécutés dans un délai maximum de <strong>2 jours ouvrés</strong> à compter de la réception des fonds, conformément aux exigences de la DSP2. Les transferts vers certains canaux mobiles (Orange Money, MTN Mobile Money) peuvent être instantanés."
+                    "subtitle": "Limites",
+                    "text": "Cette mise en œuvre ne confère <strong>aucun statut réglementaire</strong> à l'application. SendMe n'est pas agréé et ne fournit pas de services financiers réels."
                 }
             ]
         },
@@ -74,179 +78,160 @@
             "content": [
                 {
                     "subtitle": "Responsable du traitement",
-                    "text": "Le responsable du traitement de vos données personnelles est <strong>SendMe Technologies SA</strong>, située Avenue de la Toison d'Or 25, 1050 Bruxelles, Belgique."
+                    "text": "Dans le cadre du TFE, le porteur du projet agit en tant que <strong>responsable du traitement</strong> des données à caractère personnel, pour la seule finalité de la démonstration académique."
                 },
                 {
                     "subtitle": "Données collectées",
-                    "text": "Dans le cadre de nos services, nous collectons les données suivantes :<br/><br/>• <strong>Données d'identité</strong> : nom, prénom, date de naissance, nationalité, adresse<br/>• <strong>Données de contact</strong> : email, numéro de téléphone<br/>• <strong>Données financières</strong> : IBAN, informations de carte bancaire (via Stripe), historique des transactions<br/>• <strong>Données de vérification</strong> : copie de pièce d'identité, justificatif de domicile (KYC)<br/>• <strong>Données techniques</strong> : adresse IP, type de navigateur, cookies"
+                    "text": "Les données traitées sont limitées à ce qui est nécessaire à la démonstration : adresse email et nom pour le compte de test, bénéficiaires fictifs et montants saisis. Les transactions simulées ne concernent que des <strong>données fictives</strong>."
                 },
                 {
-                    "subtitle": "Base légale du traitement",
-                    "text": "Le traitement de vos données repose sur :<br/><br/>• <strong>L'exécution du contrat</strong> : pour traiter vos transferts d'argent<br/>• <strong>Les obligations légales</strong> : pour respecter la réglementation AML/CFT (lutte anti-blanchiment)<br/>• <strong>Votre consentement</strong> : pour les cookies et communications marketing<br/>• <strong>L'intérêt légitime</strong> : pour améliorer nos services et prévenir la fraude"
+                    "subtitle": "Base légale",
+                    "text": "Le traitement repose sur le <strong>consentement</strong> et sur la finalité pédagogique du projet, conformément aux exigences du RGPD."
                 },
                 {
                     "subtitle": "Durée de conservation",
-                    "text": "Conformément à la réglementation belge et européenne, vos données sont conservées :<br/><br/>• <strong>Données de transaction</strong> : 10 ans (obligation légale)<br/>• <strong>Données KYC</strong> : 5 ans après la clôture du compte<br/>• <strong>Données de cookies</strong> : 13 mois maximum<br/>• <strong>Données marketing</strong> : jusqu'au retrait du consentement"
+                    "text": "Les données sont conservées pour la durée de la démonstration et de l'évaluation du projet, puis <strong>supprimées</strong>."
                 }
             ]
         },
         {
             "id": "pd-2",
             "category": "personalData",
-            "title": "Vos droits GDPR",
+            "title": "Vos droits (RGPD)",
             "icon": "FileCheck",
             "content": [
                 {
-                    "subtitle": "Droits des utilisateurs",
-                    "text": "Conformément au Règlement Général sur la Protection des Données (RGPD - Règlement UE 2016/679), vous disposez des droits suivants :<br/><br/>• <strong>Droit d'accès</strong> : obtenir une copie de vos données personnelles<br/>• <strong>Droit de rectification</strong> : faire corriger des données inexactes<br/>• <strong>Droit à l'effacement</strong> : demander la suppression de vos données (droit à l'oubli)<br/>• <strong>Droit à la limitation</strong> : restreindre le traitement de vos données<br/>• <strong>Droit à la portabilité</strong> : recevoir vos données dans un format structuré<br/>• <strong>Droit d'opposition</strong> : vous opposer au traitement pour motifs légitimes"
+                    "subtitle": "Vos droits",
+                    "text": "Conformément au RGPD, vous disposez des droits d'<strong>accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité</strong> de vos données personnelles."
                 },
                 {
-                    "subtitle": "Exercer vos droits",
-                    "text": "Pour exercer vos droits, contactez notre Délégué à la Protection des Données (DPO) à : <a href=\"mailto:dpo@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">dpo@sendme.com</a> ou par courrier à l'adresse de notre siège social. Nous nous engageons à répondre à votre demande dans un délai maximum de <strong>30 jours</strong>."
-                },
-                {
-                    "subtitle": "Réclamation auprès de l'autorité",
-                    "text": "Si vous estimez que vos droits ne sont pas respectés, vous pouvez introduire une réclamation auprès de l'<strong>Autorité de Protection des Données (APD)</strong> belge :<br/><br/>Autorité de Protection des Données<br/>Rue de la Presse 35, 1000 Bruxelles<br/>Email : <a href=\"mailto:contact@apd-gba.be\" class=\"text-brand-600 dark:text-brand-400 underline\">contact@apd-gba.be</a><br/>Site : <a href=\"https://www.privacycommission.be\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand-600 dark:text-brand-400 underline\">www.privacycommission.be</a>"
+                    "subtitle": "Comment les exercer",
+                    "text": "Pour exercer ces droits, adressez une demande écrite à : <a href=\"mailto:ib2diallo@gmail.com\" class=\"text-brand-600 dark:text-brand-400 underline\">ib2diallo@gmail.com</a>. Nous nous engageons à y répondre dans les meilleurs délais."
                 }
             ]
         },
         {
-            "id": "ck-1",
+            "id": "cookies-1",
             "category": "cookies",
-            "title": "Politique d'utilisation des cookies",
+            "title": "Politique des cookies",
             "icon": "Cookie",
             "content": [
                 {
-                    "subtitle": "Que sont les cookies ?",
-                    "text": "Les cookies sont de petits fichiers texte déposés sur votre appareil (ordinateur, smartphone, tablette) lors de votre navigation sur notre site. Ils nous permettent de reconnaître votre navigateur et d'améliorer votre expérience utilisateur."
+                    "subtitle": "Utilisation des cookies",
+                    "text": "La démonstration utilise uniquement les cookies et le stockage local <strong>strictement nécessaires</strong> au fonctionnement de l'application : session d'authentification, préférences de langue et de thème."
                 },
                 {
-                    "subtitle": "Cookies essentiels",
-                    "text": "Ces cookies sont <strong>strictement nécessaires</strong> au fonctionnement du service. Ils permettent de :<br/><br/>• Vous authentifier et maintenir votre session<br/>• Sécuriser vos transactions<br/>• Mémoriser vos préférences de langue et de thème<br/>• Respecter les limites de taux (rate limiting) pour la sécurité"
+                    "subtitle": "Aucun traçage",
+                    "text": "Aucun cookie publicitaire ou de <strong>suivi tiers</strong> n'est utilisé sur l'application."
                 },
                 {
-                    "subtitle": "Cookies analytiques",
-                    "text": "Nous utilisons des cookies analytiques pour comprendre comment vous utilisez notre service et l'améliorer. Ces cookies collectent des données anonymes sur :<br/><br/>• Les pages visitées et le temps passé<br/>• Les fonctionnalités utilisées<br/>• Les éventuelles erreurs rencontrées<br/><br/>Vous pouvez refuser ces cookies à tout moment via notre bannière de consentement."
-                },
-                {
-                    "subtitle": "Gestion des cookies",
-                    "text": "Vous pouvez configurer vos préférences de cookies à tout moment via notre <strong>centre de préférences</strong> accessible en bas de page. Vous pouvez également paramétrer votre navigateur pour refuser ou supprimer les cookies. Attention : la désactivation des cookies essentiels peut affecter le fonctionnement du service."
+                    "subtitle": "Gestion",
+                    "text": "Vous pouvez configurer votre navigateur pour bloquer ou supprimer ces cookies. Certaines fonctionnalités pourraient alors ne plus être disponibles."
                 }
             ]
         },
         {
             "id": "terms-1",
             "category": "terms",
-            "title": "Conditions générales d'utilisation",
+            "title": "Conditions d'utilisation de la démonstration",
             "icon": "FileText",
             "content": [
                 {
-                    "subtitle": "Acceptation des conditions",
-                    "text": "En créant un compte SendMe et en utilisant nos services, vous acceptez sans réserve les présentes conditions générales d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser nos services."
+                    "subtitle": "Objet",
+                    "text": "Les présentes conditions encadrent l'utilisation de la plateforme SendMe dans le cadre de sa <strong>démonstration académique</strong> (TFE)."
                 },
                 {
-                    "subtitle": "Éligibilité",
-                    "text": "Pour utiliser SendMe, vous devez :<br/><br/>• Être âgé d'au moins <strong>18 ans</strong><br/>• Disposer de la capacité juridique pour contracter<br/>• Fournir des informations exactes et complètes<br/>• Ne pas être inscrit sur une liste de sanctions internationales<br/>• Résider dans un pays où SendMe est autorisé à opérer"
+                    "subtitle": "Accès",
+                    "text": "L'accès à l'application est fourni à titre de <strong>démonstration technique</strong>. Aucune transaction financière réelle n'est exécutée."
                 },
                 {
-                    "subtitle": "Obligations de l'utilisateur",
-                    "text": "En tant qu'utilisateur, vous vous engagez à :<br/><br/>• Fournir des informations d'identification exactes et à jour<br/>• Ne pas utiliser le service à des fins illicites ou frauduleuses<br/>• Ne pas tenter de contourner les mesures de sécurité<br/>• Respecter les limites de transaction applicables<br/>• Informer SendMe de tout changement dans vos informations personnelles"
-                },
-                {
-                    "subtitle": "Limites de transaction",
-                    "text": "Conformément à la réglementation belge et européenne, les limites suivantes s'appliquent :<br/><br/>• <strong>Nouveau compte (niveau 1)</strong> : jusqu'à 1 000 € par transaction, 2 500 € par mois<br/>• <strong>Compte vérifié (niveau 2)</strong> : jusqu'à 5 000 € par transaction, 15 000 € par mois<br/>• <strong>Compte premium (niveau 3)</strong> : limites personnalisées après vérification renforcée"
+                    "subtitle": "Responsabilité",
+                    "text": "Le projet est fourni <strong>en l'état</strong>, à des fins pédagogiques, sans garantie d'aucune sorte. Il ne saurait être utilisé à des fins commerciales ni interprété comme un service financier réel."
                 }
             ]
         },
         {
             "id": "terms-2",
             "category": "terms",
-            "title": "Tarifs et frais applicables",
+            "title": "Simulation de tarifs et de change",
             "icon": "Euro",
             "content": [
                 {
-                    "subtitle": "Frais de transfert",
-                    "text": "Les frais applicables à chaque transfert sont clairement indiqués avant la confirmation de la transaction. Ils comprennent :<br/><br/>• <strong>Frais de service</strong> : pourcentage variable selon le montant et la destination<br/>• <strong>Frais de change</strong> : marge appliquée sur le taux de change interbancaire<br/>• <strong>Frais de canal</strong> : frais éventuels liés au mode de réception (mobile money, virement bancaire, etc.)"
+                    "subtitle": "Simulateur",
+                    "text": "Le simulateur de frais et de taux de change présente des <strong>données indicatives fictives</strong> destinées à illustrer l'expérience utilisateur."
                 },
                 {
-                    "subtitle": "Transparence des taux",
-                    "text": "SendMe s'engage à une <strong>transparence totale</strong> sur les taux de change et les frais. Avant chaque transaction, vous verrez :<br/><br/>• Le montant exact que vous envoyez<br/>• Le taux de change appliqué<br/>• Le montant total des frais<br/>• Le montant exact que le bénéficiaire recevra<br/><br/>Aucun frais caché n'est appliqué."
-                },
-                {
-                    "subtitle": "Droit de rétractation",
-                    "text": "Conformément à la DSP2, vous disposez d'un <strong>droit de rétractation de 14 jours</strong> pour les contrats de services de paiement conclus à distance. Toutefois, ce droit ne s'applique pas une fois le transfert exécuté, conformément à l'article VI.53 du Code de droit économique belge."
+                    "subtitle": "Aucun taux réel",
+                    "text": "Les taux et frais affichés ne reflètent <strong>aucun marché financier réel</strong> et ne peuvent pas être utilisés pour une opération réelle."
                 }
             ]
-        },
+        }
+,
         {
             "id": "pr-1",
             "category": "privacy",
-            "title": "Protection de la vie privée",
+            "title": "Vie privée & sécurité",
             "icon": "Lock",
             "content": [
                 {
-                    "subtitle": "Chiffrement des données",
-                    "text": "Toutes les données transitant par SendMe sont protégées par un <strong>chiffrement TLS 1.3</strong> (Transport Layer Security). Vos informations de paiement sont traitées via Stripe, qui est certifié PCI DSS niveau 1, le plus haut niveau de sécurité pour les transactions financières."
+                    "subtitle": "Sécurisation des échanges",
+                    "text": "Les communications sont <strong>chiffrées</strong> (HTTPS/TLS). Les mots de passe sont <strong>hachés</strong> et les sessions d'authentification sécurisées."
                 },
                 {
-                    "subtitle": "Stockage sécurisé",
-                    "text": "Vos données sont stockées sur des serveurs sécurisés situés dans l'<strong>Union Européenne</strong>, conformément au RGPD. Nous utilisons des mesures de sécurité techniques et organisationnelles pour protéger vos données contre tout accès non autorisé, perte ou divulgation."
+                    "subtitle": "Données fictives",
+                    "text": "Aucune donnée bancaire réelle n'est traitée. Le module de paiement est utilisé en <strong>mode test</strong> avec des identifiants de démonstration."
                 },
                 {
-                    "subtitle": "Partage des données",
-                    "text": "SendMe ne partage vos données personnelles qu'avec :<br/><br/>• Nos <strong>partenaires de paiement</strong> (Stripe, partenaires bancaires) pour le traitement des transactions<br/>• Les <strong>autorités réglementaires</strong> (BNB, FSMA, APD) lorsque requis par la loi<br/>• Nos <strong>prestataires KYC</strong> pour la vérification d'identité<br/><br/>Nous ne vendons jamais vos données personnelles à des tiers."
+                    "subtitle": "Bonnes pratiques",
+                    "text": "Le projet met en œuvre les bonnes pratiques de sécurité web : validation des entrées, protection des routes et gestion sécurisée des jetons d'authentification."
                 }
             ]
         },
         {
             "id": "aml-1",
             "category": "aml",
-            "title": "Lutte contre le blanchiment d'argent (AML/CFT)",
+            "title": "Lutte anti-blanchiment — volet pédagogique",
             "icon": "ShieldAlert",
             "content": [
                 {
-                    "subtitle": "Notre engagement",
-                    "text": "SendMe est soumis à la <strong>loi belge du 18 septembre 2017</strong> relative à la prévention du blanchiment de capitaux et du financement du terrorisme, transposant les directives européennes 2015/849 et 2018/843."
+                    "subtitle": "Objectif",
+                    "text": "Afin d'illustrer les exigences du secteur, le prototype simule des mécanismes de <strong>connaissance client (KYC)</strong> et de <strong>détection d'activités suspectes</strong>."
                 },
                 {
-                    "subtitle": "Procédure KYC (Know Your Customer)",
-                    "text": "Pour respecter nos obligations légales, nous procédons à une <strong>vérification d'identité</strong> de nos utilisateurs. Cette procédure peut inclure :<br/><br/>• Vérification de la pièce d'identité (passeport, carte d'identité)<br/>• Justificatif de domicile de moins de 3 mois<br/>• Selfie ou vérification vidéo<br/>• Questionnaire sur l'origine des fonds (pour les montants élevés)"
+                    "subtitle": "Simulation",
+                    "text": "Ces mécanismes sont purement <strong>démonstratifs</strong>. Ils ne correspondent à aucune obligation réglementaire réelle et l'application n'est pas soumise à la réglementation anti-blanchiment."
                 },
                 {
-                    "subtitle": "Déclaration de transactions suspectes",
-                    "text": "Conformément à la loi, SendMe est tenu de signaler toute transaction suspecte à la <strong>Cellule de Traitement des Informations Financières (CTIF)</strong> belge. Cette obligation légale prime sur le secret professionnel et le devoir de confidentialité."
-                },
-                {
-                    "subtitle": "Sanctions internationales",
-                    "text": "SendMe vérifie systématiquement tous les utilisateurs et transactions contre les <strong>listes de sanctions</strong> publiées par :<br/><br/>• L'Union Européenne (UE)<br/>• Les Nations Unies (ONU)<br/>• L'Office of Foreign Assets Control (OFAC)<br/>• Le Trésor belge"
+                    "subtitle": "Limite",
+                    "text": "Aucune déclaration de transaction suspecte n'est réellement effectuée par la plateforme."
                 }
             ]
         },
         {
             "id": "complaints-1",
             "category": "complaints",
-            "title": "Procédure de réclamation",
+            "title": "Contact & évaluation du projet",
             "icon": "MessageSquare",
             "content": [
                 {
-                    "subtitle": "Comment déposer une réclamation ?",
-                    "text": "Si vous n'êtes pas satisfait de nos services, vous pouvez déposer une réclamation :<br/><br/>• Par email à : <a href=\"mailto:complaints@sendme.com\" class=\"text-brand-600 dark:text-brand-400 underline\">complaints@sendme.com</a><br/>• Par courrier à : SendMe Technologies SA, Service Réclamations, Avenue de la Toison d'Or 25, 1050 Bruxelles<br/>• Via notre formulaire de contact dans votre espace client"
+                    "subtitle": "Retour sur le projet",
+                    "text": "Pour toute question, remarque ou retour sur le projet de fin d'études, vous pouvez contacter le porteur du projet à l'adresse : <a href=\"mailto:ib2diallo@gmail.com\" class=\"text-brand-600 dark:text-brand-400 underline\">ib2diallo@gmail.com</a>"
                 },
                 {
-                    "subtitle": "Délais de traitement",
-                    "text": "Nous accuserons réception de votre réclamation sous <strong>5 jours ouvrés</strong> et nous nous engageons à vous apporter une réponse motivée sous <strong>15 jours ouvrés</strong> maximum. Pour les cas complexes, ce délai peut être prolongé à 30 jours ouvrés, avec information préalable."
-                },
-                {
-                    "subtitle": "Médiation",
-                    "text": "Si vous n'êtes pas satisfait de notre réponse, vous pouvez saisir le <strong>Médiateur des Services Financiers</strong> (Ombudsfin) :<br/><br/>Ombudsfin<br/>Place de la Station 1<br/>1080 Bruxelles<br/>Site : <a href=\"https://www.ombudsfin.be\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"text-brand-600 dark:text-brand-400 underline\">www.ombudsfin.be</a><br/>Email : <a href=\"mailto:reclamations@ombudsfin.be\" class=\"text-brand-600 dark:text-brand-400 underline\">reclamations@ombudsfin.be</a>"
+                    "subtitle": "Remerciements",
+                    "text": "Ce projet ayant été réalisé dans un cadre académique, nous vous remercions pour votre visite et votre compréhension quant au caractère de <strong>démonstration</strong> de l'application."
                 }
             ]
         }
     ],
     "footer": {
-        "disclaimer": "Ces informations sont fournies à titre indicatif et ne constituent pas un avis juridique. Pour toute question spécifique concernant votre situation personnelle, veuillez consulter un avocat spécialisé en droit des technologies financières.",
-        "contact": "Une question juridique ?",
-        "contactSub": "Notre équipe juridique est à votre disposition pour toute information complémentaire.",
-        "contactButton": "Contacter le service juridique"
+        "disclaimer": "Ce site est un projet de fin d'études (TFE) réalisé à des fins pédagogiques et de démonstration. SendMe est un prototype : ce n'est ni un service commercial, ni un établissement de paiement, ni une institution financière. Les références réglementaires et les données présentées sont fictives et n'ont aucune valeur contractuelle.",
+        "contact": "Une question sur le projet ?",
+        "contactSub": "Ce projet est réalisé dans un cadre académique. N'hésitez pas à nous contacter pour toute question relative au TFE.",
+        "contactButton": "Contacter le projet"
     }
 }
+
+
+
+
