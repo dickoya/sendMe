@@ -230,19 +230,19 @@ export default function CurrencySelect({ options, value, onChange, label }: Curr
 
     return (
         <div ref={ref} className="relative">
-            <label className="mb-1.5 block text-sm font-medium text-white/80">{label}</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300">{label}</label>
             <button
                 type="button"
                 onClick={() => setOpen(!open)}
-                className="flex w-full items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-medium text-white ring-1 ring-white/20 transition-all hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="flex w-full items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 ring-1 ring-gray-200 transition-all hover:bg-white hover:ring-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-400/60 dark:bg-[#0A0A0F] dark:text-gray-100 dark:ring-[#2A2A40] dark:hover:bg-[#12121A]"
             >
                 {FlagIcon && <FlagIcon />}
                 <span className="flex-1 text-left">{selected.code}</span>
-                <ChevronDown size={14} className={`text-white/60 transition-transform ${open ? 'rotate-180' : ''}`} />
+                <ChevronDown size={14} className={`text-gray-400 transition-transform ${open ? 'rotate-180' : ''}`} />
             </button>
 
             {open && (
-                <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-white/10 bg-brand-800 shadow-xl backdrop-blur-xl">
+                <div className="absolute left-0 right-0 z-50 mt-1 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl dark:border-[#2A2A40] dark:bg-[#12121A]">
                     {options.map((option) => {
                         const ItemFlag = FLAG_MAP[option.flag];
                         const isSelected = option.code === value;
@@ -256,13 +256,13 @@ export default function CurrencySelect({ options, value, onChange, label }: Curr
                                 }}
                                 className={`flex w-full items-center gap-2 px-3 py-2 text-left text-sm transition-all ${
                                     isSelected
-                                        ? 'bg-white/15 text-white'
-                                        : 'text-white/70 hover:bg-white/10 hover:text-white'
+                                        ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-[#0A0A0F] dark:hover:text-gray-100'
                                 }`}
                             >
                                 {ItemFlag && <ItemFlag />}
                                 <span className="font-medium">{option.code}</span>
-                                <span className="text-white/50">{option.label}</span>
+                                <span className="text-gray-400 dark:text-gray-500">{option.label}</span>
                             </button>
                         );
                     })}

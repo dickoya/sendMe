@@ -122,29 +122,21 @@ function Home() {
             icon: Zap,
             title: t('features.speed.title'),
             description: t('features.speed.description'),
-            gradient: 'from-amber-400 to-orange-500',
-            bgGlow: 'bg-amber-500/10',
         },
         {
             icon: Shield,
             title: t('features.security.title'),
             description: t('features.security.description'),
-            gradient: 'from-emerald-400 to-teal-500',
-            bgGlow: 'bg-emerald-500/10',
         },
         {
             icon: TrendingDown,
             title: t('features.rates.title'),
             description: t('features.rates.description'),
-            gradient: 'from-brand-400 to-brand-600',
-            bgGlow: 'bg-brand-500/10',
         },
         {
             icon: Smartphone,
             title: t('features.channels.title'),
             description: t('features.channels.description'),
-            gradient: 'from-violet-400 to-purple-500',
-            bgGlow: 'bg-violet-500/10',
         },
     ];
 
@@ -190,7 +182,7 @@ function Home() {
     }, []);
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen flex-col overflow-x-hidden">
             {/* ===== NAVIGATION ===== */}
             <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/70 backdrop-blur-xl dark:bg-[#0A0A0F]/70 dark:border-[#1E1E30]/50">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -255,35 +247,31 @@ function Home() {
 
             {/* ===== HERO SECTION ===== */}
             <section className="relative overflow-hidden pt-24">
-                {/* Arrière-plan animé */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#0C1250] via-brand-900 to-brand-700 dark:from-[#05050A] dark:via-[#0C0F2E] dark:to-[#141A4A]">
-                    {/* Grille subtile */}
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIvPjwvZz48L2c+PC9zdmc+')] opacity-40" />
-                    {/* Cercles décoratifs */}
-                    <div className="absolute -top-40 -right-40 h-[500px] w-[500px] rounded-full bg-gradient-to-br from-brand-400/20 to-accent-400/10 blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
-                    <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] rounded-full bg-gradient-to-tr from-violet-500/15 to-brand-400/10 blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
-                    <div className="absolute top-1/2 left-1/3 h-[300px] w-[300px] rounded-full bg-accent-400/5 blur-3xl animate-pulse" style={{ animationDuration: '12s' }} />
+                {/* Fond clair et épuré */}
+                <div className="absolute inset-0 bg-gradient-to-b from-gray-50 via-white to-white dark:from-[#0A0A0F] dark:via-[#0A0A0F] dark:to-[#0A0A0F]">
+                    {/* Halo très feutré, simple touche de lumière */}
+                    <div className="absolute -top-40 -right-40 h-[400px] w-[400px] rounded-full bg-brand-500/5 blur-3xl" />
+                    <div className="absolute -bottom-40 -left-40 h-[350px] w-[350px] rounded-full bg-gray-100/70 blur-3xl dark:bg-brand-500/5" />
                 </div>
 
                 <div className="relative mx-auto max-w-7xl px-4 pb-24 pt-20 sm:px-6 lg:px-8 lg:pb-32 lg:pt-28">
                     <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-20">
                         {/* Texte Hero */}
                         <div className="text-center lg:text-left" ref={animateRef}>
-                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-white/90 backdrop-blur-sm animate-fade-in">
-                                <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-1.5 text-sm text-gray-600 shadow-sm animate-fade-in dark:border-[#1E1E30] dark:bg-[#12121A] dark:text-gray-300">
+                                <Sparkles size={14} className="text-brand-500" />
                                 {t('hero.trustBadge')}
-                                <Sparkles size={14} className="text-accent-400" />
                             </div>
-                            <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl animate-fade-in-up">
+                            <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900 sm:text-4xl lg:text-5xl animate-fade-in-up dark:text-gray-100">
                                 {t('hero.title')}
                             </h1>
-                            <p className="mt-6 text-lg leading-relaxed text-white/70 sm:text-xl animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                            <p className="mt-6 text-lg leading-relaxed text-gray-500 sm:text-xl animate-fade-in-up dark:text-gray-400" style={{ animationDelay: '0.1s' }}>
                                 {t('hero.subtitle')}
                             </p>
                             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
                                 <Button
                                     size="lg"
-                                    className="w-full sm:w-auto bg-white text-brand-700 hover:bg-gray-100 hover:text-brand-800 shadow-2xl shadow-white/10 group"
+                                    className="w-full sm:w-auto bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/15 hover:shadow-xl hover:shadow-brand-500/25 group"
                                     onClick={handleGetStarted}
                                 >
                                     {t('hero.cta')}
@@ -293,7 +281,7 @@ function Home() {
                                     <Button
                                         variant="outline"
                                         size="lg"
-                                        className="w-full border-white/20 text-white/90 hover:bg-white/10 hover:border-white/40 hover:text-white"
+                                        className="w-full border-gray-200 text-gray-700 hover:border-brand-400 hover:text-brand-600"
                                     >
                                         {t('simulator.title')}
                                     </Button>
@@ -302,15 +290,15 @@ function Home() {
 
                             {/* Trust indicators */}
                             <div className="mt-12 flex flex-wrap items-center justify-center gap-6 lg:justify-start animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-                                <div className="flex items-center gap-2 text-white/50">
+                                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
                                     <Lock size={14} />
                                     <span className="text-xs">Sécurisé</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-white/50">
+                                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
                                     <Clock size={14} />
                                     <span className="text-xs">Instantané</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-white/50">
+                                <div className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
                                     <Repeat size={14} />
                                     <span className="text-xs">Taux réel</span>
                                 </div>
@@ -319,28 +307,28 @@ function Home() {
 
                         {/* Simulateur dans le hero — Glassmorphism */}
                         <div id="simulator" className="mx-auto w-full max-w-md lg:mx-0 animate-fade-in-up" style={{ animationDelay: '0.15s' }} ref={animateRef}>
-                            <div className="group relative rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl transition-all duration-500 hover:bg-white/10 hover:border-white/20 hover:shadow-2xl hover:shadow-brand-500/10">
-                                {/* Glow effect */}
-                                <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-brand-500/20 to-accent-400/20 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
+                            <div className="group relative rounded-2xl border border-gray-200 bg-white p-6 shadow-lg shadow-gray-200/60 transition-all duration-500 hover:shadow-xl hover:shadow-brand-500/5 sm:p-8 dark:border-[#1E1E30] dark:bg-[#12121A] dark:shadow-black/30">
+                                {/* Halo très discret au survol */}
+                                <div className="absolute -inset-0.5 rounded-2xl bg-brand-500/5 opacity-0 blur-xl transition-opacity duration-500 group-hover:opacity-100" />
                                 <div className="relative">
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400 to-brand-600 shadow-lg shadow-brand-500/20">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 shadow-md shadow-brand-500/15">
                                             <Send size={18} className="text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-semibold text-white">{t('simulator.title')}</h3>
-                                            <p className="text-sm text-white/50">{t('simulator.subtitle')}</p>
+                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{t('simulator.title')}</h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">{t('simulator.subtitle')}</p>
                                         </div>
                                     </div>
 
                                     <div className="mt-6 space-y-4">
                                         {/* Montant à envoyer */}
                                         <div>
-                                            <label className="mb-1.5 block text-sm font-medium text-white/60">
+                                            <label className="mb-1.5 block text-sm font-medium text-gray-600 dark:text-gray-300">
                                                 {t('simulator.youSend')}
                                             </label>
                                             <div className="flex items-center gap-2">
-                                                <div className="w-28 shrink-0">
+                                                <div className="w-24 shrink-0 sm:w-28">
                                                     <CurrencySelect
                                                         options={currencyFromOptions}
                                                         value={currencyFrom}
@@ -353,7 +341,7 @@ function Home() {
                                                     min="1"
                                                     value={amount || ''}
                                                     onChange={(e) => setAmount(Number(e.target.value) || 0)}
-                                                    className="h-11 flex-1 rounded-xl bg-white/5 px-3 text-right text-lg font-semibold text-white placeholder-white/30 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-brand-400/50 transition-all"
+                                                    className="h-11 min-w-0 flex-1 rounded-xl bg-gray-50 px-3 text-right text-lg font-semibold text-gray-900 placeholder-gray-400 outline-none ring-1 ring-gray-200 transition-all focus:ring-2 focus:ring-brand-400/60 dark:bg-[#0A0A0F] dark:text-gray-100 dark:placeholder-gray-500 dark:ring-[#2A2A40]"
                                                     placeholder="100"
                                                 />
                                             </div>
@@ -375,31 +363,31 @@ function Home() {
                                         )}
 
                                         {simulation && !simulating && (
-                                            <div className="space-y-3 rounded-xl bg-white/5 p-4 ring-1 ring-white/5">
+                                            <div className="space-y-3 rounded-xl bg-gray-50 p-4 ring-1 ring-gray-100 dark:bg-[#0A0A0F] dark:ring-[#1E1E30]">
                                                 <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-white/50">{t('simulator.exchangeRate')}</span>
-                                                    <span className="font-medium text-white/90">
+                                                    <span className="text-gray-500 dark:text-gray-400">{t('simulator.exchangeRate')}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-gray-100">
                                                         1 {currencyFrom} = {simulation.exchangeRate.toLocaleString('fr-FR')} {currencyTo}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-white/50">{t('simulator.fees')}</span>
-                                                    <span className="font-medium text-white/90">
+                                                    <span className="text-gray-500 dark:text-gray-400">{t('simulator.fees')}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-gray-100">
                                                         {formatCurrency(simulation.fees, currencyFrom)}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between text-sm">
-                                                    <span className="text-white/50">{t('simulator.totalDebited')}</span>
-                                                    <span className="font-medium text-white/90">
+                                                    <span className="text-gray-500 dark:text-gray-400">{t('simulator.totalDebited')}</span>
+                                                    <span className="font-medium text-gray-900 dark:text-gray-100">
                                                         {formatCurrency(simulation.totalDebited, currencyFrom)}
                                                     </span>
                                                 </div>
-                                                <div className="border-t border-white/10 pt-3">
+                                                <div className="border-t border-gray-200 pt-3 dark:border-[#2A2A40]">
                                                     <div className="flex items-center justify-between">
-                                                        <span className="text-sm font-medium text-white/70">
+                                                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                                             {t('simulator.theyReceive')}
                                                         </span>
-                                                        <span className="text-xl font-bold bg-gradient-to-r from-accent-400 to-accent-300 bg-clip-text text-transparent">
+                                                        <span className="text-xl font-bold bg-gradient-to-r from-brand-500 to-brand-600 bg-clip-text text-transparent">
                                                             {formatCurrency(simulation.amountReceived, currencyTo)}
                                                         </span>
                                                     </div>
@@ -453,10 +441,10 @@ function Home() {
                                 className="group relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-brand-500/5 hover:-translate-y-1 dark:border-[#1E1E30] dark:bg-[#12121A]"
                                 style={{ animationDelay: `${index * 0.1}s` }}
                             >
-                                {/* Glow au hover */}
-                                <div className={`absolute inset-0 rounded-2xl ${feature.bgGlow} opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:opacity-0`} />
+                                {/* Halo très discret au survol */}
+                                <div className="absolute inset-0 rounded-2xl bg-brand-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                                 <div className="relative">
-                                    <div className={`inline-flex rounded-xl bg-gradient-to-br ${feature.gradient} p-3 shadow-lg`}>
+                                    <div className="inline-flex rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 p-3 shadow-md shadow-brand-500/15">
                                         <feature.icon size={22} className="text-white" />
                                     </div>
                                     <h3 className="mt-5 text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -511,13 +499,9 @@ function Home() {
 
             {/* ===== SECTION PARRAINAGE ===== */}
             <section className="relative overflow-hidden bg-white py-24 sm:py-32 dark:bg-[#12121A]">
-                {/* Formes décoratives */}
-                <div className="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-accent-400/5 blur-3xl" />
-                <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-brand-500/5 blur-3xl" />
-
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-2xl text-center" ref={animateRef}>
-                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-400 to-accent-600 shadow-lg shadow-accent-500/20">
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-600 shadow-lg shadow-brand-500/15">
                             <Gift size={26} className="text-white" />
                         </div>
                         <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-gray-100">
@@ -531,7 +515,7 @@ function Home() {
                     <div className="mt-16 grid gap-8 md:grid-cols-3">
                         {/* Avantage 1 */}
                         <div className="group relative rounded-2xl border border-gray-100 bg-gray-50 p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-[#1E1E30] dark:bg-[#0A0A0F]" ref={animateRef}>
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-2xl font-bold text-white shadow-md shadow-brand-500/15">
                                 <Euro size={24} />
                             </div>
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -543,15 +527,15 @@ function Home() {
                         </div>
 
                         {/* Avantage 2 — Mise en avant */}
-                        <div className="group relative rounded-2xl border-2 border-accent-200 bg-gradient-to-b from-accent-50 to-white p-8 text-center shadow-xl shadow-accent-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-accent-500/20 hover:-translate-y-1 dark:border-accent-700/50 dark:from-accent-900/20 dark:to-[#12121A]" ref={animateRef}>
+                        <div className="group relative rounded-2xl border-2 border-brand-100 bg-gradient-to-b from-brand-50/60 to-white p-8 text-center shadow-xl shadow-brand-500/10 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-500/15 hover:-translate-y-1 dark:border-brand-700/40 dark:from-brand-900/20 dark:to-[#12121A]" ref={animateRef}>
                             {/* Badge "Populaire" */}
                             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-accent-500 to-accent-600 px-4 py-1 text-xs font-semibold text-white shadow-lg">
+                                <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-1 text-xs font-semibold text-white shadow-md shadow-brand-500/20">
                                     <Gift size={12} />
                                     {t('referral.benefit2')}
                                 </span>
                             </div>
-                            <div className="mx-auto mt-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                            <div className="mx-auto mt-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-2xl font-bold text-white shadow-md shadow-brand-500/15">
                                 <Users size={24} />
                             </div>
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -564,7 +548,7 @@ function Home() {
 
                         {/* Avantage 3 */}
                         <div className="group relative rounded-2xl border border-gray-100 bg-gray-50 p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-[#1E1E30] dark:bg-[#0A0A0F]" ref={animateRef}>
-                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-accent-400 to-accent-600 text-2xl font-bold text-white shadow-lg shadow-accent-500/20">
+                            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-600 text-2xl font-bold text-white shadow-md shadow-brand-500/15">
                                 <Star size={24} />
                             </div>
                             <h3 className="mt-6 text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -579,7 +563,7 @@ function Home() {
                     {/* CTA */}
                     <div className="mt-12 text-center" ref={animateRef}>
                         <Link to="/register">
-                            <Button size="lg" className="bg-gradient-to-r from-accent-500 to-accent-600 text-white shadow-lg shadow-accent-500/20 hover:from-accent-600 hover:to-accent-700 hover:shadow-xl hover:shadow-accent-500/30 group">
+                            <Button size="lg" className="bg-gradient-to-r from-brand-500 to-brand-600 text-white shadow-lg shadow-brand-500/15 hover:from-brand-600 hover:to-brand-700 hover:shadow-xl hover:shadow-brand-500/25 group">
                                 {t('referral.cta')}
                                 <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                             </Button>
@@ -592,23 +576,19 @@ function Home() {
             </section>
 
             {/* ===== SECTION STATISTIQUES ===== */}
-            <section className="relative overflow-hidden bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 py-20 dark:from-[#0C0F2E] dark:via-[#141A4A] dark:to-[#1F2A6E]">
-                {/* Cercles décoratifs */}
-                <div className="absolute top-0 right-0 h-64 w-64 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
-                <div className="absolute bottom-0 left-0 h-64 w-64 -translate-x-1/2 translate-y-1/2 rounded-full bg-white/5 blur-3xl" />
-
+            <section className="relative overflow-hidden border-y border-gray-100 bg-white py-20 dark:border-[#1E1E30] dark:bg-[#0A0A0F]">
                 <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <h2 className="text-center text-2xl font-bold text-white sm:text-3xl">
+                    <h2 className="text-center text-2xl font-bold text-gray-900 sm:text-3xl dark:text-gray-100">
                         {t('stats.title')}
                     </h2>
-                    <div className="mt-12 grid grid-cols-2 gap-8 md:grid-cols-4">
+                    <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         {stats.map((stat) => (
                             <div key={stat.label} className="text-center group" ref={animateRef}>
-                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm ring-1 ring-white/10 transition-all duration-300 group-hover:bg-white/20 group-hover:scale-110">
-                                    <stat.icon size={24} className="text-white" />
+                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-all duration-300 group-hover:bg-brand-100 group-hover:scale-110 dark:bg-brand-500/10 dark:text-brand-300">
+                                    <stat.icon size={24} />
                                 </div>
-                                <p className="mt-4 text-3xl font-bold text-white">{stat.value}</p>
-                                <p className="mt-1 text-sm text-white/60">{stat.label}</p>
+                                <p className="mt-4 text-3xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</p>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{stat.label}</p>
                             </div>
                         ))}
                     </div>
