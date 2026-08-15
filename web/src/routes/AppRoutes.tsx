@@ -20,6 +20,7 @@ const VerificationSent = lazy(() => import('@/pages/public/VerificationSent'));
 const ForgotPassword = lazy(() => import('@/pages/public/ForgotPassword'));
 const ResetPassword = lazy(() => import('@/pages/public/ResetPassword'));
 const LegalNotice = lazy(() => import('@/pages/public/LegalNotice'));
+const Contact = lazy(() => import('@/pages/public/Contact'));
 
 // Pages privées
 const Dashboard = lazy(() => import('@/pages/private/Dashboard'));
@@ -69,11 +70,12 @@ function AppRoutes() {
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
-                {/* Routes publiques (Login, Register, Legal) */}
+                {/* Routes publiques (Login, Register, Legal, Contact) */}
                 <Route element={<PublicLayout />}>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route path="/legal" element={<LegalNotice />} />
+                    <Route path="/contact" element={<Contact />} />
                 </Route>
 
                 {/* Routes privées (utilisateur connecté) */}

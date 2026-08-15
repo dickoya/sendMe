@@ -1,0 +1,48 @@
+{
+    "meta": {
+        "title": "Contact — SendMe",
+        "description": "Contactez-nous pour toute question sur le projet SendMe"
+    },
+    "page": {
+        "title": "Contactez-nous",
+        "subtitle": "Une question, une suggestion ou un retour sur le projet ? Notre équipe vous répondra dans les meilleurs délais.",
+        "formTitle": "Envoyez-nous un message",
+        "formSubtitle": "Remplissez le formulaire : votre client de messagerie s'ouvrira avec votre message déjà pré-rempli.",
+        "name": "Nom complet",
+        "namePlaceholder": "Jean Dupont",
+        "email": "Adresse email",
+        "emailPlaceholder": "vous@exemple.com",
+        "subject": "Sujet",
+        "message": "Votre message",
+        "messagePlaceholder": "Décrivez votre demande en quelques lignes...",
+        "submit": "Envoyer le message",
+        "success": "Merci ! Votre client de messagerie s'est ouvert avec votre message pré-rempli. Il ne vous reste plus qu'à l'envoyer.",
+        "errors": {
+            "name": "Veuillez indiquer votre nom",
+            "email": "Veuillez saisir une adresse email valide",
+            "message": "Veuillez écrire votre message"
+        }
+    },
+    "info": {
+        "title": "Nos coordonnées",
+        "email": "Email",
+        "emailValue": "contact@sendme-tfe.fr",
+        "support": "Support",
+        "supportValue": "support@sendme.com",
+        "hours": "Disponibilité",
+        "hoursValue": "24h/24, 7j/7",
+        "legal": "Informations légales",
+        "legalLink": "Consulter les mentions légales"
+    },
+    "subjects": {
+        "general": "Question générale",
+        "support": "Assistance technique",
+        "feedback": "Retour / suggestion",
+        "other": "Autre"
+    },
+    "footer": {
+        "home": "Accueil",
+        "legal": "Mentions légales",
+        "rights": "Tous droits réservés."
+    }
+}

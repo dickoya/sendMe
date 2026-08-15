@@ -1,0 +1,48 @@
+{
+    "meta": {
+        "title": "Contact — SendMe",
+        "description": "Contact us with any question about the SendMe project"
+    },
+    "page": {
+        "title": "Contact us",
+        "subtitle": "A question, a suggestion or feedback about the project? Our team will get back to you as soon as possible.",
+        "formTitle": "Send us a message",
+        "formSubtitle": "Fill in the form: your email client will open with your message already filled in.",
+        "name": "Full name",
+        "namePlaceholder": "John Doe",
+        "email": "Email address",
+        "emailPlaceholder": "you@example.com",
+        "subject": "Subject",
+        "message": "Your message",
+        "messagePlaceholder": "Describe your request in a few lines...",
+        "submit": "Send message",
+        "success": "Thank you! Your email client opened with your pre-filled message. All that's left is to send it.",
+        "errors": {
+            "name": "Please provide your name",
+            "email": "Please enter a valid email address",
+            "message": "Please write your message"
+        }
+    },
+    "info": {
+        "title": "Our details",
+        "email": "Email",
+        "emailValue": "contact@sendme-tfe.fr",
+        "support": "Support",
+        "supportValue": "support@sendme.com",
+        "hours": "Availability",
+        "hoursValue": "24/7",
+        "legal": "Legal information",
+        "legalLink": "View the legal notice"
+    },
+    "subjects": {
+        "general": "General question",
+        "support": "Technical support",
+        "feedback": "Feedback / suggestion",
+        "other": "Other"
+    },
+    "footer": {
+        "home": "Home",
+        "legal": "Legal notice",
+        "rights": "All rights reserved."
+    }
+}

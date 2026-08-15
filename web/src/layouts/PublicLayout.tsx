@@ -12,6 +12,8 @@ function PublicLayout() {
     const { setTheme } = useTheme();
     const isLegalPage = location.pathname === '/legal';
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+    const isContactPage = location.pathname === '/contact';
+    const isWidePage = isLegalPage || isContactPage;
 
     useEffect(() => {
         if (isAuthPage) {
@@ -42,6 +44,16 @@ function PublicLayout() {
                             className="text-sm font-medium text-gray-600 transition-colors hover:text-brand-600 dark:text-[#8B8FA3] dark:hover:text-brand-400"
                         >
                             {t('nav.home', 'Accueil')}
+                        </Link>
+                        <Link
+                            to="/contact"
+                            className={`text-sm font-medium transition-colors ${
+                                isContactPage
+                                    ? 'text-brand-600 dark:text-brand-400'
+                                    : 'text-gray-600 hover:text-brand-600 dark:text-[#8B8FA3] dark:hover:text-brand-400'
+                            }`}
+                        >
+                            {t('nav.contact', 'Contact')}
                         </Link>
                         <Link
                             to="/legal"
@@ -79,7 +91,7 @@ function PublicLayout() {
             </header>
 
             {/* Contenu principal */}
-            <main className={`flex-1 ${isLegalPage ? '' : 'flex items-center justify-center px-4 pb-12'}`}>
+            <main className={`flex-1 ${isWidePage ? '' : 'flex items-center justify-center px-4 pb-12'}`}>
                 <Outlet />
             </main>
         </div>
