@@ -105,20 +105,13 @@ function Login() {
                             ))}
                         </div>
 
-                        {/* Témoignage */}
-                        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm max-w-sm">
-                            <p className="text-sm leading-relaxed text-white/70 italic">
-                                "SendMe a complètement changé ma façon d'envoyer de l'argent à ma famille. C'est rapide, fiable et les taux sont imbattables."
-                            </p>
-                            <div className="mt-4 flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
-                                    M
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-white">Mamadou D.</p>
-                                    <p className="text-xs text-white/50">Utilisateur depuis 2024</p>
-                                </div>
-                            </div>
+                        {/* Publicité */}
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm max-w-sm">
+                            <img
+                                src="/publicitesendme.jpeg"
+                                alt="SendMe — publicité"
+                                className="h-auto w-full rounded-xl object-cover"
+                            />
                         </div>
                     </div>
 

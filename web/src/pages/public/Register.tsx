@@ -137,20 +137,13 @@ function Register() {
                             ))}
                         </div>
 
-                        {/* Statistiques */}
-                        <div className="grid grid-cols-3 gap-4 max-w-sm">
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
-                                <p className="text-2xl font-bold text-white">50K+</p>
-                                <p className="text-xs text-white/50 mt-1">Transactions</p>
-                            </div>
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
-                                <p className="text-2xl font-bold text-white">10K+</p>
-                                <p className="text-xs text-white/50 mt-1">Utilisateurs</p>
-                            </div>
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
-                                <p className="text-2xl font-bold text-white">8</p>
-                                <p className="text-xs text-white/50 mt-1">Pays</p>
-                            </div>
+                        {/* Publicité */}
+                        <div className="rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm max-w-sm">
+                            <img
+                                src="/publicitesendme.jpeg"
+                                alt="SendMe — publicité"
+                                className="h-auto w-full rounded-xl object-cover"
+                            />
                         </div>
                     </div>
 
