@@ -48,7 +48,7 @@ import static ibrahima.dickoya.sendme.enums.NotificationType.TRANSFER_FAILED;
  * 7a. Succès → COMPLETED + notification TRANSFER_COMPLETED
  * 7b. Échec → remboursement Stripe + notification TRANSFER_FAILED (RG-04)
  *
- * ⚠️ Les appels Stripe sont effectués EN DEHORS des transactions BDD
+ *  Les appels Stripe sont effectués EN DEHORS des transactions BDD
  * pour éviter les deadlocks MySQL (gap locks InnoDB) causés par
  * des transactions longues contenant des appels réseau.
  */
@@ -187,7 +187,7 @@ public class TransferService {
         /**
          * Orchestre le transfert complet avec paiement Stripe et notifications.
          *
-         * ⚠️ PAS de @Transactional sur cette méthode :
+         * 0 PAS de @Transactional sur cette méthode :
          * Les appels Stripe (réseau) sont effectués EN DEHORS des transactions BDD.
          * Les opérations BDD sont gérées via TransactionTemplate programmatique
          * pour éviter les deadlocks MySQL (gap locks InnoDB).

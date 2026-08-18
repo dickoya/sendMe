@@ -25,13 +25,20 @@ public class BeneficiaryChannelRequest {
     private ChannelType channel;
 
     /**
+     * Identifiant du canal existant (optionnel). Utilisé à l'édition pour
+     * retrouver et préserver les coordonnées masquées (ex : IBAN) qui ne sont
+     * pas renvoyées en clair par l'API.
+     */
+    private Long id;
+
+    /**
      * Numéro de téléphone au format international.
      * Pattern : doit commencer par + suivi de 7 à 15 chiffres.
      * Les espaces de groupement sont acceptés (ex : +225 07 00 00 00 00)
      * et normalisés (espaces retirés) avant persistance.
      * Exemples valides : +33612345678, +2250712345678, +14155551234
      */
-    @Pattern(regexp = "^\\+[1-9][0-9 ]{6,16}$", message = "Le numero de telephone doit etre au format international (+XXX...)")
+    @Pattern(regexp = "^(\\+[1-9][0-9 ]{6,16})?$", message = "Le numero de telephone doit etre au format international (+XXX...)")
     private String phoneNumber;
 
     private String countryCode;
@@ -44,7 +51,7 @@ public class BeneficiaryChannelRequest {
      * alphanumériques.
      * Exemples : FR7630006000011234567890189, DE89370400440532013000
      */
-    @Pattern(regexp = "^[A-Za-z]{2}\\d{2}[A-Za-z0-9 ]{1,32}$", message = "L'IBAN doit respecter le format international (ex: FR76...)")
+    @Pattern(regexp = "^([A-Za-z]{2}\\d{2}[A-Za-z0-9 ]{1,32})?$", message = "L'IBAN doit respecter le format international (ex: FR76...)")
     private String iban;
 
     /**
@@ -54,7 +61,7 @@ public class BeneficiaryChannelRequest {
      * + 3 caractères optionnels (branche)
      * Exemples : BNPAFRPP, BNPAFRPPXXX
      */
-    @Pattern(regexp = "^[A-Za-z]{4}[A-Za-z]{2}[A-Za-z0-9 ]{2}([A-Za-z0-9 ]{3})?$", message = "Le BIC doit contenir 8 ou 11 caracteres (ex: BNPAFRPP)")
+    @Pattern(regexp = "^([A-Za-z]{4}[A-Za-z]{2}[A-Za-z0-9 ]{2}([A-Za-z0-9 ]{3})?)?$", message = "Le BIC doit contenir 8 ou 11 caracteres (ex: BNPAFRPP)")
     private String bic;
 
     @JsonProperty("isPrimary")

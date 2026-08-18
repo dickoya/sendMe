@@ -36,6 +36,7 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
     const [channels, setChannels] = useState<BeneficiaryChannelFormData[]>(
         initialData
             ? initialData.channels.map((ch) => ({
+                  id: ch.id,
                   channel: ch.channel,
                   phoneNumber: ch.phoneNumber || '',
                   countryCode: ch.countryCode || '',
@@ -77,13 +78,26 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
         // - IBAN / BIC : suppression des espaces/tirets + majuscules
         // - téléphone : suppression des espaces de groupement (garde le '+')
         // - noms : suppression des espaces inutiles en début/fin
-        const normalizedChannels = channels.map((ch) => ({
-            ...ch,
-            phoneNumber: ch.phoneNumber ? ch.phoneNumber.replace(/[\s-]/g, '') : ch.phoneNumber,
-            bankName: ch.bankName?.trim(),
-            iban: ch.iban ? ch.iban.replace(/[\s-]/g, '').toUpperCase() : ch.iban,
-            bic: ch.bic ? ch.bic.replace(/[\s-]/g, '').toUpperCase() : ch.bic,
-        }));
+        // - ne renvoyer que les champs pertinents au type de canal, et vider un
+        //   IBAN masqué (le backend le préserve via l'id du canal)
+        const normalizedChannels = channels.map((ch) => {
+            const isBank = ch.channel === 'BANK_TRANSFER';
+            const isMasked = (v?: string) => (v ? v.includes('*') : true);
+            const cleanDigits = (v?: string) => (v ? v.replace(/[\s-]/g, '') : undefined);
+
+            return {
+                ...ch,
+                phoneNumber: !isBank ? cleanDigits(ch.phoneNumber) : undefined,
+                countryCode: !isBank ? ch.countryCode : undefined,
+                bankName: isBank ? ch.bankName?.trim() : undefined,
+                iban: isBank && ch.iban && !isMasked(ch.iban)
+                    ? ch.iban.replace(/[\s-]/g, '').toUpperCase()
+                    : undefined,
+                bic: isBank && ch.bic && !isMasked(ch.bic)
+                    ? ch.bic.replace(/[\s-]/g, '').toUpperCase()
+                    : undefined,
+            };
+        });
 
         const payload: BeneficiaryFormData = {
             firstName: firstName.trim(),

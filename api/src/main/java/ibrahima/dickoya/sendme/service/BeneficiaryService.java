@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -106,7 +107,29 @@ public class BeneficiaryService {
                     messageUtils.get("error.beneficiary.access.denied"));
         }
 
-        // Valider les canaux
+        // Indexer les canaux existants pour préserver les coordonnées masquées
+        Map<Long, BeneficiaryChannel> existingById = beneficiary.getChannels().stream()
+                .filter(c -> c.getId() != null)
+                .collect(Collectors.toMap(BeneficiaryChannel::getId, c -> c));
+
+        // Préserver IBAN/BIC/téléphone existants quand la valeur reçue est vide
+        // ou masquée (l'API ne renvoie pas l'IBAN en clair).
+        for (BeneficiaryChannelRequest channelReq : request.getChannels()) {
+            BeneficiaryChannel old = existingById.get(channelReq.getId());
+            if (old != null) {
+                if (isBlankOrMasked(channelReq.getIban())) {
+                    channelReq.setIban(old.getIban());
+                }
+                if (isBlankOrMasked(channelReq.getBic())) {
+                    channelReq.setBic(old.getBic());
+                }
+                if (isBlank(channelReq.getPhoneNumber())) {
+                    channelReq.setPhoneNumber(old.getPhoneNumber());
+                }
+            }
+        }
+
+        // Valider les canaux (après prise en compte des valeurs préservées)
         validateChannels(request.getChannels());
 
         // Mettre à jour les champs de base
@@ -240,6 +263,21 @@ public class BeneficiaryService {
      */
     private String trim(String value) {
         return value == null ? null : value.trim();
+    }
+
+    /**
+     * Indique si une valeur est vide ou correspond à une coordonnée masquée
+     * (ex : IBAN "FR76 **** **** 0189") qu'il faut préserver côté serveur.
+     */
+    private boolean isBlankOrMasked(String value) {
+        return value == null || value.isBlank() || value.contains("*");
+    }
+
+    /**
+     * Indique si une valeur est vide (null ou espaces).
+     */
+    private boolean isBlank(String value) {
+        return value == null || value.isBlank();
     }
 
     /**

@@ -107,6 +107,8 @@ export interface Beneficiary {
 }
 
 export interface BeneficiaryChannelFormData {
+    /** Identifiant du canal existant (présent en édition) */
+    id?: number;
     channel: ChannelType;
     phoneNumber?: string;
     countryCode?: string;
