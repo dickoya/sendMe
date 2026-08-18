@@ -194,14 +194,52 @@ public class BeneficiaryService {
     private BeneficiaryChannel buildChannel(BeneficiaryChannelRequest req, Beneficiary beneficiary) {
         return BeneficiaryChannel.builder()
                 .channel(req.getChannel())
-                .phoneNumber(req.getPhoneNumber())
+                .phoneNumber(normalizePhone(req.getPhoneNumber()))
                 .countryCode(req.getCountryCode())
-                .bankName(req.getBankName())
-                .iban(req.getIban())
-                .bic(req.getBic())
+                .bankName(trim(req.getBankName()))
+                .iban(normalizeIban(req.getIban()))
+                .bic(normalizeBic(req.getBic()))
                 .isPrimary(req.isPrimary())
                 .beneficiary(beneficiary)
                 .build();
+    }
+
+    /**
+     * Normalise un IBAN : supprime espaces/tirets et met en majuscules.
+     * Ex : "FR76 3000 6000 0112 3456 7890 189" → "FR7630006000011234567890189"
+     */
+    private String normalizeIban(String iban) {
+        if (iban == null)
+            return null;
+        return iban.replaceAll("[\\s-]", "").toUpperCase();
+    }
+
+    /**
+     * Normalise un BIC : supprime espaces/tirets et met en majuscules.
+     * Ex : "bnpa frpp" → "BNPAFRPP"
+     */
+    private String normalizeBic(String bic) {
+        if (bic == null)
+            return null;
+        return bic.replaceAll("[\\s-]", "").toUpperCase();
+    }
+
+    /**
+     * Normalise un numéro de téléphone : supprime espaces/tirets/parenthèses
+     * en conservant le '+' international. Ex : "+225 07 00 00 00 00" → "+2250700000000"
+     */
+    private String normalizePhone(String phone) {
+        if (phone == null)
+            return null;
+        String cleaned = phone.replaceAll("[\\s-()]", "");
+        return cleaned;
+    }
+
+    /**
+     * Supprime les espaces en début/fin de chaîne.
+     */
+    private String trim(String value) {
+        return value == null ? null : value.trim();
     }
 
     /**

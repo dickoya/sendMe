@@ -73,11 +73,23 @@ function BeneficiaryForm({ initialData, onSubmit, onCancel }: BeneficiaryFormPro
         // Utiliser le premier canal comme canal par défaut (compatibilité)
         const defaultChannel = channels[0]?.channel || 'ORANGE_MONEY';
 
+        // Normaliser les valeurs avant envoi pour respecter les formats backend :
+        // - IBAN / BIC : suppression des espaces/tirets + majuscules
+        // - téléphone : suppression des espaces de groupement (garde le '+')
+        // - noms : suppression des espaces inutiles en début/fin
+        const normalizedChannels = channels.map((ch) => ({
+            ...ch,
+            phoneNumber: ch.phoneNumber ? ch.phoneNumber.replace(/[\s-]/g, '') : ch.phoneNumber,
+            bankName: ch.bankName?.trim(),
+            iban: ch.iban ? ch.iban.replace(/[\s-]/g, '').toUpperCase() : ch.iban,
+            bic: ch.bic ? ch.bic.replace(/[\s-]/g, '').toUpperCase() : ch.bic,
+        }));
+
         const payload: BeneficiaryFormData = {
-            firstName,
-            lastName,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
             channel: defaultChannel,
-            channels,
+            channels: normalizedChannels,
         };
 
         try {
