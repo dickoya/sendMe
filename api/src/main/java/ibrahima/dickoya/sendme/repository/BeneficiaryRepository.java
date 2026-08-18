@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> {
@@ -16,4 +17,7 @@ public interface BeneficiaryRepository extends JpaRepository<Beneficiary, Long> 
     // éviter la LazyInitializationException hors transaction (open-in-view=false).
     @EntityGraph(attributePaths = "channels")
     Page<Beneficiary> findByUserId(Long userId, Pageable pageable);
+
+    @EntityGraph(attributePaths = "channels")
+    Optional<Beneficiary> findById(Long id); 
 }
