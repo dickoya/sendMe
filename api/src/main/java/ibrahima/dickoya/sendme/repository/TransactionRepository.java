@@ -21,14 +21,20 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
        // la LazyInitializationException hors transaction (open-in-view=false),
        // notamment dans DashboardService.findFavoriteBeneficiary().
        @EntityGraph(attributePaths = "beneficiary")
-       Page<Transaction> findBySenderIdOrderByCreatedAtDesc(Long senderId, Pageable pageable);
+    Page<Transaction> findBySenderIdOrderByCreatedAtDesc(Long senderId, Pageable pageable);
 
-       Optional<Transaction> findByReference(String reference);
+    Optional<Transaction> findByReference(String reference);
 
-       Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
+    Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
 
-       Optional<Transaction> findByStripePaymentIntentId(String stripePaymentIntentId);
+    Optional<Transaction> findByStripePaymentIntentId(String stripePaymentIntentId);
 
+    @EntityGraph(attributePaths = {
+        "sender",
+        "beneficiary",
+        "beneficiary.channels"
+    })
+    Optional<Transaction> findById(Long id);
        /**
         * Récupère les transactions filtrées par statut pour un utilisateur.
         * Utilisé par l'endpoint de l'historique avec filtre.
