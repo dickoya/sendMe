@@ -165,12 +165,22 @@ public class ReferralService {
      */
     @Transactional
     public void rewardFirstTransfer(User user, Transaction transaction) {
-        // Vérifier que l'utilisateur a été parrainé
-        if (user.getReferredBy() == null) {
+        // Vérifier que l'utilisateur a été parrainé.
+        // NB : l'utilisateur passé peut être détaché (processTransfer n'est pas
+        // @Transactional et open-in-view=false). Son referredBy est alors un proxy
+        // lazy non initialisable. L'id d'un proxy lazy est accessible sans DB, on
+        // recharge donc le parrain dans la session courante.
+        User referredBy = user.getReferredBy();
+        if (referredBy == null) {
             return;
         }
 
-        User sponsor = user.getReferredBy();
+        User sponsor = userRepository.findById(referredBy.getId()).orElse(null);
+        if (sponsor == null) {
+            log.warn("[PARRAINAGE] Parrain introuvable (id={}), récompense ignorée",
+                    referredBy.getId());
+            return;
+        }
         String currency = transaction.getCurrencySent() != null ? transaction.getCurrencySent() : "EUR";
         LocalDateTime expiresAt = LocalDateTime.now().plusDays(COUPON_EXPIRY_DAYS);
 

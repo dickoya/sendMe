@@ -268,6 +268,8 @@ class ReferralServiceTest {
         void rewardFirstTransfer_ShouldCreateSponsorCoupon() {
             // Arrange
             user.setReferredBy(sponsor);
+            // Le parrain est rechargé par son id dans la session courante
+            when(userRepository.findById(sponsor.getId())).thenReturn(Optional.of(sponsor));
             when(couponRepository.countByUserIdAndCouponType(sponsor.getId(), "SPONSOR"))
                     .thenReturn(0L);
 
@@ -298,6 +300,7 @@ class ReferralServiceTest {
         void rewardFirstTransfer_ShouldNotDuplicate_WhenSponsorAlreadyHasCoupon() {
             // Arrange
             user.setReferredBy(sponsor);
+            when(userRepository.findById(sponsor.getId())).thenReturn(Optional.of(sponsor));
             when(couponRepository.countByUserIdAndCouponType(sponsor.getId(), "SPONSOR"))
                     .thenReturn(1L); // déjà un coupon existant
 

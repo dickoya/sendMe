@@ -527,13 +527,15 @@ public class TransferService {
                 // Parrainage : marquer le coupon comme utilisé
                 useReferralCouponIfApplicable(user, request.getCurrency(), transaction, simulation);
 
-                // Parrainage : récompenser le premier transfert du filleul
+                // Parrainage : récompenser le premier transfert du filleul.
+                // Non bloquant : le transfert est déjà COMPLETED, un échec de la
+                // récompense ne doit pas transformer la réponse en erreur.
                 try {
                         referralService.rewardFirstTransfer(user, transaction);
                 } catch (Exception e) {
-                        log.error("[PARRAINAGE] Erreur lors de la récompense du premier transfert", e);
-                        throw new ibrahima.dickoya.sendme.exception.ReferralException(
-                                        "Erreur lors de la récompense de parrainage", e);
+                        log.error(
+                                        "[PARRAINAGE] Erreur lors de la récompense du premier transfert (non bloquante)",
+                                        e);
                 }
 
                 return toResponse(transaction);
