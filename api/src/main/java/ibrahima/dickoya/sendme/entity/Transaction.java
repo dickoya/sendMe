@@ -35,7 +35,7 @@ public class Transaction {
     @Column(name = "currency_received")
     private String currencyReceived;
 
-    @Column(name = "exchange_rate")
+    @Column(name = "exchange_rate", precision = 15, scale = 6)
     private BigDecimal exchangeRate;
 
     private BigDecimal fees;
