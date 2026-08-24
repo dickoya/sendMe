@@ -5,6 +5,7 @@ import { NotificationProvider } from '@/store/notification/notificationContext.t
 import { AuthProvider } from '@/store/auth/authContext';
 import { ThemeProvider } from '@/store/theme/themeContext';
 import AppRoutes from '@/routes/AppRoutes';
+import CookieConsent from '@/components/layout/CookieConsent';
 
 /**
  * Composant racine de l'application.
@@ -24,6 +25,7 @@ function App() {
                     <ToastProvider>
                         <NotificationProvider>
                             <AppRoutes />
+                            <CookieConsent />
                         </NotificationProvider>
                     </ToastProvider>
                 </AuthProvider>

@@ -91,5 +91,12 @@
   },
   "footer": {
     "rights": "All rights reserved"
+  },
+  "cookieConsent": {
+    "label": "Cookie consent",
+    "message": "This site only uses the cookies and local storage strictly necessary for it to work properly (session, language, theme). No advertising or tracking cookies are set.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "policyLink": "Read the cookie policy"
   }
 }

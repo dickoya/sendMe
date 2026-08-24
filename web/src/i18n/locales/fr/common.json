@@ -91,5 +91,12 @@
   },
   "footer": {
     "rights": "Tous droits réservés"
+  },
+  "cookieConsent": {
+    "label": "Consentement aux cookies",
+    "message": "Ce site utilise uniquement les cookies et le stockage local strictement nécessaires à son bon fonctionnement (session, langue, thème). Aucun cookie publicitaire ou de suivi n'est déposé.",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "policyLink": "Consulter la politique des cookies"
   }
 }
