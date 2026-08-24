@@ -17,6 +17,9 @@
         "personalData": "Personal Data & GDPR",
         "cookies": "Cookie Policy",
         "terms": "Terms of Use",
+        "copyright": "Copyright & Intellectual Property",
+        "ecommerce": "E-commerce",
+        "responsibility": "Liability & Responsibility",
         "privacy": "Privacy & Security",
         "aml": "Anti-Money Laundering (AML)",
         "complaints": "Contact & Feedback"
@@ -71,6 +74,22 @@
             ]
         },
         {
+            "id": "general-3",
+            "category": "general",
+            "title": "Internet Law & Users' Rights",
+            "icon": "Globe",
+            "content": [
+                {
+                    "subtitle": "General framework",
+                    "text": "Internet law refers to the set of rules applying to networks and online services: freedom of information, consumer protection, data processing and the liability of web actors. These rules are rooted in Belgian and European law."
+                },
+                {
+                    "subtitle": "Users' rights",
+                    "text": "Any user of an online service must be clearly and prior informed of the terms of use and of the fate of their data. They may access the service, be informed of their rights and enforce them in case of a dispute."
+                }
+            ]
+        },
+        {
             "id": "pd-1",
             "category": "personalData",
             "title": "Data Protection Policy",
@@ -107,6 +126,14 @@
                 {
                     "subtitle": "How to exercise them",
                     "text": "To exercise these rights, please send a written request to: <a href=\"mailto:ib2diallo@gmail.com\" class=\"text-brand-600 dark:text-brand-400 underline\">ib2diallo@gmail.com</a>. We undertake to respond as soon as possible."
+                },
+                {
+                    "subtitle": "Right to be forgotten",
+                    "text": "You may ask at any time for the deletion of your personal data. At the end of the project and its evaluation, the demonstration data is permanently erased."
+                },
+                {
+                    "subtitle": "Complementary framework",
+                    "text": "Data processing falls within the scope of the <strong>GDPR</strong>, the <strong>Convention 108 of the Council of Europe</strong> and the Belgian law on the protection of privacy."
                 }
             ]
         },
@@ -165,8 +192,83 @@
                     "text": "The displayed rates and fees do not reflect <strong>any real financial market</strong> and cannot be used for a real operation."
                 }
             ]
-        }
-,
+        },
+        {
+            "id": "copyright-1",
+            "category": "copyright",
+            "title": "Copyright & Intellectual Property",
+            "icon": "Copyright",
+            "content": [
+                {
+                    "subtitle": "Website content",
+                    "text": "The structure of the website, its texts, visuals and logo are protected by copyright. They were produced within the scope of the TFE and may not be reproduced without the prior consent of the author."
+                },
+                {
+                    "subtitle": "Operator logos",
+                    "text": "The Mobile Money operator and institution logos shown on the site belong to their respective owners. They are used here solely for demonstration purposes and to recognise the channels."
+                },
+                {
+                    "subtitle": "Educational use",
+                    "text": "As the project is carried out in an academic context, any reproduction, distribution or exploitation of the site's elements is subject to copyright and intellectual property rules."
+                }
+            ]
+        },
+        {
+            "id": "ecommerce-1",
+            "category": "ecommerce",
+            "title": "E-commerce & Best Practices",
+            "icon": "ShoppingCart",
+            "content": [
+                {
+                    "subtitle": "Framework",
+                    "text": "E-commerce is subject to rules aimed at protecting consumers: pre-contractual information, order confirmation, secure payment and withdrawal rights."
+                },
+                {
+                    "subtitle": "Application to the project",
+                    "text": "As SendMe is a demonstration, no real sale takes place. The payment flow uses <strong>Stripe in test mode</strong> with fictitious cards, in order to illustrate the best practices of an online merchant site."
+                },
+                {
+                    "subtitle": "Customer information",
+                    "text": "Fees and exchange rates are shown before a transfer is confirmed, in line with the transparency expected from an online payment service."
+                }
+            ]
+        },
+        {
+            "id": "responsibility-1",
+            "category": "responsibility",
+            "title": "Liability Relating to the Dissemination of Information",
+            "icon": "Gavel",
+            "content": [
+                {
+                    "subtitle": "Dissemination of information",
+                    "text": "The dissemination of information online engages the liability of its author. Published content must be lawful, must not harm the rights of third parties and must comply with applicable law."
+                },
+                {
+                    "subtitle": "Demonstration content",
+                    "text": "The information presented on the platform (operation, fees, rates) is fictitious and provided for illustration only. It does not engage the author's liability outside the educational framework."
+                },
+                {
+                    "subtitle": "Limitation",
+                    "text": "In the absence of a real commercial service, no contractual or non-contractual liability can be engaged as a result of using the demonstration."
+                }
+            ]
+        },
+        {
+            "id": "responsibility-2",
+            "category": "responsibility",
+            "title": "Liability of Providers and Hosts",
+            "icon": "ShieldAlert",
+            "content": [
+                {
+                    "subtitle": "Hosts and intermediaries",
+                    "text": "Under Belgian law, the liability of hosts and intermediate providers is regulated: they are generally not liable for the content they host as long as they are not aware of it."
+                },
+                {
+                    "subtitle": "Application",
+                    "text": "As the site is hosted on a demonstration environment, the rules on intermediate providers apply as a reference. In case of a reported content, we ensure its removal as soon as possible."
+                }
+            ]
+        },
         {
             "id": "pr-1",
             "category": "privacy",

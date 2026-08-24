@@ -17,6 +17,9 @@
         "personalData": "Données personnelles & RGPD",
         "cookies": "Politique des cookies",
         "terms": "Conditions d'utilisation",
+        "copyright": "Droit d'auteur",
+        "ecommerce": "E-commerce",
+        "responsibility": "Responsabilité",
         "privacy": "Vie privée & sécurité",
         "aml": "Lutte anti-blanchiment (AML)",
         "complaints": "Contact & évaluation"
@@ -71,6 +74,22 @@
             ]
         },
         {
+            "id": "general-3",
+            "category": "general",
+            "title": "Droit de l'Internet & droits des utilisateurs",
+            "icon": "Globe",
+            "content": [
+                {
+                    "subtitle": "Cadre général",
+                    "text": "Le droit de l'Internet désigne l'ensemble des règles qui s'appliquent aux réseaux et aux services en ligne : liberté d'information, protection des consommateurs, traitement des données et responsabilité des acteurs du web. Ces règles trouvent leur source dans le droit belge et dans le droit européen."
+                },
+                {
+                    "subtitle": "Droits des utilisateurs",
+                    "text": "Tout utilisateur d'un service en ligne doit être informé de manière claire et préalable des conditions d'utilisation et du sort de ses données. Il peut accéder au service, être informé de ses droits et les faire valoir en cas de litige."
+                }
+            ]
+        },
+        {
             "id": "pd-1",
             "category": "personalData",
             "title": "Politique de protection des données",
@@ -107,6 +126,14 @@
                 {
                     "subtitle": "Comment les exercer",
                     "text": "Pour exercer ces droits, adressez une demande écrite à : <a href=\"mailto:ib2diallo@gmail.com\" class=\"text-brand-600 dark:text-brand-400 underline\">ib2diallo@gmail.com</a>. Nous nous engageons à y répondre dans les meilleurs délais."
+                },
+                {
+                    "subtitle": "Droit à l'oubli",
+                    "text": "Vous pouvez demander à tout moment la suppression de vos données à caractère personnel. À la fin du projet et de son évaluation, les données de démonstration sont définitivement effacées."
+                },
+                {
+                    "subtitle": "Cadre complémentaire",
+                    "text": "Le traitement des données s'inscrit dans le cadre du <strong>RGPD</strong>, de la <strong>Convention 108 du Conseil de l'Europe</strong> et de la loi belge relative à la protection de la vie privée."
                 }
             ]
         },
@@ -165,8 +192,83 @@
                     "text": "Les taux et frais affichés ne reflètent <strong>aucun marché financier réel</strong> et ne peuvent pas être utilisés pour une opération réelle."
                 }
             ]
-        }
-,
+        },
+        {
+            "id": "copyright-1",
+            "category": "copyright",
+            "title": "Droit d'auteur & propriété intellectuelle",
+            "icon": "Copyright",
+            "content": [
+                {
+                    "subtitle": "Contenus du site",
+                    "text": "La structure du site, ses textes, ses visuels et son logo sont protégés par le droit d'auteur. Ils ont été réalisés dans le cadre du TFE et ne peuvent être reproduits sans l'accord préalable de l'auteur."
+                },
+                {
+                    "subtitle": "Logos des opérateurs",
+                    "text": "Les logos des opérateurs Mobile Money et des institutions représentés sur le site appartiennent à leurs propriétaires respectifs. Ils sont utilisés ici uniquement à des fins de démonstration et de reconnaissance des canaux."
+                },
+                {
+                    "subtitle": "Usage pédagogique",
+                    "text": "Le projet étant réalisé dans un cadre académique, toute reproduction, diffusion ou exploitation des éléments du site est soumise aux règles du droit d'auteur et de la propriété intellectuelle."
+                }
+            ]
+        },
+        {
+            "id": "ecommerce-1",
+            "category": "ecommerce",
+            "title": "E-commerce & bonnes pratiques",
+            "icon": "ShoppingCart",
+            "content": [
+                {
+                    "subtitle": "Cadre",
+                    "text": "Le commerce électronique est soumis à des règles visant à protéger le consommateur : information précontractuelle, confirmation de la commande, paiement sécurisé et droit de rétractation."
+                },
+                {
+                    "subtitle": "Application au projet",
+                    "text": "SendMe étant une démonstration, aucune vente réelle n'est réalisée. Le tunnel de paiement utilise le <strong>mode test de Stripe</strong> avec des cartes fictives, afin d'illustrer les bonnes pratiques d'un site marchand."
+                },
+                {
+                    "subtitle": "Information du client",
+                    "text": "Les frais et le taux de change sont affichés avant la validation d'un transfert, conformément au principe de transparence attendu d'un service de paiement en ligne."
+                }
+            ]
+        },
+        {
+            "id": "responsibility-1",
+            "category": "responsibility",
+            "title": "Responsabilité liée à la diffusion d'information",
+            "icon": "Gavel",
+            "content": [
+                {
+                    "subtitle": "Diffusion de l'information",
+                    "text": "La diffusion d'une information en ligne engage la responsabilité de son auteur. Le contenu publié doit être licite, ne pas porter atteinte aux droits de tiers et être conforme au droit applicable."
+                },
+                {
+                    "subtitle": "Contenu de la démonstration",
+                    "text": "Les informations présentées sur la plateforme (fonctionnement, tarifs, taux) sont fictives et fournies à titre illustratif. Elles n'engagent pas la responsabilité de l'auteur en dehors du cadre pédagogique."
+                },
+                {
+                    "subtitle": "Limitation",
+                    "text": "En l'absence de service commercial réel, aucune responsabilité contractuelle ou extracontractuelle ne saurait être engagée du fait de l'utilisation de la démonstration."
+                }
+            ]
+        },
+        {
+            "id": "responsibility-2",
+            "category": "responsibility",
+            "title": "Responsabilité des prestataires et hébergeurs",
+            "icon": "ShieldAlert",
+            "content": [
+                {
+                    "subtitle": "Hébergeurs et intermédiaires",
+                    "text": "En droit belge, la responsabilité des hébergeurs et des prestataires intermédiaires est encadrée : ils ne sont généralement pas tenus responsables des contenus qu'ils hébergent tant qu'ils n'en ont pas connaissance."
+                },
+                {
+                    "subtitle": "Application",
+                    "text": "Le site étant hébergé sur un environnement de démonstration, les règles relatives aux prestataires intermédiaires s'appliquent à titre de référence. En cas de signalement d'un contenu, nous veillons à son retrait dans les meilleurs délais."
+                }
+            ]
+        },
         {
             "id": "pr-1",
             "category": "privacy",
