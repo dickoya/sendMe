@@ -161,6 +161,7 @@
      collants (position: sticky) continuent de fonctionner. */
   html,
   body {
+    overflow-x: hidden;
     overflow-x: clip;
   }
 

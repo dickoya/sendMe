@@ -78,7 +78,7 @@ function Register() {
     ];
 
     return (
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-screen overflow-x-hidden flex-col">
             {/* Barre de navigation (full width) */}
             <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-lg dark:bg-[#0D0D0D]/80 dark:border-[#222222]/50">
 

@@ -20,13 +20,13 @@ function PrivateLayout() {
     const pageTitle = getPageTitle(location.pathname, t);
 
     return (
-        <div className="flex min-h-screen bg-gray-50 dark:bg-[#0D0D0D]">
+        <div className="flex min-h-screen overflow-x-hidden bg-gray-50 dark:bg-[#0D0D0D]">
 
             <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} variant="user" />
 
-            <div className="flex flex-1 flex-col">
+            <div className="flex min-w-0 flex-1 flex-col">
                 <Header title={pageTitle} onMenuClick={() => setSidebarOpen(true)} />
-                <main className="flex-1 p-4 md:p-6">
+                <main className="flex-1 w-full min-w-0 p-4 md:p-6">
                     <Outlet />
                 </main>
 

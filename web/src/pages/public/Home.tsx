@@ -660,8 +660,8 @@ function Home() {
                         <div>
                             <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">{t('footer.product')}</h4>
                             <ul className="mt-4 space-y-2">
-                                <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.features')}</a></li>
-                                <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li>
+                                {/* <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.features')}</a></li>
+                                <li><a href="#features" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.security')}</a></li> */}
                                 <li><a href="mailto:support@sendme.com" className="text-sm text-gray-500 hover:text-brand-500 transition-colors dark:text-gray-400 dark:hover:text-brand-400">{t('footer.support')}</a></li>
                             </ul>
                         </div>

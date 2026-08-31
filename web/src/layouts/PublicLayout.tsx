@@ -31,7 +31,7 @@ function PublicLayout() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50 dark:bg-[#0D0D0D]">
+        <div className="flex min-h-screen overflow-x-hidden flex-col bg-gray-50 dark:bg-[#0D0D0D]">
 
             {/* Header de navigation */}
             <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/80 backdrop-blur-lg dark:border-[#222222] dark:bg-[#0D0D0D]/80">
@@ -120,7 +120,7 @@ function PublicLayout() {
             </header>
 
             {/* Contenu principal */}
-            <main className={`flex-1 ${isWidePage ? '' : 'flex items-center justify-center px-4 pb-12'}`}>
+            <main className={`flex-1 w-full min-w-0 ${isWidePage ? '' : 'flex items-center justify-center px-4 pb-12'}`}>
                 <Outlet />
             </main>
         </div>

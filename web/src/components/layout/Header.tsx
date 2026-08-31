@@ -33,7 +33,7 @@ function Header({ title, onMenuClick }: HeaderProps) {
     return (
         <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white/80 backdrop-blur-md px-4 dark:border-[#222222] dark:bg-[#0D0D0D]/80 dark:backdrop-blur-md md:px-6">
 
-            <div className="flex items-center gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
                 <button
                     onClick={onMenuClick}
                     className="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 md:hidden"
@@ -41,10 +41,10 @@ function Header({ title, onMenuClick }: HeaderProps) {
                 >
                     <Menu size={20} />
                 </button>
-                {title && <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h1>}
+                {title && <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{title}</h1>}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex shrink-0 items-center gap-2">
                 <ThemeToggle />
                 <LanguageSwitcher />
                 <NotificationBell />

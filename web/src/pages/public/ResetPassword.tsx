@@ -54,7 +54,7 @@ function ResetPassword() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+        <div className="min-h-screen flex items-center justify-center overflow-x-hidden w-full bg-gray-50 dark:bg-gray-900 px-4">
             <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
                 {done ? (
                     <div className="text-center space-y-4">

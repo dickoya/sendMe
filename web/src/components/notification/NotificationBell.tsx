@@ -48,7 +48,7 @@ function NotificationBell() {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 z-50 mt-2 w-80 rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-[#333333] dark:bg-[#141414]">
+                <div className="absolute right-0 z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-2xl border border-gray-100 bg-white shadow-lg dark:border-[#333333] dark:bg-[#141414]">
                     {/* En-tête */}
                     <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 dark:border-[#222222]">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-[#EDEEF0]">{t('title')}</h3>
