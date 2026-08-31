@@ -18,6 +18,7 @@ import onboardingFr from './locales/fr/onboarding.json';
 import faqFr from './locales/fr/faq.json';
 import legalFr from './locales/fr/legal.json';
 import contactFr from './locales/fr/contact.json';
+import aboutFr from './locales/fr/about.json';
 
 // EN
 import commonEn from './locales/en/common.json';
@@ -35,6 +36,7 @@ import onboardingEn from './locales/en/onboarding.json';
 import faqEn from './locales/en/faq.json';
 import legalEn from './locales/en/legal.json';
 import contactEn from './locales/en/contact.json';
+import aboutEn from './locales/en/about.json';
 
 /**
  * Liste des namespaces disponibles dans l'application.
@@ -60,6 +62,7 @@ export const NAMESPACES = [
     'faq',
     'legal',
     'contact',
+    'about',
 ] as const;
 
 /**
@@ -101,6 +104,7 @@ i18n
                 faq: faqFr,
                 legal: legalFr,
                 contact: contactFr,
+                about: aboutFr,
             },
             en: {
                 common: commonEn,
@@ -118,6 +122,7 @@ i18n
                 faq: faqEn,
                 legal: legalEn,
                 contact: contactEn,
+                about: aboutEn,
             },
         },
         fallbackLng: 'fr',

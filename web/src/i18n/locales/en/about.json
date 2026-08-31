@@ -1,0 +1,52 @@
+{
+    "meta": {
+        "title": "About — SendMe",
+        "description": "Discover SendMe, the international money transfer platform: our mission, our values and our key figures."
+    },
+    "hero": {
+        "badge": "Our story",
+        "title": "Sending money should never be complicated",
+        "subtitle": "SendMe is an international money transfer platform designed to be fast, transparent and accessible to everyone, wherever you are in the world."
+    },
+    "mission": {
+        "badge": "Our mission",
+        "title": "Rethinking money transfers",
+        "p1": "Born from a final year project combining technical innovation and business rigor, SendMe aims to radically simplify the experience of sending money to Africa and beyond.",
+        "p2": "We believe sending money to your loved ones should be as simple as sending a message: a few seconds, a clear rate and no surprises. That is the promise we carry every day.",
+        "featuresTitle": "What sets us apart",
+        "features": [
+            { "title": "Instant", "description": "Your transfers are processed in seconds, not days." },
+            { "title": "Transparent", "description": "Fees shown upfront, with no hidden costs." },
+            { "title": "Secure", "description": "Bank-level protection for every transaction." },
+            { "title": "Accessible", "description": "A simple interface designed for every kind of user." }
+        ]
+    },
+    "stats": {
+        "title": "SendMe in numbers",
+        "subtitle": "Solid foundations for a reliable and high-performance experience.",
+        "items": [
+            { "value": "120+", "label": "Supported currencies" },
+            { "value": "6", "label": "Payment channels" },
+            { "value": "15+", "label": "Covered countries" },
+            { "value": "99.9%", "label": "Service availability" }
+        ]
+    },
+    "values": {
+        "badge": "Our values",
+        "title": "The principles that guide us",
+        "subtitle": "Every feature, every decision, every line of code is driven by these values.",
+        "items": [
+            { "title": "Trust first", "description": "Security and reliability are at the heart of everything we build." },
+            { "title": "Transparency", "description": "Clear rates and fees, with no gray areas." },
+            { "title": "Simplicity", "description": "A smooth experience, without unnecessary friction." },
+            { "title": "Innovation", "description": "Modern technology for a service that constantly evolves." }
+        ]
+    },
+    "cta": {
+        "title": "Ready to join SendMe?",
+        "subtitle": "Send money with confidence, anywhere in the world.",
+        "register": "Create an account",
+        "contact": "Contact us",
+        "legal": "Legal information"
+    }
+}

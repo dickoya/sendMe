@@ -1,0 +1,52 @@
+{
+    "meta": {
+        "title": "À propos — SendMe",
+        "description": "Découvrez SendMe, la plateforme de transfert d'argent international : notre mission, nos valeurs et nos chiffres clés."
+    },
+    "hero": {
+        "badge": "Notre histoire",
+        "title": "Envoyer de l'argent ne devrait jamais être compliqué",
+        "subtitle": "SendMe est une plateforme de transfert d'argent international conçue pour être rapide, transparente et accessible à tous, où que vous soyez dans le monde."
+    },
+    "mission": {
+        "badge": "Notre mission",
+        "title": "Réinventer le transfert d'argent",
+        "p1": "Née d'un projet de fin d'études alliant innovation technique et exigence métier, SendMe a pour ambition de simplifier radicalement l'expérience du transfert d'argent vers l'Afrique et au-delà.",
+        "p2": "Nous croyons qu'envoyer de l'argent à ses proches doit être aussi simple qu'envoyer un message : quelques secondes, un taux clair et aucune mauvaise surprise. C'est cette promesse que nous portons au quotidien.",
+        "featuresTitle": "Ce qui nous distingue",
+        "features": [
+            { "title": "Instantané", "description": "Vos transferts sont traités en quelques secondes, pas en jours." },
+            { "title": "Transparent", "description": "Des frais affichés à l'avance, sans aucun coût caché." },
+            { "title": "Sécurisé", "description": "Une protection de niveau bancaire pour chaque transaction." },
+            { "title": "Accessible", "description": "Une interface simple, pensée pour tous les profils d'utilisateurs." }
+        ]
+    },
+    "stats": {
+        "title": "SendMe en chiffres",
+        "subtitle": "Des fondations solides pour une expérience fiable et performante.",
+        "items": [
+            { "value": "120+", "label": "Devises supportées" },
+            { "value": "6", "label": "Canaux de paiement" },
+            { "value": "15+", "label": "Pays couverts" },
+            { "value": "99.9%", "label": "Disponibilité du service" }
+        ]
+    },
+    "values": {
+        "badge": "Nos valeurs",
+        "title": "Les principes qui nous guident",
+        "subtitle": "Chaque fonctionnalité, chaque décision, chaque ligne de code est portée par ces valeurs.",
+        "items": [
+            { "title": "La confiance d'abord", "description": "La sécurité et la fiabilité sont au cœur de tout ce que nous construisons." },
+            { "title": "La transparence", "description": "Des taux et des frais clairs, sans zone d'ombre." },
+            { "title": "La simplicité", "description": "Une expérience fluide, sans friction inutile." },
+            { "title": "L'innovation", "description": "Une technologie moderne pour un service qui évolue sans cesse." }
+        ]
+    },
+    "cta": {
+        "title": "Prêt à rejoindre SendMe ?",
+        "subtitle": "Envoyez de l'argent en toute confiance, partout dans le monde.",
+        "register": "Créer un compte",
+        "contact": "Nous contacter",
+        "legal": "Informations légales"
+    }
+}

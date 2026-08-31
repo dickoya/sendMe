@@ -16,7 +16,8 @@ function PublicLayout() {
     const isLegalPage = location.pathname === '/legal';
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
     const isContactPage = location.pathname === '/contact';
-    const isWidePage = isLegalPage || isContactPage;
+    const isAboutPage = location.pathname === '/about';
+    const isWidePage = isLegalPage || isContactPage || isAboutPage;
 
     useEffect(() => {
         if (isAuthPage) {
