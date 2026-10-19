@@ -59,6 +59,7 @@ api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+        const requestPath = originalRequest.url?.split('?')[0];
 
         // Ne pas intercepter si :
         // - Pas de réponse (erreur réseau)
@@ -69,7 +70,10 @@ api.interceptors.response.use(
             !error.response ||
             error.response.status !== 401 ||
             originalRequest._retry ||
-            originalRequest.url === '/auth/refresh'
+            requestPath === '/auth/refresh' ||
+            // A failed login is an authentication error to show on the login form.
+            // It must not be replaced by a refresh attempt using an old session token.
+            requestPath === '/auth/login'
         ) {
             return Promise.reject(error);
         }

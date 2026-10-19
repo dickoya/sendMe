@@ -32,7 +32,9 @@ function Login() {
             await login({email, password});
             navigate('/dashboard');
         } catch (err) {
-            setError(mapLoginError(err, t));
+            // Keep the API message as state and translate it at render time,
+            // so changing language updates an error that is already visible.
+            setError(getErrorMessage(err));
         } finally {
             setIsSubmitting(false);
         }
@@ -163,7 +165,7 @@ function Login() {
 
                                 {error && (
                                     <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600 border border-red-100 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800">
-                                        {error}
+                                        {mapLoginError(error, t)}
                                     </div>
                                 )}
 
@@ -202,11 +204,12 @@ function Login() {
     );
 }
 
-function mapLoginError(err: unknown, t: (key: string) => string): string {
-    const raw = getErrorMessage(err);
+function mapLoginError(raw: string, t: (key: string) => string): string {
     if (/suspendu|disabled|désactivé/i.test(raw)) return t('login.errors.accountDisabled');
     if (/trop de tentatives|too many attempts/i.test(raw)) return t('login.errors.tooManyAttempts');
-    if (/identifiants|invalid credentials|incorrect/i.test(raw)) return t('login.errors.invalidCredentials');
+    if (/identifiants|invalid credentials|incorrect|connexion impossible|unable to sign in/i.test(raw)) {
+        return t('login.errors.invalidCredentials');
+    }
     return raw;
 }
 

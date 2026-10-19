@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { authService } from '@/services/authService';
+import { STORAGE_KEYS } from '@/utils/constants';
 import Spinner from '@/components/ui/Spinner';
 import Alert from '@/components/ui/Alert';
 
@@ -38,8 +39,8 @@ function EmailVerification() {
                     setStatus('success');
                     // Stocker les tokens JWT reçus
                     if (response.data) {
-                        localStorage.setItem('accessToken', response.data.accessToken);
-                        localStorage.setItem('refreshToken', response.data.refreshToken);
+                        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, response.data.accessToken);
+                        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, response.data.refreshToken);
                     }
                     // Rediriger vers le dashboard après 3 secondes
                     setTimeout(() => {
